@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo "Capturing!" | dzen2 -ta c -y 0 -x 0 -p 20 -m -fg "#FEAEAE" -bg "#900000" &
+pid1="$!"
+question="$($DIR/kb-capture.py)"
+kill $pid1
+
+len="${#question}"
+echo "$question" | dzen2 -ta c -y 0 -x 0 -p 10 -m -fg "#FEAEAE" -bg "#410141" &
+pid1="$!"
+
+if [[ "$len" -lt 10 ]]; then
+    kill $pid1
+    echo "Aborted" | dzen2 -ta c -y 0 -x 0 -p 1 -m -bg "#FEAEAE" -fg "#110111" &
+    exit
+fi
+
+res=$(import -depth 3 -window root png:- | llm -xs "Answer this question as briefly as possible. Give only the code or command needed, no other explanations. The image provided is only to establish context of what the user is doing to help guide you with the needed code or command. For instance, they may be on a specific website trying to invoke an advanced search or an in editor" "Answer only with the code or command needed: $question"  --at - image/png)
+if [[ -z "$res" ]]; then
+    res=$(llm -xs "Answer this question as briefly as possible. Give only the code or command needed, no other explanations."  "Answer only with the code or command needed: $question" )
+fi
+kill $pid1
+echo "$question | $res" >> /tmp/llm-magic
+res=$(echo "$res" | sed -E 's/(^`|`$)//g')
+echo "$res" | dzen2 -ta c -y 0 -x 0 -p 1 -m -bg "#FEAEAE" -fg "#110111"
+
+for i in $(seq 0 "${#question}"); do
+    xdotool key BackSpace
+done
+
+xdotool type "$res"

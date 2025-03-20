@@ -1,0 +1,48 @@
+#!/bin/bash
+
+MDIR=/tmp/capture-magic
+LOG=$MDIR/$(date +%s).md
+MDREADER=$HOME/code/stream/sd.py
+[[ -r $MDREADER ]] || MDREADER=$(which glow)
+[[ -r $MDREADER ]] || MDREADER=cat
+[[ -d $MDIR ]] || mkdir $MDIR
+
+if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
+  model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
+else
+  model=$(llm models default)
+fi
+model=$(echo "$model" | cut -d '/' -f 2-)
+
+if [[ -n "$1" ]]; then
+  pane_id=$1
+  while [ 0 ]; do 
+    read -ep "$model > " input
+    convo_id=$(cat $MDIR/${pane_id}.convo)
+    [[ -z "$input" ]] && break
+    tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
+    {
+      diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null || echo && cat $MDIR/${pane_id}.new; 
+    } | grep -Ev '^$' | llm prompt "$input" --cid $convo_id | $MDREADER
+    cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+  done
+
+else
+  opts=
+  prompt="⤷"
+  pane_id=$(tmux display-message -p '#{pane_id}')
+  touch $MDIR/${pane_id}.convo 
+  convo_id=$( cat $MDIR/${pane_id}.convo )
+
+  tmux capture-pane -p | grep -Ev '^$' > $MDIR/${pane_id}.old
+  if [[ -n "$convo_id" ]]; then 
+      opts="--cid $convo_id"
+      prompt="⋮" 
+  fi
+  read -ep " $prompt $model > " input
+
+  tmux split-window -h "cat $MDIR/${pane_id}.old | llm $opts \"$input\" | $MDREADER; screen-query $pane_id \"$input\""
+  echo $last > $MDIR/pane-id
+
+  sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1" > $MDIR/${pane_id}.convo
+fi
