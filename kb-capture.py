@@ -63,8 +63,5 @@ ctx = record_display.record_create_context(
     }]
 )
 
-# Enable context and begin processing events
 record_display.record_enable_context(ctx, callback)
 
-# This will only execute when record_enable_context is done
-# record_display.record_free_context(ctx)
