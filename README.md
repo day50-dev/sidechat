@@ -2,11 +2,13 @@
 
 This is really my LLM terminal demo suite. It includes 3 basic things:
 
-    * X input interception (kb-capture.py + llm-magic)
-    * zsh interception (shell-hook.zsh)
-    * tmux screen share and chat (screen-query)
+* X input interception (kb-capture.py + llm-magic)
+* zsh interception (shell-hook.zsh)
+* tmux screen share and chat (screen-query)
 
 Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help you in a pinch instead of turn you into a manager and code reviewer of an junior dev AI assistant - not that there's anything wrong with that - I use them as well.
+
+If you aren't using my [streamdown](https://github.com/kristopolous/Streamdown) project with these for streaming markdown rendering in the browser, you're doing it wrong.
 
 ## Files
 
