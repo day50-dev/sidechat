@@ -6,7 +6,7 @@ This project aims to capture keyboard input and leverage a Large Language Model 
 
 *   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
 
-*   **llm-magic:** A shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2`. It includes a basic length check to prevent processing very short inputs.
+*   **llm-magic:** A shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
 *   **screen-query:** A script for interacting with a tmux session and an LLM. It captures the contents of a tmux pane, sends it to an LLM with a prompt, and displays the LLM's response using `mdreader` (or `cat` as a fallback). It also manages conversation history using a SQLite database.
 
