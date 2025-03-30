@@ -1,17 +1,19 @@
 # llmehelp
 
-This project aims to capture keyboard input and leverage a Large Language Model (LLM) to assist with tasks.
+This project aims to capture keyboard input and leverage a Large Language Model (LLM) to assist with tasks. It provides several tools for interacting with LLMs in different contexts.
 
 ## Files
 
-*   **kb-capture.py:** This Python script captures keyboard events using the `python-xlib` library. It connects to an X server, records key presses and releases, and converts them into strings. It includes a callback function that prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and allows for backspace functionality. It uses two X displays, `local_display` and `record_display`.
+*   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
 
-*   **llm-magic:** This shell script captures keyboard input using `kb-capture.py`, sends it to an LLM for processing, and then outputs the LLM's response using `dzen2` for display. It also includes logic to handle short inputs (aborting if the input is less than 10 characters). It kills the `dzen2` process after the LLM response is received.
+*   **llm-magic:** A shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2`. It includes a basic length check to prevent processing very short inputs.
 
-*   **screen-query:** For interacting with a tmux session and an LLM. It can capture the contents of a tmux pane, send it to an LLM along with a user prompt, and display the LLM's response using `mdreader` (which defaults to `cat` if `glow` or `sd.py` are not found). It also manages conversation history using a SQLite database.
+*   **screen-query:** A script for interacting with a tmux session and an LLM. It captures the contents of a tmux pane, sends it to an LLM with a prompt, and displays the LLM's response using `mdreader` (or `cat` as a fallback). It also manages conversation history using a SQLite database.
 
-*   **shell-hook.zsh:** This Zsh shell hook intercepts user input before it's executed. It constructs a prompt that includes system information and the user's input, sends this prompt to an LLM, and then replaces the user's input with the LLM's response. It uses a configuration file (`~/.config/io.datasette.llm/default_model.txt`) to determine the LLM model to use.
+*   **shell-hook.zsh:** A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
 
-*   **wrap.sh:** This script is a wrapper around `kb-capture.py` and `llm-magic`. It captures keyboard input using `kb-capture.py`, sends it to the LLM via `llm-magic`, and then types the LLM's response into the current context using `xdotool`.
+*   **wrap.sh:** A wrapper script that combines `kb-capture.py` and `llm-magic`. It captures keyboard input, sends it to the LLM, and then types the LLM's response into the current context using `xdotool`.  This script is a simplified version of `llm-magic`.
+
+
 
 
