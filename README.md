@@ -12,7 +12,6 @@ This project aims to capture keyboard input and leverage a Large Language Model 
 
 *   **shell-hook.zsh:** A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
 
-*   **wrap.sh:** A wrapper script that combines `kb-capture.py` and `llm-magic`. It captures keyboard input, sends it to the LLM, and then types the LLM's response into the current context using `xdotool`.  This script is a simplified version of `llm-magic`.
 
 
 
