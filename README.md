@@ -10,6 +10,8 @@ Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help
 
 If you aren't using my [streamdown](https://github.com/kristopolous/Streamdown) project with these for streaming markdown rendering in the browser, you're doing it wrong.
 
+These are designed to work in linux, under Xorg. There's a dzen2 dependency with the llm-magic and simonw's llm script for all of them.
+
 ## Files
 
 *   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
