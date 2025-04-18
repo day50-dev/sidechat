@@ -2,7 +2,7 @@
 
 MDIR=/tmp/capture-magic
 LOG=$MDIR/$(date +%s).md
-MDREADER=$HOME/code/stream/sd.py
+MDREADER=/home/chris/code/StreamingMarkdown/streamdown/sd.py
 [[ -r $MDREADER ]] || MDREADER=$(which glow)
 [[ -r $MDREADER ]] || MDREADER=cat
 [[ -d $MDIR ]] || mkdir $MDIR
@@ -17,13 +17,31 @@ model=$(echo "$model" | cut -d '/' -f 2-)
 if [[ -n "$1" ]]; then
   pane_id=$1
   while [ 0 ]; do 
-    read -ep "$model > " input
+    read -ep "$model *> " input
     convo_id=$(cat $MDIR/${pane_id}.convo)
     [[ -z "$input" ]] && break
+
+    ata=""
+    # Check for /add command
+    if [[ $input =~ ^/add[[:space:]]+([^[:space:]]+)[[:space:]]+(.*)$ ]]; then
+      cmd=${BASH_REMATCH[1]}
+      echo $cmd
+      filename=${BASH_REMATCH[1]}
+      text=${BASH_REMATCH[2]}
+      ata="-a $filename"
+    elif [[ $input =~ ^/sshot[[:space:]]+(.*)$ ]]; then
+      sshot=$(mktemp --suffix=.png -p $MDIR)
+      import $sshot
+      ata="-a $sshot"
+      text=${BASH_REMATCH[1]}
+    else
+      text="$input"
+    fi
+
     tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
     {
-      diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null || echo && cat $MDIR/${pane_id}.new; 
-    } | grep -Ev '^$' | llm prompt "$input" --cid $convo_id | $MDREADER
+      diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
+    } | grep -Ev '^$' | llm "$text" $ata --cid $convo_id | tee -a $MDIR/log.txt | $MDREADER
     cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
   done
 
