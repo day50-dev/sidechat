@@ -10,7 +10,8 @@ Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help
 
 If you aren't using my [streamdown](https://github.com/kristopolous/Streamdown) project with these for streaming markdown rendering in the browser, you're doing it wrong.
 
-These are designed to work in linux, under Xorg. There's a dzen2 dependency with the llm-magic and simonw's llm script for all of them.
+These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
+You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
 
 ## Files
 
