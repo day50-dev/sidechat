@@ -25,7 +25,7 @@ You can hook this into a hotkey. I think basically every WM updated in the past 
 
 ## Future work
 
-There's this interesting terminals called [waveterm](https://www.waveterm.dev/) and [warp](https://www.warp.dev/) basically an i3/tmux merge point with some kind of chat built in to the side. Then there's this thing called [windsurf](https://windsurf.com/editor) that looks at your behavior as you navigate around. The idea here, is to extend screen-query to be a less clunky version of [ai-chat](https://github.com/sigoden/aichat) that looks at your various tmux panes, uses [procfs](https://en.wikipedia.org/wiki/Procfs) to be a paired programmer. The problem with things like [aider](https://aider.chat/), [plandex](https://plandex.ai/) [codex](https://github.com/openai/codex) and [goose](https://github.com/block/goose) is it takes on too much of a role, as opposed to being a tool it tries to be a junior dev - taking on too much responsibility, making bad assumptions, and creating messes. 
+There's this interesting terminals called [waveterm](https://www.waveterm.dev/) and [warp](https://www.warp.dev/) basically an i3/tmux merge point with some kind of chat built in to the side. Then there's this IDE called [windsurf](https://windsurf.com/editor) that looks at your behavior as you navigate around. The idea here, is to extend screen-query to be a less clunky version of [ai-chat](https://github.com/sigoden/aichat) that looks at your various tmux panes, uses [procfs](https://en.wikipedia.org/wiki/Procfs) to be a paired programmer. The problem with things like [aider](https://aider.chat/), [plandex](https://plandex.ai/) [codex](https://github.com/openai/codex) and [goose](https://github.com/block/goose) is it takes on too much of a role, as opposed to being a tool it tries to be a junior dev - taking on too much responsibility, making bad assumptions, and creating messes. 
 
 I think I synthesized this on this HN comment on 2025-04-19: 
 
@@ -37,5 +37,11 @@ You can see this in the featured demos. They are all "starting from 0" points of
 As human knowledge (and opinion) progresses, ai needs to plays a "co" role - co-expert, co-craftsman, co-reference. Take the [streamdown](https://github.com/kristopolous/Streamdown) project I mentioned before. As time progressed and I discovered more subtle bugs time and time again I found that they were inserted by the vibe-coding AI I did early on to get myself started. The percentage of the code that is AI basically went from maybe 90% on first commit to perhaps 10% now, where it's slowly asymptotically decreasing because it continues to be able to only make what I call Day-0 or Day-1 contributions to a project I've reached Day-30 on.
 
 The fidelity of this nuance has to be crisp without introducing the noise and the context of the HCI will get us there. That's where screen-query is going next.
+
+It's not just prompting a single llm. Take [teapot](https://huggingface.co/teapotai/teapotllm) for example - there's many models that excel at certain modalities of interaction. The key is to slot these multi-agents into a proper stack using things such as file contents, commit histories, documentation, tests, and user interaction to get past Day-0/1 contributions and stop producing coding slop when quality starts mattering.
+
+There's a famous 2019 essay called [the bitter lesson](http://www.incompleteideas.net/IncIdeas/BitterLesson.html) about how sophistication of models and complexity of solution are simply getting out-classed by naive "more compute" solutions. This is not that. These problems require problem contextualization and more nuanced presumptions with more clever AI can't get you there. This is wildly observable in humans. There is no human that can just sit down at a company and be productive on day 1 of a complex project, making meaningful contributions. 
+
+All code is institutional and all institutions are collective behavior and all behaviors are learned and poorly documented. Therein lies the next step-change
 
 ~chris 2025-04-20
