@@ -23,6 +23,8 @@ You can hook this into a hotkey. I think basically every WM updated in the past 
 
 *   **shell-hook.zsh:** A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
 
+*   **sd-picker:** A bash shell that works with streamdown's savebrace feature that will allow for an easy browsing of the most recent 40 or so braces from the screen-query discussion to easy in any copy/paste job
+
 ## Future work
 
 There's interesting terminals called [waveterm](https://www.waveterm.dev/) and [warp](https://www.warp.dev/) basically an i3/tmux merge point with some kind of chat built in to the side. Then there's this IDE called [windsurf](https://windsurf.com/editor) that looks at your behavior as you navigate around. The idea here, is to extend screen-query to be a less clunky version of [ai-chat](https://github.com/sigoden/aichat) that looks at your various tmux panes, uses [procfs](https://en.wikipedia.org/wiki/Procfs) to be a paired programmer. The problem with things like [aider](https://aider.chat/), [plandex](https://plandex.ai/) [codex](https://github.com/openai/codex) and [goose](https://github.com/block/goose) is it takes on too much of a role, as opposed to being a tool it tries to be a junior dev - taking on too much responsibility, making bad assumptions, and creating messes. 

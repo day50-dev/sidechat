@@ -1,0 +1,5 @@
+#!/bin/bash
+selected=$(tail -40 /tmp/sd/savebrace | fzf --no-sort --tac)
+if [ -n "$selected" ]; then
+    tmux send-keys -t "$TMUX_PANE" "$selected" 
+fi
