@@ -39,7 +39,7 @@ if [[ -n "$1" ]]; then
     elif [[ $input == "/off" ]]; then
       echo "Capturing off"
       prompt="$model >"
-      capture=1
+      capture=
       continue
     elif [[ $input == "/on" ]]; then
       echo "Capturing on"
@@ -50,7 +50,7 @@ if [[ -n "$1" ]]; then
       text="$input"
     fi
 
-    if [[ $capture ]]; then
+    if [[ -n "$capture" ]]; then
       tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
       {
         diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
