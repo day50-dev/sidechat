@@ -38,9 +38,11 @@ if [[ -n "$1" ]]; then
     elif [[ $input == "/off" ]]; then
       echo "Capturing off"
       capture=1
+      continue
     elif [[ $input == "/on" ]]; then
       echo "Capturing on"
       capture=0
+      continue
     else
       text="$input"
     fi
