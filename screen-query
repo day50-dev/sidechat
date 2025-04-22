@@ -17,8 +17,9 @@ model=$(echo "$model" | cut -d '/' -f 2-)
 if [[ -n "$1" ]]; then
   pane_id=$1
   capture=0
+  prompt="$model 📷 >"
   while [ 0 ]; do 
-    read -ep "$model *> " input
+    read -ep "$prompt " input
     convo_id=$(cat $MDIR/${pane_id}.convo)
     [[ -z "$input" ]] && break
 
@@ -37,10 +38,12 @@ if [[ -n "$1" ]]; then
       text=${BASH_REMATCH[1]}
     elif [[ $input == "/off" ]]; then
       echo "Capturing off"
+      prompt="$model >"
       capture=1
       continue
     elif [[ $input == "/on" ]]; then
       echo "Capturing on"
+      prompt="$model 📷 >"
       capture=0
       continue
     else
