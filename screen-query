@@ -2,7 +2,7 @@
 
 MDIR=/tmp/capture-magic
 LOG=$MDIR/$(date +%s).md
-MDREADER=/home/chris/code/StreamingMarkdown/streamdown/sd.py
+MDREADER=$(which sd)
 [[ -r $MDREADER ]] || MDREADER=$(which glow)
 [[ -r $MDREADER ]] || MDREADER=cat
 [[ -d $MDIR ]] || mkdir $MDIR
