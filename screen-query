@@ -16,6 +16,7 @@ model=$(echo "$model" | cut -d '/' -f 2-)
 
 if [[ -n "$1" ]]; then
   pane_id=$1
+  capture=0
   while [ 0 ]; do 
     read -ep "$model *> " input
     convo_id=$(cat $MDIR/${pane_id}.convo)
@@ -34,15 +35,26 @@ if [[ -n "$1" ]]; then
       import $sshot
       ata="-a $sshot"
       text=${BASH_REMATCH[1]}
+    elif [[ $input == "/off" ]]; then
+      echo "Capturing off"
+      capture=1
+    elif [[ $input == "/on" ]]; then
+      echo "Capturing on"
+      capture=0
     else
       text="$input"
     fi
 
-    tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
-    {
-      diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
-    } | grep -Ev '^$' | llm "$text" $ata --cid $convo_id | tee -a $MDIR/log.txt | $MDREADER
-    cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+    if [[ $capture ]]; then
+      tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
+      {
+        diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
+      } | grep -Ev '^$' | llm "$text" $ata --cid $convo_id | tee -a $MDIR/log.txt | $MDREADER
+      
+      cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+    else
+      llm "$text" $ata --cid $convo_id | tee -a $MDIR/log.txt | $MDREADER
+    fi
   done
 
 else
