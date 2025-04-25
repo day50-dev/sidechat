@@ -1,6 +1,7 @@
 #!/bin/bash
+# bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
 
-MDIR=/tmp/capture-magic
+MDIR=/tmp/screen-query
 LOG=$MDIR/$(date +%s).md
 MDREADER=$(which sd)
 [[ -r $MDREADER ]] || MDREADER=$(which glow)
@@ -8,76 +9,89 @@ MDREADER=$(which sd)
 [[ -d $MDIR ]] || mkdir $MDIR
 
 if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
-  model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
+    model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
 else
-  model=$(llm models default)
+    model=$(llm models default)
 fi
-model=$(echo "$model" | cut -d '/' -f 2-)
 
-if [[ -n "$1" ]]; then
-  pane_id=$1
-  capture=0
-  prompt="$model 📷 >"
-  while [ 0 ]; do 
+model=$(echo "$model" | cut -d '/' -f 2-)
+system=$(cat <<END
+You are an interactive ai debugging buddy connected to a terminal. 
+You are going to be getting screen scrapes of $(whoami)'s terminal as they ask you questions. 
+The uname -ar is "$(uname -ar)". 
+$(whoami)'s normal PS1 is $PS1 and will be moving back and forth, talking to you and trying things out. 
+You will be getting new screen scrapes as the conversation progresses. 
+$(whoami) is using a formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
+If you receive input starting with a / then $(whoami) was trying to use a slash command at the prompt that was not recognized. 
+It is likely to be a typo and was not intended for you.
+END
+)
+
+pane_id=$1
+touch $MDIR/${pane_id}.convo 
+capture=0
+prompt="$model 📷 >"
+# we start with an empty file.
+touch $MDIR/${pane_id}.old
+conv=
+convo_id=$(cat $MDIR/${pane_id}.convo)
+
+if [[ -n "$convo_id" ]]; then 
+    echo "$pane_id: Using convo $convo_id"
+else
+    echo "$pane_id: New convo"
+fi
+
+while [ 0 ]; do 
+    echo
     read -ep "$prompt " input
+    echo 
+
     convo_id=$(cat $MDIR/${pane_id}.convo)
+    if [[ -n "$convo_id" ]]; then 
+      conv="--cid $convo_id"
+    fi
     [[ -z "$input" ]] && break
 
     ata=""
     # Check for /add command
     if [[ $input =~ ^/add[[:space:]]+([^[:space:]]+)[[:space:]]+(.*)$ ]]; then
-      cmd=${BASH_REMATCH[1]}
-      echo $cmd
-      filename=${BASH_REMATCH[1]}
-      text=${BASH_REMATCH[2]}
-      ata="-a $filename"
+        cmd=${BASH_REMATCH[1]}
+        echo $cmd
+        filename=${BASH_REMATCH[1]}
+        text=${BASH_REMATCH[2]}
+        ata="-a $filename"
     elif [[ $input =~ ^/sshot[[:space:]]+(.*)$ ]]; then
-      sshot=$(mktemp --suffix=.png -p $MDIR)
-      import $sshot
-      ata="-a $sshot"
-      text=${BASH_REMATCH[1]}
+        sshot=$(mktemp --suffix=.png -p $MDIR)
+        import $sshot
+        ata="-a $sshot"
+        text=${BASH_REMATCH[1]}
     elif [[ $input == "/off" ]]; then
-      echo "Capturing off"
-      prompt="$model >"
-      capture=
-      continue
+        echo "Capturing off"
+        prompt="$model >"
+        capture=
+        continue
     elif [[ $input == "/on" ]]; then
-      echo "Capturing on"
-      prompt="$model 📷 >"
-      capture=0
-      continue
+        echo "Capturing on"
+        prompt="$model 📷 >"
+        capture=0
+        continue
     else
-      text="$input"
+        text="$input"
     fi
 
     if [[ -n "$capture" ]]; then
-      tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
-      {
-        diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
-      } | grep -Ev '^$' | llm "$text" $ata --cid $convo_id | tee -a $MDIR/log.txt | $MDREADER
-      
-      cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+        tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
+        {
+            diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
+        } | grep -Ev '^$' | llm "$text" -s "$system" $ata $conv | tee -a $MDIR/log.txt | $MDREADER
+
+        cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
     else
-      llm "$text" $ata --cid $convo_id | tee -a $MDIR/log.txt | $MDREADER
+        llm "$text" -s "$system" $ata $conv | tee -a $MDIR/log.txt | $MDREADER
     fi
-  done
 
-else
-  opts=
-  prompt="⤷"
-  pane_id=$(tmux display-message -p '#{pane_id}')
-  touch $MDIR/${pane_id}.convo 
-  convo_id=$( cat $MDIR/${pane_id}.convo )
-
-  tmux capture-pane -p | grep -Ev '^$' > $MDIR/${pane_id}.old
-  if [[ -n "$convo_id" ]]; then 
-      opts="--cid $convo_id"
-      prompt="⋮" 
-  fi
-  read -ep " $prompt $model > " input
-
-  tmux split-window -h "cat $MDIR/${pane_id}.old | llm -s \"You are an interactive ai debugging buddy connected to a terminal. You are going to be getting screen scrapes of the user, $(whoami), terminal as they ask you questions. The uname -ar is $(uname -ar). Their normal PS1 is $PS1. They will be cycling back and forth, talking to you and trying things out. You will be getting new screen scrapes as the conversation progresses. They are using a formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. If you receive input with a /, then they were trying to use a slash command at the prompt that was not recognized. It is likely to be a typo and was not intended for you.\" $opts \"$input\" | $MDREADER; screen-query $pane_id \"$input\""
-  echo $last > $MDIR/pane-id
-
-  sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1" > $MDIR/${pane_id}.convo
-fi
+    if [[ -z "$convo_id" ]]; then
+        sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1" > $MDIR/${pane_id}.convo
+    fi
+done
