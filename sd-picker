@@ -1,5 +1,5 @@
 #!/bin/bash
-selected=$(tail -40 /tmp/sd/savebrace | fzf --no-sort --tac)
+selected=$(perl -0777 -ne 'print join("\0", (split(/\0/, $_))[-10..-1])' /tmp/sd/savebrace | fzf --read0 --ansi --multi --no-sort --tac --highlight-line --gap)
 if [ -n "$selected" ]; then
     tmux send-keys -t "$TMUX_PANE" "$selected" 
 fi
