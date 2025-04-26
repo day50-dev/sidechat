@@ -55,12 +55,17 @@ while [ 0 ]; do
 
     ata=""
     # Check for /add command
-    if [[ $input =~ ^/add[[:space:]]+([^[:space:]]+)[[:space:]]+(.*)$ ]]; then
+    if [[ $input =~ ^/add[[:space:]]+([^[:space:]]+)$ ]]; then
         cmd=${BASH_REMATCH[1]}
-        echo $cmd
         filename=${BASH_REMATCH[1]}
         text=${BASH_REMATCH[2]}
-        ata="-a $filename"
+        if [[ -e "$filename" ]]; then
+            echo "Adding $filename"
+            cat $filename | llm "$(whoami) is adding a file through a slash command. It is named $filename." -s "$system" $conv > /dev/null
+        else
+            echo "Woops, check your spelling, ($filename) not found"
+        fi
+        continue
     elif [[ $input =~ ^/sshot[[:space:]]+(.*)$ ]]; then
         sshot=$(mktemp --suffix=.png -p $MDIR)
         import $sshot
