@@ -8,7 +8,7 @@ A set of HCI workflows for interacting with LLMs, with novel approaches to addin
 
 Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help you in a pinch instead of turn you into a manager and code reviewer of an junior dev AI assistant - not that there's anything wrong with that - I use them as well.
 
-If you aren't using my [streamdown](https://github.com/kristopolous/Streamdown) project with these for streaming markdown rendering in the terminal, you're doing it wrong.
+If you aren't using the optional [streamdown](https://github.com/kristopolous/Streamdown) with these, you're missing out on many great features.
 
 These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
 You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
