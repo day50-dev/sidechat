@@ -2,13 +2,28 @@
 
 A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
 
+## screen-query and sd-picker
+
+This is probably what you're here for. Here's a rundown:
+
+In `~/.tmux.conf` add something like this:
+
+    bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
+    bind j display-popup -E "sd-picker"
+
+where `screen-query` and `sd-picker` is in your path.
+
+You need a modernish version of [fzf](https://github.com/junegunn/fzf) so go get that. Also you need [streamdown](https://github.com/kristopolous/Streamdown) so get that as well. Finally you need [simonw's llm](https://github.com/simonw/llm). 
+
+Here's some screenshots:
+
+
 * X input interception (kb-capture.py + llm-magic)
 * zsh interception (shell-hook.zsh)
 * tmux screen share and chat (screen-query)
 
 Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help you in a pinch instead of turn you into a manager and code reviewer of an junior dev AI assistant - not that there's anything wrong with that - I use them as well.
 
-If you aren't using the optional [streamdown](https://github.com/kristopolous/Streamdown) with these, you're missing out on many great features.
 
 These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
 You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
