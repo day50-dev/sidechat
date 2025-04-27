@@ -16,7 +16,15 @@ where `screen-query` and `sd-picker` is in your path.
 You need a modernish version of [fzf](https://github.com/junegunn/fzf) so go get that. Also you need [streamdown](https://github.com/kristopolous/Streamdown) so get that as well. Finally you need [simonw's llm](https://github.com/simonw/llm). 
 
 Here's some screenshots:
+![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
 
+![2025-04-26_18-49](https://github.com/user-attachments/assets/c8b98e30-cd09-47bc-b751-02a929a82703)
+
+![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
+
+## Other tools
+
+Here's some other things:
 
 * X input interception (kb-capture.py + llm-magic)
 * zsh interception (shell-hook.zsh)
