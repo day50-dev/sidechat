@@ -13,7 +13,7 @@ In `~/.tmux.conf` add something like this:
 
 where `screen-query` and `sd-picker` is in your path.
 
-You need a modernish version of [fzf](https://github.com/junegunn/fzf) so go get that. Also you need [streamdown](https://github.com/kristopolous/Streamdown) so get that as well. Finally you need [simonw's llm](https://github.com/simonw/llm). 
+You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
 Here's some screenshots:
 ![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
