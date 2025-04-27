@@ -1,6 +1,6 @@
 # llmehelp
 
-This is really my LLM terminal demo suite. It includes 3 basic things:
+A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
 
 * X input interception (kb-capture.py + llm-magic)
 * zsh interception (shell-hook.zsh)
