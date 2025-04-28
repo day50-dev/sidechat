@@ -30,7 +30,7 @@ END
 pane_id=$1
 touch $MDIR/${pane_id}.convo 
 capture=0
-prompt="$model 📷 >"
+prompt="$model $pane_id:📷 >"
 # we start with an empty file.
 touch $MDIR/${pane_id}.old
 conv=
@@ -42,6 +42,16 @@ else
     echo "$pane_id: New convo"
 fi
 
+flash() {
+    tmux select-pane -t $pane_id -P 'bg=colour95'   ; sleep 0.02
+    tmux select-pane -t $pane_id -P 'bg=default'; sleep 0.04
+    tmux select-pane -t $pane_id -P 'bg=color129' ; sleep 0.02
+    tmux select-pane -t $pane_id -P 'bg=default'; sleep 0.04
+    prompt="$model $pane_id:📷 >"
+    tmux select-pane -t $my_id
+}
+
+my_id=$(tmux display-message -p '#{pane_id}')
 while [ 0 ]; do 
     echo
     read -ep "$prompt " input
@@ -55,15 +65,20 @@ while [ 0 ]; do
 
     ata=""
     # Check for /add command
-    if [[ $input =~ ^/add[[:space:]]+([^[:space:]]+)$ ]]; then
+    if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
         cmd=${BASH_REMATCH[1]}
         filename=${BASH_REMATCH[1]}
         text=${BASH_REMATCH[2]}
-        if [[ -e "$filename" ]]; then
-            echo "Adding $filename"
-            cat $filename | llm "$(whoami) is adding a file through a slash command. It is named $filename." -s "$system" $conv > /dev/null
+        if [[ "${filename:0:1}" == "/" ]]; then
+            if [[ -e "$filename" ]]; then
+                echo "Adding $filename"
+                cat $filename | llm "$(whoami) is adding a file through a slash command. It is named $filename." -s "$system" $conv > /dev/null
+            else
+                echo "Woops, check your spelling, ($filename) not found"
+            fi
         else
-            echo "Woops, check your spelling, ($filename) not found"
+            echo "Running $filename"
+            $filename | llm "$(whoami) is adding the output of $filename" -s "$system" $conv > /dev/null
         fi
         continue
     elif [[ $input =~ ^/sshot[[:space:]]+(.*)$ ]]; then
@@ -71,14 +86,38 @@ while [ 0 ]; do
         import $sshot
         ata="-a $sshot"
         text=${BASH_REMATCH[1]}
+    elif [[ $input == "/help" ]]; then
+        cat <<END
+/add < path >       -  add a path to the context window
+/sshot < query >    -  take a screenshot and ask a question
+/choose             -  change the tmux capture focus
+/off                -  turn off tmux capture
+/on                 -  turn back on tmux capture
+END
+        continue
+    elif [[ $input == "/choose" ]]; then
+        tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
+        if [[ -e $MDIR/pane-id ]]; then 
+            pane_id=$(cat $MDIR/pane-id)
+            echo "Using $pane_id"
+            flash
+            rm $MDIR/pane-id
+            tmux select-pane -t $my_id
+            touch $MDIR/${pane_id}.{convo,old}
+        else
+            echo "Cancelled"
+        fi
+        continue
     elif [[ $input == "/off" ]]; then
+        flash
         echo "Capturing off"
         prompt="$model >"
         capture=
         continue
     elif [[ $input == "/on" ]]; then
+        flash
         echo "Capturing on"
-        prompt="$model 📷 >"
+        prompt="$model $pane_id:📷 >"
         capture=0
         continue
     else
