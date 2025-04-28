@@ -1,17 +1,5 @@
 #!/bin/bash
-# there's a few commands:
-# /sshot <english>
-#   allows you to take an imagemagick import screenshot
-#   Example:
-#   /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do?
-# /off
-#   stops sending tmux screen output every time
-# /on
-#   resumes sending tmux screen output every time
-# /add <path>
-#   inserts the contents of the file into the context window
-#   Note this is not the attachment protocol that is used for 
-#   multi-media - this can be done for all models.
+# there's a few commands and /help documents them
 
 MDIR=/tmp/screen-query
 LOG=$MDIR/$(date +%s).md
@@ -55,10 +43,10 @@ else
 fi
 
 flash() {
-    tmux select-pane -t $pane_id -P 'bg=colour95'   ; sleep 0.02
-    tmux select-pane -t $pane_id -P 'bg=default'; sleep 0.04
-    tmux select-pane -t $pane_id -P 'bg=color129' ; sleep 0.02
-    tmux select-pane -t $pane_id -P 'bg=default'; sleep 0.04
+    tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.02
+    tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
+    tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.02
+    tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
     prompt="$model $pane_id:📷 >"
     tmux select-pane -t $my_id
 }
@@ -69,10 +57,6 @@ while [ 0 ]; do
     read -ep "$prompt " input
     echo 
 
-    convo_id=$(cat $MDIR/${pane_id}.convo)
-    if [[ -n "$convo_id" ]]; then 
-      conv="--cid $convo_id"
-    fi
     [[ -z "$input" ]] && break
 
     ata=""
@@ -100,11 +84,12 @@ while [ 0 ]; do
         text=${BASH_REMATCH[1]}
     elif [[ $input == "/help" ]]; then
         cat <<END
-/add < path >       -  add a path to the context window
-/sshot < query >    -  take a screenshot and ask a question
-/choose             -  change the tmux capture focus
-/off                -  turn off tmux capture
-/on                 -  turn back on tmux capture
+/add < path | cmd > - add a path or command output to the context window
+/sshot < query >    - take an imagemagick screenshot and ask a question
+/mindwipe           - forget this crazy world and start over
+/choose             - change the tmux pane capture focus
+/off                - turn off tmux capture
+/on                 - turn back on tmux capture
 END
         continue
     elif [[ $input == "/choose" ]]; then
@@ -125,6 +110,10 @@ END
         echo "Capturing off"
         prompt="$model >"
         capture=
+        continue
+    elif [[ $input == "/mindwipe" ]]; then
+        echo "Memory has been wiped."
+        conv=
         continue
     elif [[ $input == "/on" ]]; then
         flash
@@ -147,7 +136,9 @@ END
         llm "$text" -s "$system" $ata $conv | tee -a $MDIR/log.txt | $MDREADER
     fi
 
-    if [[ -z "$convo_id" ]]; then
-        sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1" > $MDIR/${pane_id}.convo
+    if [[ -z "$conv" ]]; then
+        convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
+        echo $convo_id > $MDIR/${pane_id}.convo
+        conv="--cid $convo_id"
     fi
 done
