@@ -15,26 +15,7 @@ where `screen-query` and `sd-picker` is in your path.
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
-Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy.
-
- * /sshot [text]
- 
-    Allows you to take an imagemagick import screenshot. Your model needs to be multi-modal and support image attachments.
-   
-    Example:
-   
-    /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do? 
- * /off
-
-   Stops sending tmux screen output every time
- * /on
-
-   Resumes sending tmux screen output every time
- * /add [path]
-
-   Inserts the contents of the file into the context window
-   Note this is not the attachment protocol that is used for 
-   multi-media - this can be done for all models.
+Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy. Just enter `/help` to get the current list.
 
 BTW, there's a program called [ai-chat](https://github.com/sigoden/aichat) at the cli with lots of slash commands that's been around since 2022 if you like this flow. You could also easily modify screen-query to use it.
 
