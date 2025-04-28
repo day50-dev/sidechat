@@ -84,12 +84,12 @@ while [ 0 ]; do
         text=${BASH_REMATCH[1]}
     elif [[ $input == "/help" ]]; then
         cat <<END
-/add < path | cmd > - add a path or command output to the context window
-/sshot < query >    - take an imagemagick screenshot and ask a question
-/mindwipe           - forget this crazy world and start over
-/choose             - change the tmux pane capture focus
-/off                - turn off tmux capture
-/on                 - turn back on tmux capture
+  /add < path | cmd > - add a path or command output to the context window
+  /sshot < query >    - take an imagemagick screenshot and ask a question
+  /mindwipe           - forget this crazy world and start over
+  /choose             - change the tmux pane capture focus
+  /off                - turn off tmux capture
+  /on                 - turn back on tmux capture
 END
         continue
     elif [[ $input == "/choose" ]]; then
