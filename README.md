@@ -26,13 +26,13 @@ Once you're in there's a few slash commands. These are all dumb - there's no tab
     /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do? 
  * /off
 
-   stops sending tmux screen output every time
+   Stops sending tmux screen output every time
  * /on
 
-   resumes sending tmux screen output every time
+   Resumes sending tmux screen output every time
  * /add [path]
 
-   inserts the contents of the file into the context window
+   Inserts the contents of the file into the context window
    Note this is not the attachment protocol that is used for 
    multi-media - this can be done for all models.
 
