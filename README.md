@@ -17,6 +17,8 @@ You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamd
 
 Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy. Just enter `/help` to get the current list.
 
+It includes adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing... 
+
 BTW, there's a program called [ai-chat](https://github.com/sigoden/aichat) at the cli with lots of slash commands that's been around since 2022 if you like this flow. You could also easily modify screen-query to use it.
 
 Here's some screenshots:
