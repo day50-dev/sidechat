@@ -30,7 +30,7 @@ Once you're in there's a few slash commands
  * /on
 
    resumes sending tmux screen output every time
- * /add <path>
+ * /add [path]
 
    inserts the contents of the file into the context window
    Note this is not the attachment protocol that is used for 
