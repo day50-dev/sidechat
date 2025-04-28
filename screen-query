@@ -31,7 +31,6 @@ pane_id=$1
 touch $MDIR/${pane_id}.convo 
 capture=0
 prompt="$model $pane_id:📷 >"
-# we start with an empty file.
 touch $MDIR/${pane_id}.old
 conv=
 convo_id=$(cat $MDIR/${pane_id}.convo)
@@ -60,7 +59,7 @@ while [ 0 ]; do
     [[ -z "$input" ]] && break
 
     ata=""
-    # Check for /add command
+ 
     if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
         cmd=${BASH_REMATCH[1]}
         filename=${BASH_REMATCH[1]}
