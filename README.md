@@ -15,7 +15,7 @@ where `screen-query` and `sd-picker` is in your path.
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
-Once you're in there's a few slash commands
+Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy.
 
  * /sshot [text]
  
