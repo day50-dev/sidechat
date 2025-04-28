@@ -22,6 +22,8 @@ Here's some screenshots:
 
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
 
+The program, screen-query is meant to be really simple. Modify it as needed.
+
 ## Other tools
 
 Here's some other things:
