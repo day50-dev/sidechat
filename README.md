@@ -1,6 +1,55 @@
 # llmehelp
 
-This is really my LLM terminal demo suite. It includes 3 basic things:
+A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
+
+## screen-query and sd-picker
+
+This is probably what you're here for. Here's a rundown:
+
+In `~/.tmux.conf` add something like this:
+
+    bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
+    bind j display-popup -E "sd-picker"
+
+where `screen-query` and `sd-picker` is in your path.
+
+You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
+
+Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy.
+
+ * /sshot [text]
+ 
+    Allows you to take an imagemagick import screenshot. Your model needs to be multi-modal and support image attachments.
+   
+    Example:
+   
+    /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do? 
+ * /off
+
+   Stops sending tmux screen output every time
+ * /on
+
+   Resumes sending tmux screen output every time
+ * /add [path]
+
+   Inserts the contents of the file into the context window
+   Note this is not the attachment protocol that is used for 
+   multi-media - this can be done for all models.
+
+BTW, there's a program called [ai-chat](https://github.com/sigoden/aichat) at the cli with lots of slash commands that's been around since 2022 if you like this flow. You could also easily modify screen-query to use it.
+
+Here's some screenshots:
+![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
+
+![2025-04-26_18-49](https://github.com/user-attachments/assets/c8b98e30-cd09-47bc-b751-02a929a82703)
+
+![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
+
+The program, screen-query is meant to be really simple. Modify it as needed.
+
+## Other tools
+
+Here's some other things:
 
 * X input interception (kb-capture.py + llm-magic)
 * zsh interception (shell-hook.zsh)
@@ -8,7 +57,6 @@ This is really my LLM terminal demo suite. It includes 3 basic things:
 
 Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help you in a pinch instead of turn you into a manager and code reviewer of an junior dev AI assistant - not that there's anything wrong with that - I use them as well.
 
-If you aren't using my [streamdown](https://github.com/kristopolous/Streamdown) project with these for streaming markdown rendering in the terminal, you're doing it wrong.
 
 These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
 You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.

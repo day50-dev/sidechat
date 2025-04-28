@@ -1,5 +1,17 @@
 #!/bin/bash
-# bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
+# there's a few commands:
+# /sshot <english>
+#   allows you to take an imagemagick import screenshot
+#   Example:
+#   /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do?
+# /off
+#   stops sending tmux screen output every time
+# /on
+#   resumes sending tmux screen output every time
+# /add <path>
+#   inserts the contents of the file into the context window
+#   Note this is not the attachment protocol that is used for 
+#   multi-media - this can be done for all models.
 
 MDIR=/tmp/screen-query
 LOG=$MDIR/$(date +%s).md
