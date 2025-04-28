@@ -19,11 +19,11 @@ Once you're in there's a few slash commands. These are all dumb - there's no tab
 
  * /sshot [text]
  
-    allows you to take an imagemagick import screenshot
+    Allows you to take an imagemagick import screenshot. Your model needs to be multi-modal and support image attachments.
    
     Example:
    
-    /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do?
+    /sshot So you see here, I've set up the aws credentials, and it's still not working. Is there anything more I need to do? 
  * /off
 
    stops sending tmux screen output every time
