@@ -3,7 +3,7 @@
 A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
 
 ## screen-query and sd-picker
-[demo.webm](https://github.com/user-attachments/assets/501335f0-220a-4ed7-b299-c0a497bb69e0)
+[demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
 This is probably what you're here for. Here's a rundown:
 
