@@ -4,16 +4,15 @@
 MDIR=/tmp/screen-query
 LOG=$MDIR/$(date +%s).md
 MDREADER=$(which sd)
+[[ -r $MDREADER ]] || MDREADER=$(which glow)
+[[ -r $MDREADER ]] || MDREADER=cat
+[[ -d $MDIR ]] || mkdir $MDIR
 
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
 trap 'history -w "$HISTFILE"' EXIT
-
-[[ -r $MDREADER ]] || MDREADER=$(which glow)
-[[ -r $MDREADER ]] || MDREADER=cat
-[[ -d $MDIR ]] || mkdir $MDIR
 
 if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
     model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
