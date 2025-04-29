@@ -4,6 +4,13 @@
 MDIR=/tmp/screen-query
 LOG=$MDIR/$(date +%s).md
 MDREADER=$(which sd)
+
+HISTFILE="$MDIR/history"
+HISTSIZE=1000
+[[ -f "$HISTFILE" ]] || touch "$HISTFILE"
+history -r "$HISTFILE"
+trap 'history -w "$HISTFILE"' EXIT
+
 [[ -r $MDREADER ]] || MDREADER=$(which glow)
 [[ -r $MDREADER ]] || MDREADER=cat
 [[ -d $MDIR ]] || mkdir $MDIR
@@ -57,7 +64,7 @@ while [ 0 ]; do
     echo 
 
     [[ -z "$input" ]] && break
-
+    history -s "$input"  # Save to history
     ata=""
  
     if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
@@ -104,6 +111,9 @@ END
             echo "Cancelled"
         fi
         continue
+    elif [[ $input == "/flash" ]]; then
+        flash
+        continue
     elif [[ $input == "/off" ]]; then
         flash
         echo "Capturing off"
@@ -124,15 +134,19 @@ END
         text="$input"
     fi
 
+    # synchronize input & output
+    { echo -e "\n\n"; uuidgen; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
+    echo "($text)" >> $MDIR/input.txt
+
     if [[ -n "$capture" ]]; then
         tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
         {
             diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
-        } | grep -Ev '^$' | llm "$text" -s "$system" $ata $conv | tee -a $MDIR/log.txt | $MDREADER
+        } | grep -Ev '^$' | tee -a $MDIR/input.txt | llm "$text" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
 
         cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
     else
-        llm "$text" -s "$system" $ata $conv | tee -a $MDIR/log.txt | $MDREADER
+        llm "$text" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
     fi
 
     if [[ -z "$conv" ]]; then
