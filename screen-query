@@ -49,7 +49,6 @@ END
 pane_id=$1
 touch $MDIR/${pane_id}.convo 
 capture=0
-prompt="$model $pane_id:📷 >"
 touch $MDIR/${pane_id}.old
 conv=
 convo_id=$(cat $MDIR/${pane_id}.convo)
@@ -65,10 +64,15 @@ flash() {
     tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
     tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.02
     tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
-    prompt="$model $pane_id:📷 >"
+    set_prompt
     tmux select-pane -t $my_id
 }
 
+set_prompt() {
+    base="$model"
+    [[ -n "$capture" ]] && base="$base $pane_id:📷"
+    prompt="$base > "
+}
 
 choose() {
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
@@ -85,9 +89,10 @@ choose() {
 }
 
 my_id=$(tmux display-message -p '#{pane_id}')
+set_prompt
 while [ 0 ]; do 
     echo
-    read -ep "$prompt " input
+    read -ep "$prompt" input
     echo 
 
     [[ -z "$input" ]] && break
@@ -127,7 +132,7 @@ while [ 0 ]; do
     elif [[ $input == "/off" ]]; then
         flash
         echo "Capturing off"
-        prompt="$model >"
+        set_prompt
         capture=
         continue
     elif [[ $input == "/mindwipe" ]]; then
@@ -137,7 +142,7 @@ while [ 0 ]; do
     elif [[ $input == "/on" ]]; then
         flash
         echo "Capturing on"
-        prompt="$model $pane_id:📷 >"
+        set_prompt
         capture=0
         continue
     else
@@ -145,7 +150,7 @@ while [ 0 ]; do
     fi
 
     # synchronize input & output
-    { echo -e "\n\n"; uuidgen; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
+    { echo -e "\n\n"; echo "$convo_id":$(uuidgen); } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
     if [[ -n "$capture" ]]; then
