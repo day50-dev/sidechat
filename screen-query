@@ -21,16 +21,28 @@ else
     model=$(llm models default)
 fi
 
+help() {
+  cat <<END
+  /add < path | cmd > - add a path or command output to the context window
+  /sshot < query >    - take an imagemagick screenshot and ask a question
+  /mindwipe           - forget this crazy world and start over
+  /flash              - flash the current focus
+  /choose             - change the tmux pane capture focus
+  /off                - turn off capture
+  /on                 - turn on capture
+END
+}
+
 model=$(echo "$model" | cut -d '/' -f 2-)
 system=$(cat <<END
 You are an interactive ai debugging buddy connected to a terminal. 
 You are going to be getting screen scrapes of $(whoami)'s terminal as they ask you questions. 
-The uname -ar is "$(uname -ar)". 
+The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking about the screen scrapes.
 $(whoami)'s normal PS1 is $PS1 and will be moving back and forth, talking to you and trying things out. 
 You will be getting new screen scrapes as the conversation progresses. 
 $(whoami) is using a formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
-If you receive input starting with a / then $(whoami) was trying to use a slash command at the prompt that was not recognized. 
-It is likely to be a typo and was not intended for you.
+If you receive input starting with a / then $(whoami) was trying to do: $(help)
+Help them do the right slash command
 END
 )
 
@@ -55,6 +67,21 @@ flash() {
     tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
     prompt="$model $pane_id:📷 >"
     tmux select-pane -t $my_id
+}
+
+
+choose() {
+    tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
+    if [[ -e $MDIR/pane-id ]]; then 
+        pane_id=$(cat $MDIR/pane-id)
+        echo "Using $pane_id"
+        flash
+        rm $MDIR/pane-id
+        tmux select-pane -t $my_id
+        touch $MDIR/${pane_id}.{convo,old}
+    else
+        echo "Cancelled"
+    fi
 }
 
 my_id=$(tmux display-message -p '#{pane_id}')
@@ -89,27 +116,10 @@ while [ 0 ]; do
         ata="-a $sshot"
         text=${BASH_REMATCH[1]}
     elif [[ $input == "/help" ]]; then
-        cat <<END
-  /add < path | cmd > - add a path or command output to the context window
-  /sshot < query >    - take an imagemagick screenshot and ask a question
-  /mindwipe           - forget this crazy world and start over
-  /choose             - change the tmux pane capture focus
-  /off                - turn off tmux capture
-  /on                 - turn back on tmux capture
-END
+        help
         continue
     elif [[ $input == "/choose" ]]; then
-        tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
-        if [[ -e $MDIR/pane-id ]]; then 
-            pane_id=$(cat $MDIR/pane-id)
-            echo "Using $pane_id"
-            flash
-            rm $MDIR/pane-id
-            tmux select-pane -t $my_id
-            touch $MDIR/${pane_id}.{convo,old}
-        else
-            echo "Cancelled"
-        fi
+        choose
         continue
     elif [[ $input == "/flash" ]]; then
         flash
@@ -139,7 +149,11 @@ END
     echo "($text)" >> $MDIR/input.txt
 
     if [[ -n "$capture" ]]; then
-        tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new
+        while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
+            echo "Choose another pane"
+            choose
+        done
+
         {
             diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
         } | grep -Ev '^$' | tee -a $MDIR/input.txt | llm "$text" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
