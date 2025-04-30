@@ -95,11 +95,7 @@ choose() {
 my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
 ata=""
-if [[ -n "$convo_id" ]]; then 
-    echo "Using convo $convo_id"
-else
-    echo "New convo"
-fi
+echo "Conversation ${convo_id:-start}"
 flash
 
 while [ 0 ]; do 

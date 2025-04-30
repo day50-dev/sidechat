@@ -1,0 +1,15 @@
+#!/bin/bash
+
+MDIR=/tmp/screen-query
+pane_id=$(tmux display-message -p '#{pane_id}')
+convo_id=$(cat $MDIR/${pane_id}.convo)
+echo
+{   echo "The user is running a command and sending it to you by piping it through a program called qadd, here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
+    tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
+    echo "----8<----"
+    echo "Here is the output of the command"
+    echo "----8<----"
+    cat;
+} | llm "there is no need to respond, this is just adding things to the context" --cid $convo_id | sd
+echo -e "\n#$convo_id"
+
