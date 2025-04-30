@@ -43,7 +43,8 @@ The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking a
 $(whoami)'s normal PS1 is $PS1 and is able to open up new panes and change the capture focus.
 You will get new captures if the diff is non-zero. 
 $(whoami) is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
-$(whoami) can use thess commands: $(help)
+$(whoami) can use these commands: $(help)
+Also they can pipe commands through "sqa" in the active working pane
 Here's a very truncated ps to understand what $(whoami) is using: $running
 END
 )

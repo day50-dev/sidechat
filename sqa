@@ -2,7 +2,13 @@
 
 MDIR=/tmp/screen-query
 pane_id=$(tmux display-message -p '#{pane_id}')
-convo_id=$(cat $MDIR/${pane_id}.convo)
+if [[ -r $MDIR/$pane_id.convo ]]; then
+    convo_id=$(cat $MDIR/${pane_id}.convo)
+    cp $MDIR/${pane_id}.convo $MDIR/last.convo
+else
+    convo_id=$(cat $MDIR/last.convo)
+fi
+
 echo
 {   echo "The user is running a command and sending it to you by piping it through a program called qadd, here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
     tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
