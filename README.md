@@ -24,8 +24,6 @@ Once you're in there's a few slash commands. These are all dumb - there's no tab
 
 It includes adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing... 
 
-BTW, there's a program called [ai-chat](https://github.com/sigoden/aichat) at the cli with lots of slash commands that's been around since 2022 if you like this flow. You could also easily modify screen-query to use it.
-
 Here's some screenshots:
 ![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
 
