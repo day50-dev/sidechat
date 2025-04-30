@@ -1,6 +1,9 @@
 #!/bin/bash
 # there's a few commands and /help documents them
 
+set -eEuo pipefail
+trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
+
 MDIR=/tmp/screen-query
 [[ -d $MDIR ]] || mkdir $MDIR
 
@@ -40,7 +43,7 @@ system=$(cat <<END
 You are an interactive debugging buddy connected to a tmux session. 
 You will get tmux capture-pane -p of what $(whoami) is working on as they ask you questions. 
 The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking about the screen scrapes or screenshots
-$(whoami)'s normal PS1 is $PS1 and is able to open up new panes and change the capture focus.
+$(whoami)'s is able to open up new panes and change the capture focus.
 You will get new captures if the diff is non-zero. 
 $(whoami) is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
 $(whoami) can use these commands: $(help)
@@ -49,10 +52,10 @@ Here's a very truncated ps to understand what $(whoami) is using: $running
 END
 )
 
-pane_id=$1
+pane_id=${1-}
 capture=0
 conv=
-convo_id=$(cat $MDIR/${pane_id}.convo)
+[[ -r $MDIR/${pane_id}.convo ]] && convo_id=$(cat $MDIR/${pane_id}.convo) || convo_id=
 
 touch $MDIR/${pane_id}.convo 
 touch $MDIR/${pane_id}.old
@@ -101,7 +104,7 @@ flash
 
 while [ 0 ]; do 
     echo
-    read -ep "$prompt" input
+    read -ep "$prompt" input || exit
     echo 
     _uuid=$(uuidgen)
 
