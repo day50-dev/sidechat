@@ -15,49 +15,40 @@ trap 'history -w "$HISTFILE"' EXIT
 [[ -r $MDREADER ]] || MDREADER=cat
 [[ -d $MDIR ]] || mkdir $MDIR
 
-if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
-    model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
-else
-    model=$(llm models default)
-fi
-
 help() {
   cat <<END
-  /add < path | cmd > - add a path or command output to the context window
-  /sshot < query >    - take an imagemagick screenshot and ask a question
-  /mindwipe           - forget this crazy world and start over
-  /flash              - flash the current focus
-  /choose             - change the tmux pane capture focus
-  /off                - turn off capture
-  /on                 - turn on capture
+  /add [path | cmd] - add a path or command output to the context window
+  /sshot            - take an imagemagick screenshot and ask a question
+  /mindwipe         - forget this crazy world and start over
+  /flash            - flash the current focus
+  /choose           - change the tmux pane capture focus
+  /off              - turn off capture
+  /on               - turn on capture
+  PWD: $(pwd)
+  Model: $model
 END
 }
 
-model=$(echo "$model" | cut -d '/' -f 2-)
+running=$(ps -u $(whoami) -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1| sort | uniq | tr '\n' ' ')
 system=$(cat <<END
-You are an interactive ai debugging buddy connected to a terminal. 
-You are going to be getting screen scrapes of $(whoami)'s terminal as they ask you questions. 
-The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking about the screen scrapes.
-$(whoami)'s normal PS1 is $PS1 and will be moving back and forth, talking to you and trying things out. 
-You will be getting new screen scrapes as the conversation progresses. 
-$(whoami) is using a formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
-If you receive input starting with a / then $(whoami) was trying to do: $(help)
-Help them do the right slash command
+You are an interactive debugging buddy connected to a tmux session. 
+You will get tmux capture-pane -p of what $(whoami) is working on as they ask you questions. 
+The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking about the screen scrapes or screenshots
+$(whoami)'s normal PS1 is $PS1 and is able to open up new panes and change the capture focus.
+You will get new captures if the diff is non-zero. 
+$(whoami) is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
+$(whoami) can use thess commands: $(help)
+Here's a very truncated ps to understand what $(whoami) is using: $running
 END
 )
 
 pane_id=$1
-touch $MDIR/${pane_id}.convo 
 capture=0
-touch $MDIR/${pane_id}.old
 conv=
 convo_id=$(cat $MDIR/${pane_id}.convo)
 
-if [[ -n "$convo_id" ]]; then 
-    echo "$pane_id: Using convo $convo_id"
-else
-    echo "$pane_id: New convo"
-fi
+touch $MDIR/${pane_id}.convo 
+touch $MDIR/${pane_id}.old
 
 flash() {
     tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.02
@@ -69,8 +60,15 @@ flash() {
 }
 
 set_prompt() {
-    base="$model"
-    [[ -n "$capture" ]] && base="$base $pane_id:📷"
+    base="  "
+    [[ -n "$capture" ]] && base="📷"
+    if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
+        model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
+    else
+        model=$(llm models default)
+    fi
+    model=$(echo "$model" | cut -d '/' -f 3-)
+    base="$base $model"
     prompt="$base > "
 }
 
@@ -90,67 +88,73 @@ choose() {
 
 my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
+ata=""
+if [[ -n "$convo_id" ]]; then 
+    echo "Using convo $convo_id"
+else
+    echo "New convo"
+fi
+flash
+
 while [ 0 ]; do 
     echo
     read -ep "$prompt" input
     echo 
+    _uuid=$(uuidgen)
 
     [[ -z "$input" ]] && break
     history -s "$input"  # Save to history
-    ata=""
  
-    if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
-        cmd=${BASH_REMATCH[1]}
-        filename=${BASH_REMATCH[1]}
-        text=${BASH_REMATCH[2]}
-        if [[ "${filename:0:1}" == "/" ]]; then
-            if [[ -e "$filename" ]]; then
-                echo "Adding $filename"
-                cat $filename | llm "$(whoami) is adding a file through a slash command. It is named $filename." -s "$system" $conv > /dev/null
+    if [[ $input =~ ^/ ]]; then
+        if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
+            cmd=${BASH_REMATCH[1]}
+            filename=${BASH_REMATCH[1]}
+            text=${BASH_REMATCH[2]}
+            if [[ "${filename:0:1}" == "/" || -e "$filename" ]]; then
+                if [[ -e "$filename" ]]; then
+                    echo "Adding $filename"
+                    cat "$filename" | llm "$(whoami) is adding a file through a slash command. It is named $filename." -s "$system" $conv > /dev/null
+                else
+                    echo "Woops, check your spelling, ($filename) not found"
+                fi
             else
-                echo "Woops, check your spelling, ($filename) not found"
+                echo "Running $filename"
+                $filename | tee $MDIR/cmd.$_uuid | llm "$(whoami) is adding the output of $filename" -s "$system" $conv > /dev/null
+                echo "Output in $MDIR/cmd.$_uuid"
             fi
+        elif [[ $input =~ ^/sshot ]]; then
+            sshot=$(mktemp --suffix=.png -p $MDIR)
+            import $sshot
+            ata="-a $sshot"
+            echo "Next prompt will use your screen shot"
+        elif [[ $input == "/help" ]]; then
+            help
+        elif [[ $input == "/choose" ]]; then
+            choose
+        elif [[ $input == "/flash" ]]; then
+            flash
+        elif [[ $input == "/off" ]]; then
+            flash
+            echo "Capturing off"
+            capture=
+        elif [[ $input == "/mindwipe" ]]; then
+            echo "Memory has been wiped."
+            conv=
+        elif [[ $input == "/on" ]]; then
+            flash
+            echo "Capturing on"
+            capture=0
         else
-            echo "Running $filename"
-            $filename | llm "$(whoami) is adding the output of $filename" -s "$system" $conv > /dev/null
+            help
         fi
-        continue
-    elif [[ $input =~ ^/sshot[[:space:]]+(.*)$ ]]; then
-        sshot=$(mktemp --suffix=.png -p $MDIR)
-        import $sshot
-        ata="-a $sshot"
-        text=${BASH_REMATCH[1]}
-    elif [[ $input == "/help" ]]; then
-        help
-        continue
-    elif [[ $input == "/choose" ]]; then
-        choose
-        continue
-    elif [[ $input == "/flash" ]]; then
-        flash
-        continue
-    elif [[ $input == "/off" ]]; then
-        flash
-        echo "Capturing off"
         set_prompt
-        capture=
-        continue
-    elif [[ $input == "/mindwipe" ]]; then
-        echo "Memory has been wiped."
-        conv=
-        continue
-    elif [[ $input == "/on" ]]; then
-        flash
-        echo "Capturing on"
-        set_prompt
-        capture=0
         continue
     else
         text="$input"
     fi
 
     # synchronize input & output
-    { echo -e "\n\n"; echo "$convo_id":$(uuidgen); } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
+    { echo -e "\n\n"; echo "{$convo_id}:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
     if [[ -n "$capture" ]]; then
@@ -173,4 +177,5 @@ while [ 0 ]; do
         echo $convo_id > $MDIR/${pane_id}.convo
         conv="--cid $convo_id"
     fi
+    ata=""
 done
