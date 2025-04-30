@@ -17,11 +17,13 @@ import os
 import pty
 import select
 import sys
+import argparse
 import tempfile
 import tty
 import termios
 import fcntl
 import re
+import subprocess 
 from io import StringIO
 import openai # openai v1.0.0+
 
@@ -33,6 +35,7 @@ ANSIESCAPE = r'\033(?:\[[0-9;?]*[a-zA-Z]|][0-9]*;;.*?\\|\\)'
 strip_ansi = lambda x: re.sub(ANSIESCAPE, "", x)
 
 SYSTEMPROMPT = """
+You are an experienced Linux engineer with expertise in all Linux commands and their functionality across different Linux systems.
 The format for the request is:
 <input>
 (The previous users input)
@@ -41,9 +44,18 @@ The format for the request is:
 (What the user sees on the screen)
 </output>
 For instance, the output may have something like the output of the previous command + the current prompt. The input should have a question. Your job is to
-use the <output> to establish the context and answer the <input>, which may include input prior to the question, such as previous commands. These can be
-used to establish more context.
+use the <output> to establish the context and answer the <input>,
+Generate a single command or a pipeline of commands that accomplish the task efficiently. The user may be in something other than the shell such as
+ipython, psql, sqlite, etc. Use the <output> to determine the context.
+Output only the command as a single line of plain text, with no quotes, formatting, or additional commentary. Do not use markdown or any
+other formatting. Do not include the command into a code block.
+Don't include the prompt itself the command.
 """
+
+parser = argparse.ArgumentParser(description='llm-wrap script')
+parser.add_argument('--method', choices=['litellm', 'simonw', 'vllm'], default='litellm', help='Method to use for LLM interaction')
+parser.add_argument('--exec', '-e', dest='exec_command', help='Command to execute')
+args = parser.parse_args()
 
 def clean_input(raw_input):
     fake_stdin = StringIO(raw_input.decode('utf-8'))
@@ -67,31 +79,44 @@ def activate():
         f.seek(max(0, size - 500), os.SEEK_SET)
         recent_output = strip_ansi(f.read().decode('utf-8'))
 
-    # request sent to model set on litellm proxy, `litellm --model`
-    response = CLIENT.chat.completions.create(model="gpt-3.5-turbo", messages = [
-        {
-            "role": "system",
-            "content": SYSTEMPROMPT
-        },
-        {
-            "role": "user",
-            "content": f"<input>{processed_input}</input><output>{recent_output}</output>"
-        }
-    ])
-    print(response.output_text)
-    sys.stdout.flush()
+    request_string = f"<input>{processed_input}</input><output>{recent_output}</output>"
+    
+    if args.method == 'litellm':
+        response = CLIENT.chat.completions.create(model="gpt-3.5-turbo", messages = [
+            {
+                "role": "system",
+                "content": SYSTEMPROMPT
+            },
+            {
+                "role": "user",
+                "content": request_string
+            }
+        ])
+        print(response.output_text)
+
+    elif args.method == 'simonw':
+        systemprompt = SYSTEMPROMPT.replace("\"", "\\\"")
+        command = f'llm -x -s "{systemprompt}" "{request_string}"'
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+        print("\r\n" + output.decode('utf-8').replace('\n', '\r\n') + "\r\n")
+
+    elif args.method == 'vllm':
+        print("vllm method selected")
+
     
 def set_pty_size(fd, target_fd):
     s = fcntl.ioctl(target_fd, termios.TIOCGWINSZ, b"\x00" * 8)
     fcntl.ioctl(fd, termios.TIOCSWINSZ, s)
 
 def main():
-    temp_dir = tempfile.mkdtemp(dir="/tmp")
+    global PATH_INPUT, PATH_OUTPUT
+    temp_dir = tempfile.mkdtemp(dir="/tmp/screen-query")
     os.makedirs(temp_dir, exist_ok=True)
-    screen_query_dir = os.path.join(temp_dir, "screen-query")
-    os.makedirs(screen_query_dir, exist_ok=True)
-    globals()['PATH_INPUT'] = os.path.join(screen_query_dir, "input")
-    globals()['PATH_OUTPUT'] = os.path.join(screen_query_dir, "output")
+    PATH_INPUT = os.path.join(temp_dir, "input")
+    PATH_OUTPUT = os.path.join(temp_dir, "output")
+    print(f"Input path: {PATH_INPUT}")
+    print(f"Output path: {PATH_OUTPUT}")
 
     orig_attrs = termios.tcgetattr(sys.stdin.fileno())
     try:
@@ -99,8 +124,9 @@ def main():
         pid, fd = pty.fork()
 
         if pid == 0:
-            print(sys.argv)
-            os.execvp(sys.argv[1], sys.argv[1:])
+            print(args.exec_command)
+            exec_command_list = args.exec_command.split()
+            os.execvp(exec_command_list[0], exec_command_list)
         else:
             set_pty_size(fd, sys.stdin.fileno())
 
@@ -112,7 +138,9 @@ def main():
                     if not user_input:
                         break
                     if ESCAPE in user_input:
+                        os.write(sys.stdout.fileno(), " ... doing crazy magic".encode())
                         activate()
+                        continue
                 
                     with open(PATH_INPUT, "ab") as f:
                         f.write(user_input)
