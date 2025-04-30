@@ -2,18 +2,24 @@
 # there's a few commands and /help documents them
 
 MDIR=/tmp/screen-query
+[[ -d $MDIR ]] || mkdir $MDIR
+
 LOG=$MDIR/$(date +%s).md
 MDREADER=$(which sd)
-
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
+
+[[ -r $MDREADER ]] || MDREADER=$(which glow)
+[[ -r $MDREADER ]] || MDREADER=cat
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
 trap 'history -w "$HISTFILE"' EXIT
 
-[[ -r $MDREADER ]] || MDREADER=$(which glow)
-[[ -r $MDREADER ]] || MDREADER=cat
-[[ -d $MDIR ]] || mkdir $MDIR
+if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
+    model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
+else
+    model=$(llm models default)
+fi
 
 help() {
   cat <<END
