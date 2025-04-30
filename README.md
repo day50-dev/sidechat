@@ -14,7 +14,7 @@ In `~/.tmux.conf` add something like this:
 
 where `screen-query` and `sd-picker` is in your path.
 
-You should also use `sqa`. Here's an example:
+You should also use `sqa` which you can use to pipe anything into the context. Here's an example:
 ![sqa](https://github.com/user-attachments/assets/e175eb19-ad51-47c5-acf2-6f8c126eff8a)
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
