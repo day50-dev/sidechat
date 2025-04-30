@@ -38,7 +38,7 @@ help() {
 END
 }
 
-running=$(ps -u $(whoami) -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1| sort | uniq | tr '\n' ' ')
+running=$(ps -u $(whoami) -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
 system=$(cat <<END
 You are an interactive debugging buddy connected to a tmux session. 
 You will get tmux capture-pane -p of what $(whoami) is working on as they ask you questions. 
