@@ -147,8 +147,6 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screen shot"
-        elif [[ $input == "/help" ]]; then
-            help
         elif [[ $input == "/choose" ]]; then
             choose
         elif [[ $input == "/flash" ]]; then
