@@ -79,7 +79,7 @@ set_prompt() {
         model=$(llm models default)
     fi
     model=$(echo "$model" | cut -d '/' -f 3-)
-    base="$base $model"
+    base="$base$model"
     prompt="$base > "
 }
 
@@ -106,8 +106,20 @@ flash
 
 while [ 0 ]; do 
     echo
-    read -ep "$prompt" input || exit
+	input=""
+	pline="$prompt"
+	while IFS= read -rep "$pline" line || exit; do
+        if [[ "$line" == *\\ ]]; then
+            input+="${line%\\}"
+            input+=$'\n'
+        else
+            input+="$line"
+            break
+        fi
+        pline="  ⸽ "
+	done
     echo 
+
     _uuid=$(uuidgen)
 
     [[ -z "$input" ]] && break
@@ -178,7 +190,7 @@ while [ 0 ]; do
 
         }   | grep -Ev '^$'         \
             | tee -a $MDIR/input.txt \
-            | llm "${text}${INJECT}" -s "$system" $ata $conv || echo \
+            | ( llm "${text}${INJECT}" -s "$system" $ata $conv || echo ) \
             | tee -a $MDIR/output.txt \
             | $MDREADER
         
