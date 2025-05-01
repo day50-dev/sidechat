@@ -172,12 +172,21 @@ while [ 0 ]; do
         done
 
         {
-            diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
-        } | grep -Ev '^$' | tee -a $MDIR/input.txt | llm "${text}${INJECT}" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
+            diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
+                && echo \
+                || cat $MDIR/${pane_id}.new; 
 
+        }   | grep -Ev '^$'         \
+            | tee -a $MDIR/input.txt \
+            | llm "${text}${INJECT}" -s "$system" $ata $conv || echo \
+            | tee -a $MDIR/output.txt \
+            | $MDREADER
+        
         cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
     else
-        llm "$text${INJECT}" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
+        llm "$text${INJECT}" -s "$system" $ata $conv \
+            | tee -a $MDIR/output.txt \
+            | $MDREADER
     fi
     INJECT=
 
