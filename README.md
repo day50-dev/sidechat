@@ -22,6 +22,9 @@ You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamd
 
 Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy. Just enter `/help` to get the current list.
 
+![2025-05-01_13-38](https://github.com/user-attachments/assets/e57ea643-cb63-4727-9901-e15109b81adb)
+
+
 It includes adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing... 
 
 Here's some screenshots:
