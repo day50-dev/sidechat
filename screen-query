@@ -62,12 +62,13 @@ touch $MDIR/${pane_id}.convo
 touch $MDIR/${pane_id}.old
 
 flash() {
-    tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.02
-    tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
-    tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.02
-    tmux select-pane -t $pane_id -P 'bg=default' ; sleep 0.04
+    {
+        tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
+        tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
+        tmux select-pane -t $pane_id -P 'bg=default' 
+        tmux select-pane -t $my_id
+    } &
     set_prompt
-    tmux select-pane -t $my_id
 }
 
 set_prompt() {
