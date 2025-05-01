@@ -1,43 +1,31 @@
-#!/bin/bash
-# /// script
-# requires-python = ">=3.8"
-# dependencies = [
-#     "openai",
-#     "toml"
-# ]
-# ///
-'''':
-if command -v uv &> /dev/null; then
-    exec uv run --script "$0" "$@"
-else
-    exec python3 "$0" "$@"
-fi
-'''
+#!/usr/bin/env python3
 import os
 import pty
 import select
 import sys
 import argparse
-import tempfile
 import tty
 import termios
 import fcntl
 import re
 import subprocess 
 from io import StringIO
-import openai # openai v1.0.0+
 
-CLIENT = openai.OpenAI(api_key="anything",base_url="http://0.0.0.0:4000") # set proxy to base_url
+CLIENT = None
 ESCAPE = b'\x18'  # ctrl+x
 PATH_INPUT = None
 PATH_OUTPUT = None
 ANSIESCAPE = r'\033(?:\[[0-9;?]*[a-zA-Z]|][0-9]*;;.*?\\|\\)'
 strip_ansi = lambda x: re.sub(ANSIESCAPE, "", x)
 
-parser = argparse.ArgumentParser(description='llm-wrap script')
+parser = argparse.ArgumentParser(description='shell wrap, a transparent shell wrapper')
 parser.add_argument('--method', choices=['litellm', 'simonw', 'vllm'], default='litellm', help='Method to use for LLM interaction')
 parser.add_argument('--exec', '-e', dest='exec_command', help='Command to execute')
 args = parser.parse_args()
+
+if args.method == 'litellm':
+    import openai # openai v1.0.0+
+    CLIENT = openai.OpenAI(api_key="anything",base_url="http://0.0.0.0:4000") # litellm
 
 def clean_input(raw_input):
     fake_stdin = StringIO(raw_input.decode('utf-8'))
