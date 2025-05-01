@@ -34,27 +34,6 @@ PATH_OUTPUT = None
 ANSIESCAPE = r'\033(?:\[[0-9;?]*[a-zA-Z]|][0-9]*;;.*?\\|\\)'
 strip_ansi = lambda x: re.sub(ANSIESCAPE, "", x)
 
-SYSTEMPROMPT = """
-You are an experienced Linux engineer with expertise in all Linux commands and their functionality across different Linux systems.
-The format for the request is:
-<input>
-(The previous users input)
-</input>
-<query>
-(The current user input)
-</query>
-<screen>
-(What the user sees on the screen)
-</screen>
-For instance, the output may have something like the output of the previous command + the current prompt. The input should have a question. Your job is to
-use the <screen> to establish the context and answer the <input>,
-Generate a single command or a pipeline of commands that accomplish the task efficiently. The user may be in something other than the shell such as
-ipython, psql, sqlite, etc. Use the <screen> to determine the context.
-Output only the command as a single line of plain text, with no quotes, formatting, or additional commentary. Do not use markdown or any
-other formatting. Do not include the command into a code block.
-Don't include the prompt itself the command. The user query is in the <query> tag.
-"""
-
 parser = argparse.ArgumentParser(description='llm-wrap script')
 parser.add_argument('--method', choices=['litellm', 'simonw', 'vllm'], default='litellm', help='Method to use for LLM interaction')
 parser.add_argument('--exec', '-e', dest='exec_command', help='Command to execute')
@@ -82,8 +61,29 @@ def activate(qstr):
         f.seek(max(0, size - 500), os.SEEK_SET)
         recent_output = strip_ansi(f.read().decode('utf-8'))
 
-    request_string = f"<input>{processed_input}</input><output>{recent_output}</output>"
-    
+    request = f"""You are an experienced fullstack software engineer with expertise in all Linux commands and their functionality 
+Given a task, along with a sequence of previous inputs and screen scrape, generate a single line of commands that accomplish the task efficiently.
+This command is to be executed in the current program which can be determined by the screen scrape
+The screen scrape is 
+----
+{recent_output}
+----
+The recent input is {processed_input}
+----
+Take special care and look at the most recent part of the screen scrape. Pay attention to
+things like the prompt style, welcome banners, and be sensitive if the person is say at 
+a python prompt, ruby prompt, gdb, or perhaps inside a program such as vim.
+
+Create a command to accomplish the following task: {qstr.decode('utf-8')}
+
+If there is text enclosed in paranthesis, that's what ought to be changed
+
+Output only the command as a single line of plain text, with no
+quotes, formatting, or additional commentary. Do not use markdown or any
+other formatting. Do not include the command into a code block.
+Don't include the program itself (bash, zsh, etc.) in the command.
+"""
+
     if args.method == 'litellm':
         response = CLIENT.chat.completions.create(model="gpt-3.5-turbo", messages = [
             {
@@ -92,16 +92,19 @@ def activate(qstr):
             },
             {
                 "role": "user",
-                "content": request_string
+                "content": request
             }
         ])
         print(response.output_text)
 
     elif args.method == 'simonw':
-        systemprompt = SYSTEMPROMPT.replace("\"", "\\\"")
-        command = f'llm -x -s "{systemprompt}" "{request_string}"'
+        command = f'llm -x "{request}"'
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
+        with open("/tmp/screen-query/log", "ab") as f:
+            f.write(request.encode('utf-8') + b'\n(' + output + b')\n')
+            f.flush()
+
         return output
 
     elif args.method == 'vllm':
@@ -114,7 +117,7 @@ def set_pty_size(fd, target_fd):
 
 def main():
     global PATH_INPUT, PATH_OUTPUT
-    temp_dir = tempfile.mkdtemp(dir="/tmp/screen-query")
+    temp_dir = "/tmp/screen-query"
     os.makedirs(temp_dir, exist_ok=True)
     PATH_INPUT = os.path.join(temp_dir, "input")
     PATH_OUTPUT = os.path.join(temp_dir, "output")
@@ -147,18 +150,15 @@ def main():
                     if is_escaped:
                         qstr += user_input
                    
-                        if b'\r' in user_input:
+                        if re.search(r'[\r\n]', user_input.decode('utf-8')):
                             is_escaped = False
-                            sys.stdout.write('\x1b[8m')
+                            sys.stdout.write('◀\x1b[8m')
                             sys.stdout.flush()
-                            # AI: restore the ansi position
-                            os.write(sys.stdout.fileno(), '\x1b[u'.encode())
                             command = activate(qstr)
+                            os.write(sys.stdout.fileno(), '\x1b[u'.encode())
                             os.write(fd, command)
                             sys.stdout.flush()
-
-                            # AI: restore the ansi position
-                            #os.write(sys.stdout.fileno(), '\x1b[u'.encode())
+                            qstr = b''
                             continue
 
                     if ESCAPE in user_input:
@@ -167,7 +167,7 @@ def main():
                         ansi_pos = '\x1b[s'
                         os.write(sys.stdout.fileno(), ansi_pos.encode())
 
-                        sys.stdout.write('\x1b[7m >> ') 
+                        sys.stdout.write('\x1b[7m▶') 
                         sys.stdout.flush()
                         continue
                 
@@ -193,6 +193,7 @@ def main():
                     #os.write(sys.stdout.fileno(), b''.join(chunks))
 
     except (OSError, KeyboardInterrupt):
+        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, orig_attrs)
         print("\n\rExiting...")
         sys.exit(130)
 
