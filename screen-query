@@ -11,6 +11,7 @@ LOG=$MDIR/$(date +%s).md
 MDREADER=$(which sd)
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
+INJECT=
 
 [[ -r $MDREADER ]] || MDREADER=$(which glow)
 [[ -r $MDREADER ]] || MDREADER=cat
@@ -91,6 +92,7 @@ choose() {
         rm $MDIR/pane-id
         tmux select-pane -t $my_id
         touch $MDIR/${pane_id}.{convo,old}
+        INJECT=" (Note: $(whoami) moved to a new tmux pane)"
     else
         echo "Cancelled"
     fi
@@ -171,12 +173,13 @@ while [ 0 ]; do
 
         {
             diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null && echo || cat $MDIR/${pane_id}.new; 
-        } | grep -Ev '^$' | tee -a $MDIR/input.txt | llm "$text" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
+        } | grep -Ev '^$' | tee -a $MDIR/input.txt | llm "${text}${INJECT}" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
 
         cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
     else
-        llm "$text" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
+        llm "$text${INJECT}" -s "$system" $ata $conv | tee -a $MDIR/output.txt | $MDREADER
     fi
+    INJECT=
 
     if [[ -z "$conv" ]]; then
         convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
