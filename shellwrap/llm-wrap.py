@@ -40,16 +40,19 @@ The format for the request is:
 <input>
 (The previous users input)
 </input>
-<output>
+<query>
+(The current user input)
+</query>
+<screen>
 (What the user sees on the screen)
-</output>
+</screen>
 For instance, the output may have something like the output of the previous command + the current prompt. The input should have a question. Your job is to
-use the <output> to establish the context and answer the <input>,
+use the <screen> to establish the context and answer the <input>,
 Generate a single command or a pipeline of commands that accomplish the task efficiently. The user may be in something other than the shell such as
-ipython, psql, sqlite, etc. Use the <output> to determine the context.
+ipython, psql, sqlite, etc. Use the <screen> to determine the context.
 Output only the command as a single line of plain text, with no quotes, formatting, or additional commentary. Do not use markdown or any
 other formatting. Do not include the command into a code block.
-Don't include the prompt itself the command.
+Don't include the prompt itself the command. The user query is in the <query> tag.
 """
 
 parser = argparse.ArgumentParser(description='llm-wrap script')
@@ -64,7 +67,7 @@ def clean_input(raw_input):
     sys.stdin = sys.__stdin__
     return processed_input
 
-def activate():
+def activate(qstr):
     with open(PATH_INPUT, "rb") as f:
         f.seek(0, os.SEEK_END)
         size = f.tell()
@@ -99,7 +102,7 @@ def activate():
         command = f'llm -x -s "{systemprompt}" "{request_string}"'
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
-        print("\r\n" + output.decode('utf-8').replace('\n', '\r\n') + "\r\n")
+        return output
 
     elif args.method == 'vllm':
         print("vllm method selected")
@@ -117,6 +120,9 @@ def main():
     PATH_OUTPUT = os.path.join(temp_dir, "output")
     print(f"Input path: {PATH_INPUT}")
     print(f"Output path: {PATH_OUTPUT}")
+    is_escaped = False
+    ansi_pos = None
+    qstr = b''
 
     orig_attrs = termios.tcgetattr(sys.stdin.fileno())
     try:
@@ -137,15 +143,42 @@ def main():
                     user_input = os.read(sys.stdin.fileno(), 1024)
                     if not user_input:
                         break
+                    
+                    if is_escaped:
+                        qstr += user_input
+                   
+                        if b'\r' in user_input:
+                            is_escaped = False
+                            sys.stdout.write('\x1b[8m')
+                            sys.stdout.flush()
+                            # AI: restore the ansi position
+                            os.write(sys.stdout.fileno(), '\x1b[u'.encode())
+                            command = activate(qstr)
+                            os.write(fd, command)
+                            sys.stdout.flush()
+
+                            # AI: restore the ansi position
+                            #os.write(sys.stdout.fileno(), '\x1b[u'.encode())
+                            continue
+
                     if ESCAPE in user_input:
-                        os.write(sys.stdout.fileno(), " ... doing crazy magic".encode())
-                        activate()
+                        is_escaped = True
+                        #AI: save the ansi position here
+                        ansi_pos = '\x1b[s'
+                        os.write(sys.stdout.fileno(), ansi_pos.encode())
+
+                        sys.stdout.write('\x1b[7m >> ') 
+                        sys.stdout.flush()
                         continue
                 
                     with open(PATH_INPUT, "ab") as f:
                         f.write(user_input)
                         f.flush()
-                    os.write(fd, user_input)
+
+                    if is_escaped:
+                        os.write(sys.stdout.fileno(), user_input)
+                    else:
+                        os.write(fd, user_input)
 
                 if fd in r:
                     output = os.read(fd, 1024)
@@ -155,30 +188,12 @@ def main():
                     with open(PATH_OUTPUT, "ab") as f:
                         f.write(output)
                         f.flush()
-                    """
-                    chunks = []
-                    i = 0
-                    while i < len(output):
-                        if output[i:i+1] == b'\x1b':
-                            end = i + 1
-                            while end < len(output) and not (64 <= output[end] <= 126):
-                                end += 1
-                            end += 1  # include final letter
-                            chunks.append(output[i:end])
-                            i = end
-                        else:
-                            j = i
-                            while j < len(output) and output[j:j+1] != b'\x1b':
-                                j += 1
-                            text = output[i:j].replace(b"fizz", b"fizzbuzz")
-                            chunks.append(text)
-                            i = j
-                    """
 
                     os.write(sys.stdout.fileno(), output)
                     #os.write(sys.stdout.fileno(), b''.join(chunks))
 
     except (OSError, KeyboardInterrupt):
+        print("\n\rExiting...")
         sys.exit(130)
 
     finally:
