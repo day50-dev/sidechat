@@ -27,14 +27,13 @@ fi
 
 help() {
   cat <<END
-  /add [path | cmd] - add a path or command output to the context window
-  /sshot            - take an imagemagick screenshot and ask a question
-  /mindwipe         - forget this crazy world and start over
-  /flash            - flash the current focus
-  /choose           - change the tmux pane capture focus
-  /off              - turn off capture
-  /on               - turn on capture
-  PWD: $(pwd) | Model: $model | Cid: $conv_id
+  /sshot    - imagemagick screenshot and ask a question
+  /mindwipe - forget this crazy world and start over
+  /flash    - flash the current focus
+  /choose   - change the tmux pane capture focus
+  /[off|on] - toggle capture
+  \$cmd | sqa <$conv_id> - add the output of cmd to the context
+  PWD: $(pwd) Model: $model Cid: $conv_id
 END
 }
 
