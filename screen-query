@@ -44,7 +44,7 @@ You are an interactive debugging buddy connected to a tmux session.
 You will get tmux capture-pane -p of what $(whoami) is working on as they ask you questions. 
 The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking about the screen scrapes or screenshots
 $(whoami)'s is able to open up new panes and change the capture focus.
-You will get new captures if the diff is non-zero. 
+You will get new captures if the tmux pane capture diff is non-zero. 
 $(whoami) is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
 $(whoami) can use these commands: $(help)
 Also they can pipe commands through "sqa" in the active working pane
@@ -92,7 +92,7 @@ choose() {
         rm $MDIR/pane-id
         tmux select-pane -t $my_id
         touch $MDIR/${pane_id}.{convo,old}
-        INJECT=" (Note: $(whoami) moved to a new tmux pane)"
+        INJECT=" (Note: $(whoami) changed focus to a new tmux pane)"
     else
         echo "Cancelled"
     fi
