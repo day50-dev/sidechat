@@ -8,6 +8,7 @@ if [[ -r $MDIR/$pane_id.convo ]]; then
 else
     convo_id=$(cat $MDIR/last.convo)
 fi
+convo_id=${1:-$convo_id}
 
 echo
 {   echo "The user is running a command and sending it to you by piping it through a program called ${0##*/}, here's the last 5 lines of tmux capture-pane, delimited by ----8<----"

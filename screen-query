@@ -34,8 +34,7 @@ help() {
   /choose           - change the tmux pane capture focus
   /off              - turn off capture
   /on               - turn on capture
-  PWD: $(pwd)
-  Model: $model
+  PWD: $(pwd) | Model: $model | Cid: $conv
 END
 }
 
@@ -204,6 +203,7 @@ while [ 0 ]; do
     if [[ -z "$conv" ]]; then
         convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
         echo $convo_id > $MDIR/${pane_id}.convo
+        echo $convo_id > $MDIR/last.convo
         conv="--cid $convo_id"
     fi
     ata=""
