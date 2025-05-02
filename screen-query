@@ -156,13 +156,17 @@ while [ 0 ]; do
         elif [[ $input == "/flash" ]]; then
             flash
         elif [[ $input == "/off" ]]; then
-            flash
             echo "Capturing off"
             capture=
         elif [[ $input == "/mindwipe" ]]; then
             echo "Memory has been wiped."
             conv=
         elif [[ $input == "/on" ]]; then
+			while ! tmux list-panes -t "$pane_id" &>/dev/null; do
+				echo "Woops, the pane disappeared. Choose another!"
+				choose
+            done
+
             flash
             echo "Capturing on"
             capture=0
