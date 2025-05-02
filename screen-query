@@ -34,7 +34,7 @@ help() {
   /choose           - change the tmux pane capture focus
   /off              - turn off capture
   /on               - turn on capture
-  PWD: $(pwd) | Model: $model | Cid: $conv
+  PWD: $(pwd) | Model: $model | Cid: $conv_id
 END
 }
 
@@ -79,7 +79,7 @@ set_prompt() {
         model=$(llm models default)
     fi
     model=$(echo "$model" | cut -d '/' -f 3-)
-    base="$base$model"
+    base="$base $model"
     prompt="$base > "
 }
 
