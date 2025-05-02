@@ -32,8 +32,9 @@ help() {
   /flash    - flash the current focus
   /choose   - change the tmux pane capture focus
   /[off|on] - toggle capture
-  \$cmd | sqa <$conv_id> - add the output of cmd to the context
-  PWD: $(pwd) Model: $model Cid: $conv_id
+  \$cmd | sqa [cid] - add the output of cmd to the context
+  PWD: $(pwd)
+  cid: $convo_id
 END
 }
 
@@ -146,6 +147,10 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screen shot"
+        elif [[ $input == "/last" ]]; then
+            convo_id=$( cat $MDIR/last.convo )
+            conv="--cid $convo_id"
+            echo "Using $convo_id"
         elif [[ $input == "/choose" ]]; then
             choose
         elif [[ $input == "/flash" ]]; then
