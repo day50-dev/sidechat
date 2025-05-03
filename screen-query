@@ -71,16 +71,15 @@ flash() {
 }
 
 set_prompt() {
-    base="  "
-    [[ -n "$capture" ]] && base="📷"
+    base=""
+    [[ -n "$capture" ]] && base="📷 "
     if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
         model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
     else
         model=$(llm models default)
     fi
     model=$(echo "$model" | cut -d '/' -f 3-)
-    base="$base $model"
-    prompt="$base > "
+    prompt="$base$(tput setab 17) $model $(tput sgr0) "
 }
 
 choose() {
@@ -101,14 +100,18 @@ choose() {
 my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
 ata=""
-echo "Conversation ${convo_id:-start}"
+if [[ -n "$convo_id" ]]; then
+    { echo "# . . . "; llm logs list --cid $convo_id | tail -10; } | sd
+else
+    echo "Conversation Start"
+fi
 flash
 
 while [ 0 ]; do 
     echo
-	input=""
-	pline="$prompt"
-	while IFS= read -rep "$pline" line || exit; do
+    input=""
+    pline="$prompt"
+    while IFS= read -rep "$pline" line || exit; do
         if [[ "$line" == *\\ ]]; then
             input+="${line%\\}"
             input+=$'\n'
@@ -117,7 +120,7 @@ while [ 0 ]; do
             break
         fi
         pline="  ⸽ "
-	done
+    done
     echo 
 
     _uuid=$(uuidgen)
@@ -125,7 +128,7 @@ while [ 0 ]; do
     [[ -z "$input" ]] && break
     history -s "$input"  # Save to history
  
-    if [[ $input =~ ^/ ]]; then
+if [[ $input =~ ^/ ]]; then
         if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
             cmd=${BASH_REMATCH[1]}
             filename=${BASH_REMATCH[1]}
@@ -162,9 +165,9 @@ while [ 0 ]; do
             echo "Memory has been wiped."
             conv=
         elif [[ $input == "/on" ]]; then
-			while ! tmux list-panes -t "$pane_id" &>/dev/null; do
-				echo "Woops, the pane disappeared. Choose another!"
-				choose
+            while ! tmux list-panes -t "$pane_id" &>/dev/null; do
+                echo "Woops, the pane disappeared. Choose another!"
+                choose
             done
 
             flash
