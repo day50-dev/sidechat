@@ -46,11 +46,12 @@ Here's some other things:
 
 Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help you in a pinch instead of turn you into a manager and code reviewer of an junior dev AI assistant - not that there's anything wrong with that - I use them as well.
 
-
 These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
 You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
 
 ## Files
+
+*   **wtf.zsh:** A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions.
 
 *   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
 
