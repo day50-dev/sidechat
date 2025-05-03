@@ -123,7 +123,7 @@ while [ 0 ]; do
     done
     echo 
 
-    _uuid=$(uuidgen)
+    _uuid=$(date +%s.%N)
 
     [[ -z "$input" ]] && break
     history -s "$input"  # Save to history
