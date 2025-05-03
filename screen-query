@@ -33,22 +33,25 @@ help() {
   /choose   - change the tmux pane capture focus
   /[off|on] - toggle capture
   \$cmd | sqa [cid] - add the output of cmd to the context
-  PWD: $(pwd)
-  cid: $convo_id
+  pwd: $(pwd)
 END
+  if [[ -n "$1" ]]; then 
+    echo "  model: $model"
+    echo "  cid: $convo_id"
+    echo "  system: " $system | sd
+  fi
 }
 
-running=$(ps -u $(whoami) -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
+me=$(whoami)
+running=$(ps -u $me -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
 system=$(cat <<END
 You are an interactive debugging buddy connected to a tmux session. 
-You will get tmux capture-pane -p of what $(whoami) is working on as they ask you questions. 
-The uname -ar is "$(uname -ar)". If they refer to you seeing, they are talking about the screen scrapes or screenshots
-$(whoami)'s is able to open up new panes and change the capture focus.
+You will get tmux capture-pane -p as they ask you questions. 
+$me is using $(uname) with $(getent passwd $me | cut -d: -f7) and is able to open up new panes and change the capture focus. You will be notified when this happens
 You will get new captures if the tmux pane capture diff is non-zero. 
-$(whoami) is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
-$(whoami) can use these commands: $(help)
-Also they can pipe commands through "sqa" in the active working pane
-Here's a very truncated ps to understand what $(whoami) is using: $running
+$me is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
+$me can do the following: $(help)
+Here's a truncated ps to understand what $me is using: $running
 END
 )
 
@@ -70,16 +73,21 @@ flash() {
     set_prompt
 }
 
-set_prompt() {
-    base=""
-    [[ -n "$capture" ]] && base="📷 "
+getmodel() {
     if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
         model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
     else
         model=$(llm models default)
     fi
     model=$(echo "$model" | cut -d '/' -f 3-)
-    prompt="$base$(tput setab 17) $model $(tput sgr0) "
+}
+
+getmodel
+
+set_prompt() {
+    base="▹►"
+    [[ -n "$capture" ]] && base="📷 "
+    prompt="$base▶ "
 }
 
 choose() {
@@ -164,6 +172,7 @@ if [[ $input =~ ^/ ]]; then
         elif [[ $input == "/mindwipe" ]]; then
             echo "Memory has been wiped."
             conv=
+            getmodel
         elif [[ $input == "/on" ]]; then
             while ! tmux list-panes -t "$pane_id" &>/dev/null; do
                 echo "Woops, the pane disappeared. Choose another!"
@@ -174,7 +183,7 @@ if [[ $input =~ ^/ ]]; then
             echo "Capturing on"
             capture=0
         else
-            help
+            help 1
         fi
         set_prompt
         continue
