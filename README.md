@@ -45,7 +45,7 @@ You can hook this into a hotkey. I think basically every WM updated in the past 
 
 *   **wtf.zsh:** A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
-   ![2025-05-03_15-18](https://github.com/user-attachments/assets/8825ba62-672b-4291-9e8f-5e31a700a76c)
+![un](https://github.com/user-attachments/assets/0fe52d11-cf79-45e1-ba3c-4bbbfba81610)
 
 *   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
 
