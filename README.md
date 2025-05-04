@@ -8,7 +8,7 @@ This is probably what you're here for. There's an intentionally unsophisticated 
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
-You should also use `sqa` which you can use to pipe anything into the context. Here's an example:
+You should also use `sqa` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
