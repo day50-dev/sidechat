@@ -5,16 +5,7 @@ A set of HCI workflows for interacting with LLMs, with novel approaches to addin
 ## screen-query, sd-picker and sqa
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
-This is probably what you're here for. Here's a rundown:
-
-In `~/.tmux.conf` add something like this:
-
-    bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
-    bind j display-popup -E "sd-picker"
-
-where `screen-query` and `sd-picker` is in your path.
-
-There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
+This is probably what you're here for. There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
 You should also use `sqa` which you can use to pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
