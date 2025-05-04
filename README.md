@@ -50,7 +50,6 @@ Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help
 These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
 You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
 
-## Files
 
 *   **wtf.zsh:** A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
@@ -60,11 +59,11 @@ You can hook this into a hotkey. I think basically every WM updated in the past 
 
 *   **llm-magic:** A shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
-*   **screen-query:** A script for interacting with a tmux session and an LLM. It captures the contents of a tmux pane, sends it to an LLM with a prompt, and displays the LLM's response using `mdreader` (or `cat` as a fallback). It also manages conversation history using a SQLite database.
-
 *   **shell-hook.zsh:** A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
 
-*   **sd-picker:** A bash shell that works with streamdown's savebrace feature that will allow for an easy browsing of the most recent 40 or so braces from the screen-query discussion to easy in any copy/paste job
+This is probably the most used tool of all of them. I use it probably 10-20 times a day. ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible
+![out](https://github.com/user-attachments/assets/01488c16-fb68-4fdb-a7ea-76e12499641d)
+
 
 ## Future work
 
