@@ -1,8 +1,6 @@
-# llmehelp
-
 A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
 
-## screen-query, sd-picker and sqa
+# screen-query, sd-picker and sqa
 
 This is probably what you're here for. There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
@@ -29,30 +27,26 @@ Here's some screenshots:
 
 The program, screen-query is meant to be really simple. Modify it as needed.
 
-## Other tools
+# kb-capture.py and llm-magic
+`kb-capture.py` captures keyboard events from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed. `llm-magic` is a shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
-Here's some other things:
+Their powers combined gives you llm prompting in any application. Here I am 
 
-* X input interception (kb-capture.py + llm-magic)
-* zsh interception (shell-hook.zsh)
-* tmux screen share and chat (screen-query)
+ * ssh'ing to a remote machine
+ * using a classic text editor (scite)
+ * using classic vim
 
-Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help you in a pinch instead of turn you into a manager and code reviewer of an junior dev AI assistant - not that there's anything wrong with that - I use them as well.
+I do a keystroke to invoke `llm-magic`, type my request, then ; and it replaces my query with the response. Totally magic. Just like it says. 
 
-These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
-You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
+![out](https://github.com/user-attachments/assets/07ed72d0-87ef-4270-b880-ae8797bd8c4e)
 
-
-### **wtf.zsh** 
+# wtf.zsh 
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
 ![un](https://github.com/user-attachments/assets/0fe52d11-cf79-45e1-ba3c-4bbbfba81610)
 
-*   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
 
-*   **llm-magic:** A shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
-
-### shell-hook.zsh
+# shell-hook.zsh
 A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
 
 This is probably the most used tool of all of them. I use it probably 10-20 times a day. ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible
