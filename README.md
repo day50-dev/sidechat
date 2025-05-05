@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=https://github.com/user-attachments/assets/be943048-5b09-48a4-820d-675622a568ec>
+  <img src=https://github.com/user-attachments/assets/b8524ce9-a1fc-4005-98da-5dbf6be4000d>
   <br/>
   <strong>A set of novel HCI workflows for interacting with LLMs</strong>
 </p>
