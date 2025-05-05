@@ -3,20 +3,13 @@
 A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
 
 ## screen-query, sd-picker and sqa
+
+This is probably what you're here for. There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
+
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
-This is probably what you're here for. Here's a rundown:
-
-In `~/.tmux.conf` add something like this:
-
-    bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
-    bind j display-popup -E "sd-picker"
-
-where `screen-query` and `sd-picker` is in your path.
-
-You should also use `sqa` which you can use to pipe anything into the context. Here's an example:
+You should also use `sqa` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
-
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
@@ -49,21 +42,22 @@ Unlike aider/goose/claude desktop, these are llm micro-helpers, designed to help
 These are designed to work in linux, under Xorg. There's a dzen2 and xdotool dependency with the llm-magic and simonw's llm script for all of them.
 You can hook this into a hotkey. I think basically every WM updated in the past 20 years has hotkey configurable management these days.
 
-## Files
 
-*   **wtf.zsh:** A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
+### **wtf.zsh** 
+A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
-   ![2025-05-03_15-18](https://github.com/user-attachments/assets/8825ba62-672b-4291-9e8f-5e31a700a76c)
+![un](https://github.com/user-attachments/assets/0fe52d11-cf79-45e1-ba3c-4bbbfba81610)
 
 *   **kb-capture.py:** A Python script that captures keyboard events using `python-xlib`. It records key presses and releases from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed, and supports backspace functionality.
 
 *   **llm-magic:** A shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
-*   **screen-query:** A script for interacting with a tmux session and an LLM. It captures the contents of a tmux pane, sends it to an LLM with a prompt, and displays the LLM's response using `mdreader` (or `cat` as a fallback). It also manages conversation history using a SQLite database.
+### shell-hook.zsh
+A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
 
-*   **shell-hook.zsh:** A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
+This is probably the most used tool of all of them. I use it probably 10-20 times a day. ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible
+![out](https://github.com/user-attachments/assets/01488c16-fb68-4fdb-a7ea-76e12499641d)
 
-*   **sd-picker:** A bash shell that works with streamdown's savebrace feature that will allow for an easy browsing of the most recent 40 or so braces from the screen-query discussion to easy in any copy/paste job
 
 ## Future work
 
