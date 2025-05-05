@@ -4,7 +4,7 @@
   <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
 </p>
 
-# The Tmux Talkers
+## The Tmux Talkers
 
 **screen-query, sd-picker and sqa**
 
@@ -33,7 +33,7 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
 
-# The Xorg Xtractors
+## The Xorg Xtractors
 
 **kb-capture.py and llm-magic**
 
