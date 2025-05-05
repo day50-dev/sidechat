@@ -25,11 +25,11 @@ fi
 help() {
   [[ -n "$1" ]] && echo "  /flash    - flash the current focus"
   cat <<END
-  /sshot    - screenshot
+  /sshot    - screenshot.
   /mindwipe - forget this crazy world and start over
-  /choose   - switch pane capture focus
-  /[off|on] - toggle capture
-  \$cmd | sq-add [cid] - add the output of cmd to the context
+  /choose   - switch pane capture focus.
+  /[off|on] - toggle capture.
+  \$cmd | sq-add [cid] - add the output of cmd to the context.
 
 END
   if [[ -n "$1" ]]; then 
