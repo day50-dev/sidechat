@@ -1,4 +1,9 @@
-A set of HCI workflows for interacting with LLMs, with novel approaches to adding context and retrieving content.
+<p align="center">
+  ![llmehelp](https://github.com/user-attachments/assets/be943048-5b09-48a4-820d-675622a568ec)
+
+  <br/>
+  <strong>A set of novel HCI workflows for interacting with LLMs</strong>
+</p>
 
 # screen-query, sd-picker and sqa
 
