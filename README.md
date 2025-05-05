@@ -10,7 +10,7 @@ The llmehelp party has three fun rooms:
  * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
 
 ### But wait! 
-To use anything here you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
+To use these you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
 
 ## The Tmux Talkers
 
