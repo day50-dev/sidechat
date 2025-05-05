@@ -4,25 +4,25 @@
   <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
 </p>
 
-This is a variety of tools broken up into 3 groups:
- * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat interface for tmux
- * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection at the Xorg level
- * **[Shell Snoopers](#the-shell-snoopers)**: Similar tools but done at the shell and terminal I/O level
-    
+The llmehelp party has three fun rooms:
+ * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat in tmux
+ * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection in your Xorg
+ * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
+
+### But wait! 
+To use anything here you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
+
 ## The Tmux Talkers
 
 **screen-query, sq-picker and sq-add**
 
 An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
 
-There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
-
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
 You should also use `sq-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
-You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
 Once you're in there's a few slash commands. Use `/help` to get the current list.
 
@@ -78,7 +78,7 @@ This works seamlessly over ssh boundaries, in visual applications, at REPLs --- 
 
 [shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
 
-### wtf.zsh 
+### wtf
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
 (Notice how it has no idea what shellwrap does. Told you it was new! ;-) )

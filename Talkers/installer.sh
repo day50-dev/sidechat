@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/Talkers
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "I'm an intentionally stupid installer! We're going to set -x so you can see what I'm doing"
 echo "It should probably work, but this is no guarantee, not in the slightest. Luckily it's easy to read"
 read -p "continue? "
