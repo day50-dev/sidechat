@@ -18,8 +18,6 @@ To use anything here you'll need a modernish version of [streamdown](https://git
 
 An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
 
-There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
-
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
 You should also use `sq-add` which can pipe anything into the context. Here's an example:
