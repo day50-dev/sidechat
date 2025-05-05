@@ -23,19 +23,22 @@ else
 fi
 
 help() {
+  [[ -n "$1" ]] && echo "  /flash    - flash the current focus"
   cat <<END
-  /sshot    - imagemagick screenshot and ask a question
+  /sshot    - screenshot
   /mindwipe - forget this crazy world and start over
-  /flash    - flash the current focus
-  /choose   - change the tmux pane capture focus
+  /choose   - switch pane capture focus
   /[off|on] - toggle capture
   \$cmd | sqa [cid] - add the output of cmd to the context
-  pwd: $(pwd)
+
 END
   if [[ -n "$1" ]]; then 
-    echo "  model: $model"
-    echo "  cid: $convo_id"
-    echo "  system: " $system | sd
+    {
+        echo "  * **pwd**: $(pwd)"
+        echo "  * **model**: $model"
+        echo "  * **cid**: $convo_id"
+        echo -e "  * **system**:\n> " $system 
+    } | sd
   fi
 }
 
