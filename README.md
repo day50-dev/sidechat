@@ -5,9 +5,9 @@
 </p>
 
 A variety of tools broken up into three fun parties:
- * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat interface for tmux
- * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection at the Xorg level
- * **[Shell Snoopers](#the-shell-snoopers)**: Similar tools but done at the shell and terminal I/O level
+ * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat in tmux
+ * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection in your Xorg
+ * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
 
 ### But wait! 
 To use anything here you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
