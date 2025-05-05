@@ -1,7 +1,7 @@
 <p align="center">
   <img src=https://github.com/user-attachments/assets/b8524ce9-a1fc-4005-98da-5dbf6be4000d>
   <br/>
-  <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
+  <strong>Hackable HCI tools to fix all those AI bugs</strong>
 </p>
 
 The llmehelp party has three fun rooms:
