@@ -8,7 +8,7 @@
 
 **screen-query, sd-picker and sqa**
 
-A conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
+A conversational agent with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
 
 There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
