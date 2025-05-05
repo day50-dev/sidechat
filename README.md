@@ -6,7 +6,7 @@
 
 ## The Tmux Talkers
 
-**screen-query, sd-picker and sqa**
+**screen-query, sq-picker and sq-add**
 
 A conversational agent with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
 
@@ -14,7 +14,7 @@ There's an intentionally unsophisticated `installer.sh` that may work and if it 
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
-You should also use `sqa` which can pipe anything into the context. Here's an example:
+You should also use `sq-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.

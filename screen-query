@@ -29,7 +29,7 @@ help() {
   /mindwipe - forget this crazy world and start over
   /choose   - switch pane capture focus
   /[off|on] - toggle capture
-  \$cmd | sqa [cid] - add the output of cmd to the context
+  \$cmd | sq-add [cid] - add the output of cmd to the context
 
 END
   if [[ -n "$1" ]]; then 

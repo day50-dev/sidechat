@@ -10,12 +10,12 @@ set -x
 if ! grep -q "bind h run-shell" ~/.tmux.conf; then
 cat << ENDL >> ~/.tmux.conf
 bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
-bind j display-popup -E "sd-picker"
+bind j display-popup -E "sq-picker"
 ENDL
 fi
 
 cd $HOME/bin
-for cmd in sqa sd-picker screen-query; do
+for cmd in sq-add sq-picker screen-query; do
   ln -s $DIR/$cmd .
 done
 
