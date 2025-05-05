@@ -6,7 +6,7 @@
 
 # screen-query, sd-picker and sqa
 **The tmux suite**:
-This is a conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context... 
+This is a conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context all sitting agnostically on top of tmux.
 
 There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
