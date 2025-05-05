@@ -8,7 +8,10 @@ This is a variety of tools broken up into 3 groups:
  * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat interface for tmux
  * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection at the Xorg level
  * **[Shell Snoopers](#the-shell-snoopers)**: Similar tools but done at the shell and terminal I/O level
-    
+
+### But wait! 
+To use anything here you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
+
 ## The Tmux Talkers
 
 **screen-query, sq-picker and sq-add**
@@ -22,7 +25,6 @@ There's an intentionally unsophisticated `installer.sh` that may work and if it 
 You should also use `sq-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
-You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
 Once you're in there's a few slash commands. Use `/help` to get the current list.
 
