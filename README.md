@@ -5,7 +5,8 @@
 </p>
 
 # screen-query, sd-picker and sqa
-This is a tmux helper with a conversational agent. It includes adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing... 
+**The tmux suite**:
+This is a conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context... 
 
 There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
@@ -32,6 +33,7 @@ Here's some screenshots:
 The program, screen-query is meant to be really simple. Modify it as needed.
 
 # kb-capture.py and llm-magic
+**The xorg suite**:
 `kb-capture.py` captures keyboard events from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed. `llm-magic` is a shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
 Their powers combined gives you llm prompting in any application. Here I am 
@@ -48,7 +50,6 @@ I do a keystroke to invoke `llm-magic`, type my request, then ; and it replaces 
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
 ![un](https://github.com/user-attachments/assets/0fe52d11-cf79-45e1-ba3c-4bbbfba81610)
-
 
 # shell-hook.zsh
 A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
