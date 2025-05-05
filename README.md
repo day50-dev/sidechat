@@ -4,7 +4,7 @@
   <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
 </p>
 
-A variety of tools broken up into three fun parties:
+The llmehelp party has three fun rooms:
  * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat in tmux
  * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection in your Xorg
  * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
