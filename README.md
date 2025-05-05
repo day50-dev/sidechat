@@ -22,8 +22,7 @@ Once you're in there's a few slash commands. These are all dumb - there's no tab
 ![2025-05-01_13-38](https://github.com/user-attachments/assets/e57ea643-cb63-4727-9901-e15109b81adb)
 
 
-
-Here's some screenshots:
+Here's some screenshots of the savebrace and recent feature and how it helps workflow.
 ![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
 
 ![2025-04-26_18-49](https://github.com/user-attachments/assets/c8b98e30-cd09-47bc-b751-02a929a82703)
