@@ -5,8 +5,9 @@
 </p>
 
 # screen-query, sd-picker and sqa
+This is a tmux helper with a conversational agent. It includes adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing... 
 
-This is probably what you're here for. There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
+There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
@@ -20,7 +21,6 @@ Once you're in there's a few slash commands. These are all dumb - there's no tab
 ![2025-05-01_13-38](https://github.com/user-attachments/assets/e57ea643-cb63-4727-9901-e15109b81adb)
 
 
-It includes adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing... 
 
 Here's some screenshots:
 ![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
