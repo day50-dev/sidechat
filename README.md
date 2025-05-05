@@ -4,8 +4,9 @@
   <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
 </p>
 
-# screen-query, sd-picker and sqa
-**The Tmux Suite**
+# The Tmux Talkers
+
+**screen-query, sd-picker and sqa**
 
 A conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
 
@@ -32,9 +33,9 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
 
-# kb-capture.py and llm-magic
+# The Xorg Xtractors
 
-**The Xorg Suite**
+**kb-capture.py and llm-magic**
 
 `kb-capture.py` captures keyboard events from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed. `llm-magic` is a shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
