@@ -104,7 +104,11 @@ choose() {
 
 last() {
     if [[ -z "$convo_id" ]]; then
-        convo_id=$( cat $MDIR/last.convo )
+        if [[ -r $MDIR/last.conv ]]; then
+            convo_id=$( cat $MDIR/last.convo )
+        else 
+            convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
+        fi
     fi
     { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd
     conv="--cid $convo_id"
