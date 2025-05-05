@@ -51,7 +51,7 @@ I do a keystroke to invoke `llm-magic`, type my request, then ; and it replaces 
 
 ## The Shell Snoopers 
 
-** shell-hook, shellwrap and wtf **
+**shell-hook, shellwrap and wtf**
 
 ### shell-hook.zsh
 A Zsh shell hook that intercepts user input before execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response. 
