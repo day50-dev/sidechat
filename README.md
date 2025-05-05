@@ -4,6 +4,11 @@
   <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
 </p>
 
+This is a variety of tools broken up into 3 groups:
+ * **Tmux Talkers**: A sidebar chat interface for tmux
+ * **Xorg Xtractors**: LLM interception and injection at the Xorg level
+ * **Shell Snoopers**: Similar tools but done at the shell and terminal I/O level
+    
 ## The Tmux Talkers
 
 **screen-query, sq-picker and sq-add**
