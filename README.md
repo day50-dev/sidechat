@@ -45,6 +45,17 @@ I do a keystroke to invoke `llm-magic`, type my request, then ; and it replaces 
 
 ![out](https://github.com/user-attachments/assets/07ed72d0-87ef-4270-b880-ae8797bd8c4e)
 
+# shellwrap
+shellwrap is a new concept, generally. It shepherds your input and output as a true wrapper and logs both sides of the conversation into files. Then when you invoke the llm it will pre-empt any existing interaction, kind of like the ssh shell escape. This is what the reversed triangle video is.
+
+Then you type your command in and press enter. This command, plus the context of your previous input and output is then sent off to the llm and its response is wired up to the stdin of the application.
+
+So for instance, 
+ * inside of vim, it will correctly know I'm in vim and how to exit it.
+ * I give it a prompt at the python shell, on a remote machine, and it uses the context to infer that I'm in python shell and then responds in python.
+
+[shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
+
 # wtf.zsh 
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
