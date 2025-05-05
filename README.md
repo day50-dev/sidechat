@@ -51,8 +51,9 @@ shellwrap is a new concept, generally. It shepherds your input and output as a t
 Then you type your command in and press enter. This command, plus the context of your previous input and output is then sent off to the llm and its response is wired up to the stdin of the application.
 
 So for instance, 
- * inside of vim, it will correctly know I'm in vim and how to exit it.
- * I give it a prompt at the python shell, on a remote machine, and it uses the context to infer that I'm in python shell and then responds in python.
+ * I'm inside my zsh shell and it gives me shell commands.
+ * Then I go inside of a full screen program, in this case vim. I pre-empt the vim session and just start typing. The llm infers it's vim and knows what mode I'm in from my previous keystrokes and correctly exits.
+ * I give it a prompt at the python shell and it uses the context to infer it and then to my request in a compatible way.
 
 [shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
 
