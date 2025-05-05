@@ -5,15 +5,15 @@
 </p>
 
 This is a variety of tools broken up into 3 groups:
- * **Tmux Talkers**: A sidebar chat interface for tmux
- * **Xorg Xtractors**: LLM interception and injection at the Xorg level
- * **Shell Snoopers**: Similar tools but done at the shell and terminal I/O level
+ * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat interface for tmux
+ * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection at the Xorg level
+ * **[Shell Snoopers](#the-shell-snoopers)**: Similar tools but done at the shell and terminal I/O level
     
 ## The Tmux Talkers
 
 **screen-query, sq-picker and sq-add**
 
-A conversational agent with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
+An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
 
 There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
