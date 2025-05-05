@@ -8,13 +8,10 @@ MDIR=/tmp/screen-query
 [[ -d $MDIR ]] || mkdir $MDIR
 
 LOG=$MDIR/$(date +%s).md
-MDREADER=$(which sd)
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
 
-[[ -r $MDREADER ]] || MDREADER=$(which glow)
-[[ -r $MDREADER ]] || MDREADER=cat
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
 trap 'history -w "$HISTFILE"' EXIT
@@ -47,7 +44,7 @@ running=$(ps -u $me -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d 
 system=$(cat <<END
 You are an interactive debugging buddy connected to a tmux session. 
 You will get tmux capture-pane -p as they ask you questions. 
-$me is using $(uname) with $(getent passwd $me | cut -d: -f7) and is able to open up new panes and change the capture focus. You will be notified when this happens
+$me is using $(uname -ar) with $(getent passwd $me | cut -d: -f7) and is able to open up new panes and change the capture focus. You will be notified when this happens
 You will get new captures if the tmux pane capture diff is non-zero. 
 $me is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
 $me can do the following: $(help)
@@ -105,11 +102,19 @@ choose() {
     fi
 }
 
+last() {
+    if [[ -z "$convo_id" ]]; then
+        convo_id=$( cat $MDIR/last.convo )
+    fi
+    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd
+    conv="--cid $convo_id"
+}
+
 my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
 ata=""
 if [[ -n "$convo_id" ]]; then
-    { echo "# . . . "; llm logs list --cid $convo_id | tail -10; } | sd
+    last 5
 else
     echo "Conversation Start"
 fi
@@ -159,9 +164,7 @@ if [[ $input =~ ^/ ]]; then
             ata="-a $sshot"
             echo "Next prompt will use your screen shot"
         elif [[ $input == "/last" ]]; then
-            convo_id=$( cat $MDIR/last.convo )
-            conv="--cid $convo_id"
-            echo "Using $convo_id"
+            last 40
         elif [[ $input == "/choose" ]]; then
             choose
         elif [[ $input == "/flash" ]]; then
@@ -210,13 +213,13 @@ if [[ $input =~ ^/ ]]; then
             | tee -a $MDIR/input.txt \
             | ( llm "${text}${INJECT}" -s "$system" $ata $conv || echo ) \
             | tee -a $MDIR/output.txt \
-            | $MDREADER
+            | sd
         
         cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
     else
         llm "$text${INJECT}" -s "$system" $ata $conv \
             | tee -a $MDIR/output.txt \
-            | $MDREADER
+            | sd
     fi
     INJECT=
 
