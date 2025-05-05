@@ -5,8 +5,9 @@
 </p>
 
 # screen-query, sd-picker and sqa
-**The tmux suite**:
-This is a conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
+**The Tmux Suite**
+
+A conversational agent with suppport for conversation history, adding screenshots, command output, cycling pane focus, wiping memory, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon the LLM at your leisure.
 
 There's an intentionally unsophisticated `installer.sh` that may work and if it doesn't, it should be very easy to find out what's going on.
 
@@ -32,7 +33,9 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
 
 # kb-capture.py and llm-magic
-**The xorg suite**:
+
+**The Xorg Suite**
+
 `kb-capture.py` captures keyboard events from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed. `llm-magic` is a shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
 Their powers combined gives you llm prompting in any application. Here I am 
