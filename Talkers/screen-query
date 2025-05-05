@@ -64,12 +64,10 @@ touch $MDIR/${pane_id}.convo
 touch $MDIR/${pane_id}.old
 
 flash() {
-    {
-        tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=default' 
-        tmux select-pane -t $my_id
-    } &
+    tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
+    tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
+    tmux select-pane -t $pane_id -P 'bg=default' 
+    tmux select-pane -t $my_id
     set_prompt
 }
 
@@ -85,7 +83,7 @@ getmodel() {
 getmodel
 
 set_prompt() {
-    base="▹►"
+    base="·· "
     [[ -n "$capture" ]] && base="📷 "
     prompt="$base▶ "
 }
