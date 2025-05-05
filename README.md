@@ -38,6 +38,10 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
 
+Also you don't need `tmux`! Often you'll be doing things and then realize you want the talk party and you're not in tmux.
+
+That's fine! If you use streamdown  `sq-picker` works like it does inside tmux. You can also `sq-add` by id. It's not great but you're not locked in. That's the point!
+
 ## The Xorg Xtractors
 
 **kb-capture.py and llm-magic**
