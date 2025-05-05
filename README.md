@@ -55,6 +55,8 @@ So for instance,
  * Then I go inside of a full screen program, in this case vim. I pre-empt the vim session and just start typing. The llm infers it's vim and knows what mode I'm in from my previous keystrokes and correctly exits.
  * I give it a prompt at the python shell and it uses the context to infer it and then to my request in a compatible way.
 
+This works seamlessly over ssh boundaries, in visual applications, at REPLs --- anywhere.
+
 [shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
 
 # wtf.zsh 
