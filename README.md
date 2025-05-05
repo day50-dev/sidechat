@@ -65,6 +65,8 @@ This works seamlessly over ssh boundaries, in visual applications, at REPLs --- 
 # wtf.zsh 
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
+(Notice how it has no idea what shellwrap does. Told you it was new! ;-) )
+
 ![un](https://github.com/user-attachments/assets/0fe52d11-cf79-45e1-ba3c-4bbbfba81610)
 
 # shell-hook.zsh
