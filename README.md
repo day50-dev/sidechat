@@ -78,7 +78,7 @@ This works seamlessly over ssh boundaries, in visual applications, at REPLs --- 
 
 [shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
 
-### wtf.zsh 
+### wtf
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
 (Notice how it has no idea what shellwrap does. Told you it was new! ;-) )
