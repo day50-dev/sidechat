@@ -5,8 +5,8 @@
 </p>
 
 This is a variety of tools broken up into 3 groups:
- * **Tmux Talkers**: A sidebar chat interface for tmux
- * **Xorg Xtractors**: LLM interception and injection at the Xorg level
+ * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat interface for tmux
+ * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection at the Xorg level
  * **[Shell Snoopers](#the-shell-snoopers)**: Similar tools but done at the shell and terminal I/O level
     
 ## The Tmux Talkers
