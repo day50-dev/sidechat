@@ -1,7 +1,7 @@
 <p align="center">
   <img src=https://github.com/user-attachments/assets/b8524ce9-a1fc-4005-98da-5dbf6be4000d>
   <br/>
-  <strong>A set of novel HCI workflows for interacting with LLMs</strong>
+  <strong>A set of novel hackable HCI tools for workflows with LLMs</strong>
 </p>
 
 # screen-query, sd-picker and sqa
@@ -30,8 +30,6 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 ![2025-04-26_18-49](https://github.com/user-attachments/assets/c8b98e30-cd09-47bc-b751-02a929a82703)
 
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
-
-The program, screen-query is meant to be really simple. Modify it as needed.
 
 # kb-capture.py and llm-magic
 **The xorg suite**:
