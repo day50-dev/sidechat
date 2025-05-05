@@ -49,7 +49,17 @@ I do a keystroke to invoke `llm-magic`, type my request, then ; and it replaces 
 
 ![out](https://github.com/user-attachments/assets/07ed72d0-87ef-4270-b880-ae8797bd8c4e)
 
-# shellwrap
+## The Shell Snoopers 
+
+** shell-hook, shellwrap and wtf **
+
+### shell-hook.zsh
+A Zsh shell hook that intercepts user input before execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response. 
+
+This is probably the most used tool of all of them. I use it probably 10-20 times a day. ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible
+![out](https://github.com/user-attachments/assets/01488c16-fb68-4fdb-a7ea-76e12499641d)
+
+### shellwrap
 shellwrap is a new concept, generally. It shepherds your input and output as a true wrapper and logs both sides of the conversation into files. Then when you invoke the llm it will pre-empt any existing interaction, kind of like the ssh shell escape. This is what the reversed triangle input in the video is. That's invoked with a keyboard shortcut, currently `ctrl+x`.
 
 Then you type your command in and press enter. This command, plus the context of your previous input and output is then sent off to the llm and its response is wired up to the stdin of the application.
@@ -63,19 +73,12 @@ This works seamlessly over ssh boundaries, in visual applications, at REPLs --- 
 
 [shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
 
-# wtf.zsh 
+### wtf.zsh 
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
 (Notice how it has no idea what shellwrap does. Told you it was new! ;-) )
 
 ![un](https://github.com/user-attachments/assets/0fe52d11-cf79-45e1-ba3c-4bbbfba81610)
-
-# shell-hook.zsh
-A Zsh shell hook that intercepts user input *before* execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response.  It reads the default LLM model from `~/.config/io.datasette.llm/default_model.txt`.
-
-This is probably the most used tool of all of them. I use it probably 10-20 times a day. ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible
-![out](https://github.com/user-attachments/assets/01488c16-fb68-4fdb-a7ea-76e12499641d)
-
 
 ## Future work
 
