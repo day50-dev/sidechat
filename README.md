@@ -19,7 +19,7 @@ You should also use `sqa` which can pipe anything into the context. Here's an ex
 
 You need a modernish version of [fzf](https://github.com/junegunn/fzf), [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). You can use it for free via openrouter.
 
-Once you're in there's a few slash commands. These are all dumb - there's no tab completion or anything fancy. Just enter `/help` to get the current list.
+Once you're in there's a few slash commands. Use `/help` to get the current list.
 
 Multiline is available with backslash `\`, just like it is at the shell
 
