@@ -32,7 +32,9 @@ for cmd in sq-add sq-picker screen-query; do
     ln -s "$DIR"/$cmd .
 done
 
-$PIP install llm streamdown 
+for pkg in llm streamdown; do
+    $PIP install $pkg
+done
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
