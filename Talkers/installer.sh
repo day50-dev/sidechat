@@ -21,12 +21,12 @@ cat << ENDL >> ~/.tmux.conf
 bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
 bind j display-popup -E "sq-picker"
 ENDL
-tmux source-file $HOME/.tmux.conf
+tmux source-file "$HOME"/.tmux.conf
 fi
 
 cd "$insdir"
 for cmd in sq-add sq-picker screen-query; do
-  [[ -e $cmd ]] || ln -s $DIR/$cmd .
+  [[ -e $cmd ]] || ln -s "$DIR"/$cmd .
 done
 
 pipx install --force streamdown llm
