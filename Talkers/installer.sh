@@ -1,7 +1,8 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PIP=$( (which pipx || which pip ) | tail -1 )
-[[ $PIP == 'pip' ]] && PIP="pip --break-system-packages"
+PIP="$( (which pipx || which pip ) | tail -1 ) install"
+if [[ $PIP =~ 'pipx' ]] || PIP="$PIP --break-system-packages"
+
 insdir="$HOME/.local/bin"
 {
 cat <<ENDL
@@ -34,7 +35,7 @@ for cmd in sq-add sq-picker screen-query; do
 done
 
 for pkg in llm streamdown; do
-    $PIP install $pkg
+    $PIP $pkg
 done
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
