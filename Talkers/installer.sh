@@ -4,7 +4,7 @@ insdir="$HOME/.local/bin"
 {
 cat <<ENDL
 
-I'm an intentionally stupid installer! We're going to set -x so you can see what I'm doing. It should probably work, but this is no guarantee, not in the slightest. Luckily it's easy to read.
+I'm an intentionally stupid installer! It should probably work, but this is no guarantee, not in the slightest. Luckily it's easy to read.
 
 ENDL
 } | fold -s
@@ -12,7 +12,6 @@ read -p "Continue? "
 set -eEuo pipefail
 trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 echo
-set -x
 
 [[ -d "$insdir" ]] || mkdir -p "$insdir"
 
@@ -26,7 +25,8 @@ fi
 
 cd "$insdir"
 for cmd in sq-add sq-picker screen-query; do
-  [[ -e $cmd ]] || ln -s "$DIR"/$cmd .
+  [[ -e $cmd ]] && unlink $cmd 
+  ln -s "$DIR"/$cmd .
 done
 
 pipx install --force streamdown llm
@@ -34,11 +34,10 @@ pipx install --force streamdown llm
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
 fi
-set +x
 {
 cat <<ENDL
 
-# I Think We're Done
+# **I Think We're Done**
 
 Well that seems to not have crashed.
 Here's the key strokes:
