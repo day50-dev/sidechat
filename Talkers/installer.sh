@@ -63,6 +63,7 @@ You'll need to set this up
 
 See here: [https://github.com/simonw/llm](https://github.com/simonw/llm)
 
+My recommendation is to install the openrouter plug-in, set up some integration keys and you can use a bunch of models for free.
 ENDL
 
 } | sd
