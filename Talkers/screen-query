@@ -25,11 +25,11 @@ fi
 help() {
   [[ -n "$1" ]] && echo "  /flash    - flash the current focus"
   cat <<END
-  /sshot    - screenshot
+  /sshot    - screenshot.
   /mindwipe - forget this crazy world and start over
-  /choose   - switch pane capture focus
-  /[off|on] - toggle capture
-  \$cmd | sq-add [cid] - add the output of cmd to the context
+  /choose   - switch pane capture focus.
+  /[off|on] - toggle capture.
+  \$cmd | sq-add [cid] - add the output of cmd to the context.
 
 END
   if [[ -n "$1" ]]; then 
@@ -45,12 +45,12 @@ END
 me=$(whoami)
 running=$(ps -u $me -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
 system=$(cat <<END
-You are an interactive debugging buddy connected to a tmux session. 
-You will get tmux capture-pane -p as they ask you questions. 
-$me is using $(uname -ar) with $(getent passwd $me | cut -d: -f7) and is able to open up new panes and change the capture focus. You will be notified when this happens
+You're an interactive debugging buddy connected to a tmux session. 
+You'll get tmux capture-pane -p as they ask you questions. 
+They're using $(uname -ar) with $(getent passwd $me | cut -d: -f7) and can change the capture focus. You will be notified when this happens.
 You will get new captures if the tmux pane capture diff is non-zero. 
-$me is using a markdown formatter, only insert newlines into code braces for syntactical reasons, you should not line break long lines yourself. 
-$me can do the following: $(help)
+They're using a markdown formatter. Only insert newlines into code braces for syntax.
+They can do the following: $(help)
 Here's a truncated ps to understand what $me is using: $running
 END
 )
@@ -64,12 +64,10 @@ touch $MDIR/${pane_id}.convo
 touch $MDIR/${pane_id}.old
 
 flash() {
-    {
-        tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=default' 
-        tmux select-pane -t $my_id
-    } &
+    tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
+    tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
+    tmux select-pane -t $pane_id -P 'bg=default' 
+    tmux select-pane -t $my_id
     set_prompt
 }
 
@@ -85,7 +83,7 @@ getmodel() {
 getmodel
 
 set_prompt() {
-    base="▹►"
+    base="·· "
     [[ -n "$capture" ]] && base="📷 "
     prompt="$base▶ "
 }

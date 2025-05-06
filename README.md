@@ -1,16 +1,16 @@
 <p align="center">
   <img src=https://github.com/user-attachments/assets/b8524ce9-a1fc-4005-98da-5dbf6be4000d>
   <br/>
-  <strong>A set of hackable novel HCI tools for workflows with LLMs</strong>
+  <strong>Hackable HCI tools to fix all those AI bugs</strong>
 </p>
 
-A variety of tools broken up into three fun parties:
- * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat interface for tmux
- * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection at the Xorg level
- * **[Shell Snoopers](#the-shell-snoopers)**: Similar tools but done at the shell and terminal I/O level
+The llmehelp party has three rooms:
+ * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat in tmux
+ * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection in your Xorg
+ * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
 
 ### But wait! 
-To use anything here you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
+To use these you'll need a modernish version of [streamdown](https://github.com/kristopolous/Streamdown) and [simonw's llm](https://github.com/simonw/llm). [fzf](https://github.com/junegunn/fzf) is also needed for the talkers!
 
 ## The Tmux Talkers
 
@@ -37,6 +37,10 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 ![2025-04-26_18-49](https://github.com/user-attachments/assets/c8b98e30-cd09-47bc-b751-02a929a82703)
 
 ![2025-04-26_18-49_1](https://github.com/user-attachments/assets/c752f94f-b780-4a8b-b597-1ce62b2bdb78)
+
+Also you don't need `tmux`! Often you'll be doing things and then realize you want the talk party and you're not in tmux.
+
+That's fine! If you use streamdown  `sq-picker` works like it does inside tmux. You can also `sq-add` by id. It's not great but you're not locked in. That's the point!
 
 ## The Xorg Xtractors
 
