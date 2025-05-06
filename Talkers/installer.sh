@@ -51,6 +51,7 @@ And that's about it!
 Also, there's a few other things you probably need
 
 ### fzf
+Many package managers are quite a bit behind in the modern features so even if you have it installed, if it seems to break, this is why.
 \`\`\`bash
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
