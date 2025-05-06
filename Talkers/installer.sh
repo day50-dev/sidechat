@@ -29,7 +29,11 @@ for cmd in sq-add sq-picker screen-query; do
   ln -s "$DIR"/$cmd .
 done
 
-pipx install --force streamdown llm
+if ! pipx list --short | grep -E '^llm '; then
+    pipx install llm
+fi
+
+pipx install --force streamdown 
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
