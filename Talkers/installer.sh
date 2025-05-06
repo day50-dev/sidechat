@@ -1,5 +1,6 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PIP=$( (which pipx || which pip ) | tail -1 )
 insdir="$HOME/.local/bin"
 {
 cat <<ENDL
@@ -31,11 +32,7 @@ for cmd in sq-add sq-picker screen-query; do
     ln -s "$DIR"/$cmd .
 done
 
-if ! pipx list --short | grep -E '^llm '; then
-    pipx install llm
-fi
-
-pipx install --force streamdown 
+$PIP install llm streamdown 
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
