@@ -1,6 +1,4 @@
 #!/bin/bash
-set -eEuo pipefail
-trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 insdir="$HOME/.local/bin"
 {
@@ -11,6 +9,8 @@ I'm an intentionally stupid installer! We're going to set -x so you can see what
 ENDL
 } | fold -s
 read -p "Continue? "
+set -eEuo pipefail
+trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 echo
 set -x
 
