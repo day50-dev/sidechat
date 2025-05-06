@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PIP="$( (which pipx || which pip ) | tail -1 ) install"
-if [[ $PIP =~ 'pipx' ]] || PIP="$PIP --break-system-packages"
+[[ $PIP =~ 'pipx' ]] || PIP="$PIP --break-system-packages"
 
 insdir="$HOME/.local/bin"
 {
