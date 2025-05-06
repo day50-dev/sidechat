@@ -56,6 +56,7 @@ Many package managers are quite a bit behind in the modern features so even if y
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 \`\`\`
+You can get this now as your last streamdown brace using \`sq-picker 1\`
 
 see here: [https://github.com/junegunn/fzf](https://github.com/junegunn/fzf)
 

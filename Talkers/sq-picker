@@ -1,4 +1,9 @@
 #!/bin/bash
+if [[ -n "$1" ]] ; then 
+    perl -0777 -ne 'print join("\0", (split(/\0/, $_))[-'$1'])' /tmp/sd/savebrace
+    exit
+fi
+
 selected=$(perl -0777 -ne 'print join("\0", (split(/\0/, $_))[-40..-1])' /tmp/sd/savebrace | fzf --read0 --ansi --multi --no-sort --tac --highlight-line --gap)
 if [ -n "$selected" ]; then
     tmux send-keys -t "$TMUX_PANE" "$selected" 
