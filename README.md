@@ -12,6 +12,8 @@ A full-system AI first integrated diagnostic and development suite built the Uni
 
 **The goal**: Take the conversation context from the IDE, to the shell, to the remote system, to any place you are interacting, and then go back to the IDE and continue the conversation without losing the thread. The full development cycle, behavior tailored, without any lock-ins.
 
+Supports streamdown routing.
+
 ## The Tmux Talkers
 
 **screen-query, sq-picker and sq-add**
