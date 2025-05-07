@@ -83,9 +83,9 @@ getmodel() {
 getmodel
 
 set_prompt() {
-    base="·· "
-    [[ -n "$capture" ]] && base="📷 "
-    prompt="$base▶ "
+    base="--▸"
+    [[ -n "$capture" ]] && base="📷▸"
+    prompt="$base "
 }
 
 choose() {
