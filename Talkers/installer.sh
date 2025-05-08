@@ -30,8 +30,8 @@ fi
 
 cd "$insdir"
 for cmd in sq-add sq-picker screen-query; do
-    [[ -e $cmd ]] && unlink $cmd 
-    ln -s "$DIR"/$cmd .
+    [[ -h $cmd ]] && unlink $cmd 
+    cp -puv "$DIR"/$cmd .
 done
 
 for pkg in llm streamdown; do
