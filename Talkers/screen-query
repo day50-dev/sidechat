@@ -109,7 +109,7 @@ last() {
             convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
     fi
-    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd
+    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd -c <(echo -e "[style]\nMargin = 4")
     conv="--cid $convo_id"
 }
 
@@ -216,13 +216,13 @@ if [[ $input =~ ^/ ]]; then
             | tee -a $MDIR/input.txt \
             | ( llm "${text}${INJECT}" -s "$system" $ata $conv || echo ) \
             | tee -a $MDIR/output.txt \
-            | sd
+            | sd -c <(echo -e "[style]\nMargin = 4")
         
         cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
     else
         llm "$text${INJECT}" -s "$system" $ata $conv \
             | tee -a $MDIR/output.txt \
-            | sd
+            | sd -c <(echo -e "[style]\nMargin = 4")
     fi
     INJECT=
 
