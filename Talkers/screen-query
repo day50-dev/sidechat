@@ -207,7 +207,9 @@ if [[ $input =~ ^/ ]]; then
             choose
         done
 
+        _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
         {
+            echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
             diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
                 && echo \
                 || cat $MDIR/${pane_id}.new; 
