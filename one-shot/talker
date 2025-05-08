@@ -1,6 +1,3 @@
-#!/bin/bash
-cd /tmp
 insdir=$(mktemp -u)
 git clone --depth=1 https://github.com/kristopolous/llmehelp $insdir
-cd $insdir/Talkers
-./installer.sh
+$insdir/Talkers/installer.sh
