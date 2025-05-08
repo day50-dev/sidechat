@@ -12,7 +12,7 @@ A full-system AI first integrated diagnostic and development suite built the Uni
 
 **The goal**: Take the conversation context from the IDE, to the shell, to the remote system, to any place you are interacting, and then go back to the IDE and continue the conversation without losing the thread. The full development cycle, behavior tailored, without any lock-ins.
 
-Supports streamdown routing.
+Part of a 4 parter: [streamdown](https://github.com/kristopolous/Streamdown) for output parsing, [dejaview](https://github.com/kristopolous/dejaview) as a context and memory routing layer, and [megacode](https://github.com/kristopolous/megacode), a kilo fork as the agentic arm of the group.
 
 ## The Tmux Talkers
 
@@ -22,7 +22,7 @@ Simple installer:
 
     curl 9ol.es/talker | bash
 
-An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and probably more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
+An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, wiping memory, history, turning off and on pane capturing, adding external context and more after I write this, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
