@@ -25,7 +25,7 @@ fi
 help() {
   [[ -n "$1" ]] && echo "  /flash    - flash the current focus"
   cat <<END
-  /sshot    - screenshot.
+  /sshot    - raster screenshot.
   /mindwipe - forget this crazy world and start over
   /choose   - switch pane capture focus.
   /[off|on] - toggle capture.
@@ -45,13 +45,11 @@ END
 me=$(whoami)
 running=$(ps -u $me -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
 system=$(cat <<END
-You're an interactive debugging buddy connected to a tmux session. 
-You'll get tmux capture-pane -p as they ask you questions. 
-They're using $(uname -ar) with $(getent passwd $me | cut -d: -f7) and can change the capture focus. You will be notified when this happens.
-You will get new captures if the tmux pane capture diff is non-zero. 
+You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
+They're using $(uname -ar) with $(getent passwd $me | awk -F / '{print $NF}') and can change the capture focus. You will be notified when this happens.
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-Here's a truncated ps to understand what $me is using: $running
+Here's a ps: $running
 END
 )
 
