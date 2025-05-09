@@ -43,6 +43,7 @@ fi
 {
 cat <<ENDL
 
+----
 ### **Successfully installed screen-query and Streamdown**
 
 screen-query's tmux key strokes:

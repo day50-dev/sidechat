@@ -14,5 +14,5 @@ cat << ENDL
                                                                           
 ENDL
 insdir=$(mktemp -u)
-git clone --depth=1 https://github.com/kristopolous/llmehelp $insdir
+git clone --quiet --depth=1 https://github.com/kristopolous/llmehelp $insdir
 $insdir/Talkers/installer.sh
