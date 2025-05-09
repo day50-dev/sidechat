@@ -11,7 +11,8 @@ LOG=$MDIR/$(date +%s).md
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
-
+MDREAD=sd
+[[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
 trap 'history -w "$HISTFILE"' EXIT
@@ -39,7 +40,7 @@ END
         echo "  * **Model**: $model"
         echo "  * **CID**: ${convo_id:-*(Not available until first message)*}"
         echo -e "  * **System Prompt**:\n> " $system 
-    } | sd
+    } | $MDREAD
   fi
 }
 
@@ -114,7 +115,7 @@ last() {
             convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
     fi
-    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd -c <(echo -e "[style]\nMargin = 4")
+    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
     conv="--cid $convo_id"
 }
 
@@ -238,7 +239,7 @@ if [[ $input =~ ^/ ]]; then
 
      } | llm "${text}${INJECT}" -s "$system" $ata $conv \
        | tee -a $MDIR/output.txt \
-       | sd -c <(echo -e "[style]\nMargin = 4")
+       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
     INJECT=
 
