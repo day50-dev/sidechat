@@ -40,7 +40,8 @@ fi
     
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
-    echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
+
+    echo "Notice!\nAdd $insdir to your path."
 fi
 {
 cat <<ENDL
