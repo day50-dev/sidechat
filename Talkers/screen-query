@@ -130,7 +130,7 @@ ata=""
 if [[ -n "$convo_id" ]]; then
     last 5
 else
-    echo "Conversation Start"
+    echo "Conversation Start: Type /help for options"
 fi
 flash
 
