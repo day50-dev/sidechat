@@ -33,20 +33,21 @@ for pkg in llm streamdown; do
 done
 
 if [[ ! -d ~/.fzf ]]; then
-    echo "  ✅ fzf"
     git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     ~/.fzf/install --no-update-rc --no-completion --no-key-bindings
     for i in ~/.fzf/bin/*; do
-      cmd=$(basename $i)
-      rm -f "$insdir"/$cmd
-      ln -s "$i" "$insdir"/$cmd 
+        cmd=$(basename $i)
+        rm -f "$insdir"/$cmd
+        ln -s "$i" "$insdir"/$cmd 
     done
+    echo "  ✅ fzf"
 fi
 
 if ! command -v sqlite3 &> /dev/null; then
-    wget https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip
-    cd $insdir && unzip /tmp/sqlite-tools-linux-x64-3490200.zip
+    wget -q https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip
+    cd $insdir && unzip -q /tmp/sqlite-tools-linux-x64-3490200.zip 
 fi
+echo "  ✅ sqlite3"
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo -e "Notice!\nAdd $insdir to your path."
