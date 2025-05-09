@@ -44,8 +44,9 @@ fi
 {
 cat <<ENDL
 
-----
-### **Successfully installed screen-query and Streamdown**
+### **Success**
+
+You're ready to go.
 
 screen-query's tmux key strokes:
 
