@@ -109,7 +109,7 @@ last() {
             convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
     fi
-    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd
+    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | sd -c <(echo -e "[style]\nMargin = 4")
     conv="--cid $convo_id"
 }
 
@@ -201,29 +201,29 @@ if [[ $input =~ ^/ ]]; then
     { echo -e "\n\n"; echo "{$convo_id}:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
-    if [[ -n "$capture" ]]; then
-        while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
-            echo "Choose another pane"
-            choose
-        done
+    while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
+        echo "Choose another pane"
+        choose
+    done
 
-        {
-            diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
-                && echo \
-                || cat $MDIR/${pane_id}.new; 
+    {
+        if [[ -n "$capture" ]]; then
+            _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
+            {
+                echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
+                diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
+                    && echo \
+                    || cat $MDIR/${pane_id}.new
 
-        }   | grep -Ev '^$'         \
-            | tee -a $MDIR/input.txt \
-            | ( llm "${text}${INJECT}" -s "$system" $ata $conv || echo ) \
-            | tee -a $MDIR/output.txt \
-            | sd
-        
-        cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
-    else
-        llm "$text${INJECT}" -s "$system" $ata $conv \
-            | tee -a $MDIR/output.txt \
-            | sd
-    fi
+                cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+            } | grep -Ev '^$'         \
+              | tee -a $MDIR/input.txt 
+         fi
+
+     } | llm "${text}${INJECT}" -s "$system" $ata $conv \
+       | tee -a $MDIR/output.txt \
+       | sd -c <(echo -e "[style]\nMargin = 4")
+
     INJECT=
 
     if [[ -z "$conv" ]]; then
