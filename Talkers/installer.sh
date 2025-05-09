@@ -4,14 +4,6 @@ PIP="$( (which pipx || which pip ) | tail -1 ) install"
 [[ $PIP =~ 'pipx' ]] || PIP="$PIP --break-system-packages"
 
 insdir="$HOME/.local/bin"
-{
-cat <<ENDL
-
-I'm an intentionally stupid installer! It should probably work, but this is no guarantee, not in the slightest. Luckily it's easy to read.
-
-ENDL
-} | fold -s
-read -p "Continue? "
 set -eEuo pipefail
 trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 echo
@@ -30,7 +22,7 @@ fi
 
 for cmd in sq-add sq-picker screen-query; do
     [[ -h $cmd ]] && unlink $cmd 
-    cp -puv "$DIR"/$cmd "$insdir"
+    cp -pu "$DIR"/$cmd "$insdir"
 done
 
 for pkg in llm streamdown; do
@@ -43,10 +35,10 @@ fi
 {
 cat <<ENDL
 
-# **I Think We're Done**
+# **screen-query installed**
+Along with streamdown, a terminal markdown reader.
 
-Well that seems to not have crashed.
-Here's the key strokes:
+Here's the tmux key strokes:
 
  * **tmux key + h** -- chat window
  * **tmux key + j** -- recent code snippets
@@ -56,19 +48,18 @@ And that's about it!
 Also, there's a few other things you probably need
 
 ### fzf
+[https://github.com/junegunn/fzf](https://github.com/junegunn/fzf)
 Many package managers are quite a bit behind in the modern features so even if you have it installed, if it seems to break, this is why.
 \`\`\`bash
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 \`\`\`
-You can get this now as your last streamdown brace using \`sq-picker 1\`
+You can get this now as your last streamdown brace using \`sq-picker 1 | bash\`
 
-see here: [https://github.com/junegunn/fzf](https://github.com/junegunn/fzf)
 
 ### simonw's llm
-You'll need to set this up
-
 See here: [https://github.com/simonw/llm](https://github.com/simonw/llm)
+You'll need to set this up
 
 My recommendation is to install the openrouter plug-in, set up some integration keys and you can use a bunch of models for free.
 ENDL
