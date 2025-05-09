@@ -113,6 +113,12 @@ last() {
     conv="--cid $convo_id"
 }
 
+mindwipe() {
+    echo "Memory has been wiped."
+    conv=
+    getmodel
+}
+
 my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
 ata=""
@@ -168,17 +174,22 @@ if [[ $input =~ ^/ ]]; then
             echo "Next prompt will use your screen shot"
         elif [[ $input == "/last" ]]; then
             last 40
+        elif [[ $input == "/mindwipe" ]]; then
+            mindwipe
         elif [[ $input == "/choose" ]]; then
             choose
         elif [[ $input == "/flash" ]]; then
             flash
+        elif [[ $input == "/model" ]]; then
+            chosen=$(llm models list  sort | fzf)
+            if [[ -n "$chosen" ]]; then
+              echo "Setting to $chosen"
+              llm models default $chosen
+              mindwipe
+            fi
         elif [[ $input == "/off" ]]; then
             echo "Capturing off"
             capture=
-        elif [[ $input == "/mindwipe" ]]; then
-            echo "Memory has been wiped."
-            conv=
-            getmodel
         elif [[ $input == "/on" ]]; then
             while ! tmux list-panes -t "$pane_id" &>/dev/null; do
                 echo "Woops, the pane disappeared. Choose another!"
