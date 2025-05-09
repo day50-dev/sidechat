@@ -23,13 +23,13 @@ else
 fi
 
 help() {
-  [[ -n "$1" ]] && echo "  /flash    - flash the current focus"
+  [[ -n "$1" ]] && echo "  /flash    - Flash the current focus."
   cat <<END
-  /sshot    - raster screenshot.
-  /mindwipe - forget this crazy world and start over
-  /choose   - switch pane capture focus.
-  /model    - switch model.
-  /[off|on] - toggle capture.
+  /sshot    - Raster screenshot.
+  /mindwipe - Forget this crazy world and start over.
+  /choose   - Switch pane capture focus.
+  /model    - Switch model.
+  /[off|on] - Toggle capture.
   \$cmd | sq-add [cid] - add the output of cmd to the context.
 
 END
