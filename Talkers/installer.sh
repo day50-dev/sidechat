@@ -10,6 +10,7 @@ echo -e "\n  INSTALLING\n"
 
 [[ -d "$insdir" ]] || mkdir -p "$insdir"
 
+touch ~/.tmux.conf
 if ! grep -q "bind h run-shell" ~/.tmux.conf; then
 cat << ENDL >> ~/.tmux.conf
 bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
@@ -62,4 +63,4 @@ Our Recommendation:
  3. Use the free models.
 ENDL
 
-} | sd -w 69
+} | $insdir/sd 
