@@ -26,8 +26,13 @@ for cmd in sq-add sq-picker screen-query; do
 done
 
 for pkg in llm streamdown; do
+    echo " -- $pkg"
     $PIP $pkg
 done
+
+echo " -- fzf"
+git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
@@ -35,31 +40,17 @@ fi
 {
 cat <<ENDL
 
-# **screen-query installed**
-Along with streamdown, a terminal markdown reader.
+# **Successfully installed screen-query and Steamdown**
 
-Here's the tmux key strokes:
+screen-query's tmux key strokes:
 
  * **tmux key + h** -- chat window
  * **tmux key + j** -- recent code snippets
 
-And that's about it!
-
-Also, there's a few other things you probably need
-
-### FZF
-[https://github.com/junegunn/fzf](https://github.com/junegunn/fzf)
-Many package managers are quite a bit behind in the modern features so even if you have it installed, if it seems to break, this is why.
-\`\`\`bash
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-\`\`\`
-You can get this now as your last streamdown brace using \`sq-picker 1 | bash\`
-
+There's one thing you need to set up
 
 ### LLM
 [https://github.com/simonw/llm](https://github.com/simonw/llm)
-You'll need to set this up.
 
 Our recommendation:
  1. llm install llm-openrouter.
