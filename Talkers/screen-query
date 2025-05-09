@@ -181,7 +181,7 @@ if [[ $input =~ ^/ ]]; then
         elif [[ $input == "/flash" ]]; then
             flash
         elif [[ $input == "/model" ]]; then
-            chosen=$(llm models list  sort | fzf)
+            chosen=$(llm models list | fzf)
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
               llm models default $chosen
