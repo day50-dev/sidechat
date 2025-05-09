@@ -35,10 +35,10 @@ help() {
 END
   if [[ -n "$1" ]]; then 
     {
-        echo "  * **pwd**: $(pwd)"
-        echo "  * **model**: $model"
-        echo "  * **cid**: $convo_id"
-        echo -e "  * **system**:\n> " $system 
+        echo "  * **PWD**: $(pwd)"
+        echo "  * **Model**: $model"
+        echo "  * **CID**: ${convo_id:-*(Not available until first message)*}"
+        echo -e "  * **System Prompt**:\n> " $system 
     } | sd
   fi
 }
@@ -89,6 +89,10 @@ set_prompt() {
 
 choose() {
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
+    if [[ $? == "1" ]] ; then
+        echo "Exiting due to possible infinite loop."
+        exit 1
+    fi
     if [[ -e $MDIR/pane-id ]]; then 
         pane_id=$(cat $MDIR/pane-id)
         echo "Using $pane_id"
