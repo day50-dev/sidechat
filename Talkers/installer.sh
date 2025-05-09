@@ -13,8 +13,8 @@ echo -e "\n  INSTALLING\n"
 touch ~/.tmux.conf
 if ! grep -q "bind h run-shell" ~/.tmux.conf; then
 cat << ENDL >> ~/.tmux.conf
-bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
-bind j display-popup -E "sq-picker"
+bind h run-shell "tmux split-window -h '$insdir/screen-query #{pane_id}'"
+bind j display-popup -E "$insdir/sq-picker"
 ENDL
     if pgrep -u $UID tmux > /dev/null; then
         tmux source-file "$HOME"/.tmux.conf
