@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PIP="$( (which pipx || which pip ) | tail -1 ) install"
-[[ $PIP =~ 'pipx' ]] && PIP="$PIP --force" || PIP="$PIP --break-system-packages"
+[[ $PIP =~ 'pipx' ]] && PIP="$PIP " || PIP="$PIP --break-system-packages"
 
 insdir="$HOME/.local/bin"
 set -eEuo pipefail
@@ -26,13 +26,16 @@ for cmd in sq-add sq-picker screen-query; do
 done
 
 for pkg in llm streamdown; do
-    echo " -- $pkg"
-    $PIP $pkg
+    echo "  ✅ $pkg"
+    $PIP $pkg &> /dev/null
 done
 
-echo " -- fzf"
-git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
+if [[ ! -d ~/.fzf ]]; then
+    echo "  ✅ fzf"
+    git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+    ~/.fzf/install
+fi
+    
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     echo "Now add $insdir to your path because I just blindly put things there. See, I told you this was stupid."
@@ -40,20 +43,18 @@ fi
 {
 cat <<ENDL
 
-# **Successfully installed screen-query and Steamdown**
+### **Successfully installed screen-query and Streamdown**
 
 screen-query's tmux key strokes:
 
  * **tmux key + h** -- chat window
  * **tmux key + j** -- recent code snippets
 
-There's one thing you need to set up
-
-### LLM
+You'll need to set up **LLM**:
 [https://github.com/simonw/llm](https://github.com/simonw/llm)
 
-Our recommendation:
- 1. llm install llm-openrouter.
+Our Recommendation:
+ 1. \`llm install llm-openrouter\`.
  2. Set up some integration keys.
  3. Use the free models.
 ENDL
