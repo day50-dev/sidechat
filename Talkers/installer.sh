@@ -15,7 +15,7 @@ cat << ENDL >> ~/.tmux.conf
 bind h run-shell "tmux split-window -h 'screen-query #{pane_id}'"
 bind j display-popup -E "sq-picker"
 ENDL
-    if pgrep tmux > /dev/null; then
+    if pgrep -u $UID tmux > /dev/null; then
         tmux source-file "$HOME"/.tmux.conf
     fi
 fi
