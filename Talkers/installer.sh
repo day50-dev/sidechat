@@ -6,7 +6,7 @@ PIP="$( (which pipx || which pip ) | tail -1 ) install"
 insdir="$HOME/.local/bin"
 set -eEuo pipefail
 trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
-echo
+echo -e "\n  INSTALLING\n"
 
 [[ -d "$insdir" ]] || mkdir -p "$insdir"
 
