@@ -10,9 +10,9 @@ cat << ENDL
 ░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░     ░▒▓███████▓▒░░▒▓████████▓▒░ 
 
 
-              Keeping AI productive 50 days in and beyond
+              Keeping AI Productive 50 Days In And Beyond
                                                                           
 ENDL
 insdir=$(mktemp -u)
-git clone --depth=1 https://github.com/kristopolous/llmehelp $insdir
+git clone --quiet --depth=1 https://github.com/kristopolous/llmehelp $insdir
 $insdir/Talkers/installer.sh
