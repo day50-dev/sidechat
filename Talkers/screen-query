@@ -28,6 +28,7 @@ help() {
   /sshot    - raster screenshot.
   /mindwipe - forget this crazy world and start over
   /choose   - switch pane capture focus.
+  /model    - switch model.
   /[off|on] - toggle capture.
   \$cmd | sq-add [cid] - add the output of cmd to the context.
 
