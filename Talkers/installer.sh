@@ -35,12 +35,20 @@ done
 if [[ ! -d ~/.fzf ]]; then
     echo "  ✅ fzf"
     git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install
+    ~/.fzf/install --no-update-rc --no-completion --no-key-bindings
+    for i in ~/.fzf/bin/*; do
+      cmd=$(basename $i)
+      rm -f "$insdir"/$cmd
+      ln -s "$i" "$insdir"/$cmd 
+    done
 fi
-    
+
+if ! command -v sqlite3 &> /dev/null; then
+    wget https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip
+    cd $insdir && unzip /tmp/sqlite-tools-linux-x64-3490200.zip
+fi
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
-
     echo -e "Notice!\nAdd $insdir to your path."
 fi
 {
