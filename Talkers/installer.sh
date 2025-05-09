@@ -50,8 +50,8 @@ You're ready to go.
 
 screen-query's tmux key strokes:
 
- * **tmux key + h** -- chat window
- * **tmux key + j** -- recent code snippets
+ * **tmux key + h**: Chat window
+ * **tmux key + j**: Recent code snippets
 
 You'll need to set up **LLM**:
 [https://github.com/simonw/llm](https://github.com/simonw/llm)
