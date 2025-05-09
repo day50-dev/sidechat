@@ -60,4 +60,4 @@ Our Recommendation:
  3. Use the free models.
 ENDL
 
-} | sd
+} | sd -w 69
