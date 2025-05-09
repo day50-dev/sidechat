@@ -41,7 +41,7 @@ fi
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
 
-    echo "Notice!\nAdd $insdir to your path."
+    echo -e "Notice!\nAdd $insdir to your path."
 fi
 {
 cat <<ENDL
