@@ -21,7 +21,7 @@ ENDL
 fi
 
 for cmd in sq-add sq-picker screen-query; do
-    rm -f $cmd 
+    rm -f "$insdir"/$cmd 
     cp -pu "$DIR"/$cmd "$insdir"
 done
 
