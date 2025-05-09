@@ -47,7 +47,7 @@ And that's about it!
 
 Also, there's a few other things you probably need
 
-### fzf
+### FZF
 [https://github.com/junegunn/fzf](https://github.com/junegunn/fzf)
 Many package managers are quite a bit behind in the modern features so even if you have it installed, if it seems to break, this is why.
 \`\`\`bash
@@ -57,11 +57,14 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 You can get this now as your last streamdown brace using \`sq-picker 1 | bash\`
 
 
-### simonw's llm
-See here: [https://github.com/simonw/llm](https://github.com/simonw/llm)
-You'll need to set this up
+### LLM
+[https://github.com/simonw/llm](https://github.com/simonw/llm)
+You'll need to set this up.
 
-My recommendation is to install the openrouter plug-in, set up some integration keys and you can use a bunch of models for free.
+Our recommendation:
+ 1. llm install llm-openrouter.
+ 2. Set up some integration keys.
+ 3. Use the free models.
 ENDL
 
 } | sd
