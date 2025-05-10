@@ -41,7 +41,7 @@ done
 
 for pkg in llm streamdown; do
     echo "  ✅ $pkg"
-    $PIP $pkg &> /dev/null
+    $PIP $pkg #&> /dev/null
 done
 
 if [[ ! -d ~/.fzf ]]; then
