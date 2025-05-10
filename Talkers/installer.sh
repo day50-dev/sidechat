@@ -5,6 +5,9 @@ if [[ -z "$PIP" ]]; then
     echo "Woops, we need python and either pip or pipx."
     exit 1
 fi
+if ! command -v unzip; then
+    echo "Woops, unzip needs to be installed."
+fi
 
 if [[ $PIP =~ /pipx$ ]]; then 
     PIP="$PIP install"
@@ -53,7 +56,7 @@ if [[ ! -d ~/.fzf ]]; then
 fi
 
 if ! command -v sqlite3 &> /dev/null; then
-    wget -q https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip
+    command -v wget && wget -q https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip ||  curl -s https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip > /tmp/sqlite-tools-linux-x64-3490200.zip
     cd $insdir && unzip -q /tmp/sqlite-tools-linux-x64-3490200.zip 
 fi
 echo "  ✅ sqlite3"
