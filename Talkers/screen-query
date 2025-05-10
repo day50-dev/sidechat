@@ -4,8 +4,10 @@
 #set -eEuo pipefail
 #trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 
+MDIR=/tmp/screen-query
+[[ -d $MDIR ]] || (mkdir $MDIR && chmod 0777 $MDIR)
 me=$(whoami)
-MDIR=/tmp/screen-query/$me
+MDIR=$MDIR/$me
 [[ -d $MDIR ]] || mkdir $MDIR
 
 LOG=$MDIR/$(date +%s).md
