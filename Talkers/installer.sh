@@ -5,7 +5,7 @@ if [[ -z "$PIP" ]]; then
     echo "Woops, we need python and either pip or pipx."
     exit 1
 fi
-if ! command -v unzip; then
+if ! command -v unzip > /dev/null; then
     echo "Woops, unzip needs to be installed."
 fi
 
@@ -46,7 +46,7 @@ done
 
 if [[ ! -d ~/.fzf ]]; then
     git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install --no-update-rc --no-completion --no-key-bindings
+    ~/.fzf/install --no-update-rc --no-completion --no-key-bindings >& /dev/null
     for i in ~/.fzf/bin/*; do
         cmd=$(basename $i)
         rm -f "$insdir"/$cmd
@@ -62,7 +62,7 @@ fi
 echo "  ✅ sqlite3"
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
-    shell=$(getent passwd $me | awk -F / '{print $NF}')
+    shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
     if [[ $shell =~ /bash ]]; then
         echo "export PATH=\$PATH:$insdir" >> $HOME/.bashrc
     elif [[ $shell =~ /zsh ]]; then
