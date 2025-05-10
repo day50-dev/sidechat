@@ -23,7 +23,7 @@ if [[ $(uname) == "Linux" ]]; then
     sd="$insdir/sd"
 else
     insdir="$HOME/Library/bin"
-    sd="~/Library/Python/3.x/bin/sd"
+    sd="~/Library/Python/*/bin/sd"
 fi
 
 set -eEuo pipefail
