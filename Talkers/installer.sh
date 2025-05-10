@@ -69,7 +69,7 @@ if ! echo $PATH | grep "$insdir" > /dev/null; then
     if [[ $(uname) == "Linux" ]]; then
         shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
     else
-        shell=$(basname $SHELL)
+        shell=$(basename $SHELL)
     fi
     msg="**Important!**"
     if [[ $shell == "bash" ]]; then
