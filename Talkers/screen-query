@@ -4,7 +4,8 @@
 #set -eEuo pipefail
 #trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 
-MDIR=/tmp/screen-query
+me=$(whoami)
+MDIR=/tmp/screen-query/$me
 [[ -d $MDIR ]] || mkdir $MDIR
 
 LOG=$MDIR/$(date +%s).md
@@ -44,7 +45,6 @@ END
   fi
 }
 
-me=$(whoami)
 running=$(ps -u $me -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
 system=$(cat <<END
 You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
