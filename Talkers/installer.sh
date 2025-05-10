@@ -64,19 +64,20 @@ echo "  ✅ sqlite3"
 msg="You're ready to go!"
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
+    msg="**Important!**"
     if [[ $shell == "bash" ]]; then
         echo "export PATH=\$PATH:$insdir" >> $HOME/.bashrc
-        msg="Run \`source ~/.bashrc\`"
+        msg="$msg Run \`source \~/.bashrc\`"
     elif [[ $shell == "zsh" ]]; then
         echo "export PATH=\$PATH:$insdir" >> $HOME/.zshrc
-        msg="Run \`source ~/.zshrc\`"
+        msg="$msg Run \`source \~/.zshrc\`"
     elif [[ $shell == "fish" ]]; then
         config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
         mkdir -p "$config_dir/fish"
         echo "fish_add_path $insdir" >> "$config_dir/fish"/config.fish
-        msg="Run \`source ~/.config/fish/config.fish\`"
+        msg="$msg Run \`source \~/.config/fish/config.fish\`"
     else
-        msg="**Notice!** Add $insdir to your path"
+        msg="$msg Add $insdir to your path"
     fi
     msg="$msg or restart your shell."
 fi
