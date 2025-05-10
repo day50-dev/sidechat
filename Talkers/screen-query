@@ -60,6 +60,7 @@ END
 pane_id=${1-}
 capture=0
 conv=
+forcecapture=
 [[ -r $MDIR/${pane_id}.convo ]] && convo_id=$(cat $MDIR/${pane_id}.convo) || convo_id=
 
 touch $MDIR/${pane_id}.convo 
@@ -125,6 +126,7 @@ mindwipe() {
     echo "Memory has been wiped."
     conv=
     getmodel
+    forcecapture=1
 }
 
 my_id=$(tmux display-message -p '#{pane_id}')
@@ -158,7 +160,7 @@ while [ 0 ]; do
     [[ -z "$input" ]] && break
     history -s "$input"  # Save to history
  
-if [[ $input =~ ^/ ]]; then
+    if [[ $input =~ ^/ ]]; then
         if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
             cmd=${BASH_REMATCH[1]}
             filename=${BASH_REMATCH[1]}
@@ -189,7 +191,7 @@ if [[ $input =~ ^/ ]]; then
         elif [[ $input == "/flash" ]]; then
             flash
         elif [[ $input == "/model" ]]; then
-            chosen=$(llm models list | fzf | cut -d ':' -f 2- | sed 's/^\s//g' )
+            chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | sed 's/^\s//g' )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
               llm models default $chosen
@@ -198,6 +200,7 @@ if [[ $input =~ ^/ ]]; then
         elif [[ $input == "/off" ]]; then
             echo "Capturing off"
             capture=
+            INJECT=" (Note: $(whoami) turned capture off)"
         elif [[ $input == "/on" ]]; then
             while ! tmux list-panes -t "$pane_id" &>/dev/null; do
                 echo "Woops, the pane disappeared. Choose another!"
@@ -206,6 +209,7 @@ if [[ $input =~ ^/ ]]; then
 
             flash
             echo "Capturing on"
+            INJECT=" (Note: $(whoami) turned capture on)"
             capture=0
         else
             help 1
@@ -230,11 +234,15 @@ if [[ $input =~ ^/ ]]; then
             _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
             {
                 echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
-                diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
-                    && echo \
-                    || cat $MDIR/${pane_id}.new
-
-                cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+                if [[ -n "$forcecapture" ]]; then
+                    cat $MDIR/${pane_id}.new
+                    focecapture=
+                else
+                    diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
+                        && echo \
+                        || cat $MDIR/${pane_id}.new
+                   cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+                fi
             } | grep -Ev '^$'         \
               | tee -a $MDIR/input.txt 
          fi
