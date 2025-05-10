@@ -243,7 +243,7 @@ while [ 0 ]; do
                         || cat $MDIR/${pane_id}.new
                    cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
                 fi
-            } | grep -Ev '^$'         \
+            } | grep -Ev "^$"         \
               | tee -a $MDIR/input.txt 
          fi
 
