@@ -9,7 +9,7 @@ fi
 if [[ $PIP =~ /pipx$ ]]; then 
     PIP="$PIP install"
 else
-    PIP="$PIP --user --break-system-packages"
+    PIP="$PIP install --user --break-system-packages "
 fi
 
 insdir="$HOME/.local/bin"
