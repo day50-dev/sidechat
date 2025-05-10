@@ -36,7 +36,7 @@ fi
 for cmd in sq-add sq-picker screen-query; do
     rm -f "$insdir"/$cmd 
     echo "  ✅ $cmd"
-    cp -pu "$DIR"/$cmd "$insdir"
+    cp -p "$DIR"/$cmd "$insdir"
 done
 
 for pkg in llm streamdown; do
