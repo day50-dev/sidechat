@@ -61,19 +61,24 @@ if ! command -v sqlite3 &> /dev/null; then
 fi
 echo "  ✅ sqlite3"
 
+msg=
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
-    if [[ $shell =~ /bash ]]; then
+    if [[ $shell == "bash" ]]; then
         echo "export PATH=\$PATH:$insdir" >> $HOME/.bashrc
-    elif [[ $shell =~ /zsh ]]; then
+        msg="\nRun \`source ~/.bashrc\`"
+    elif [[ $shell == "zsh" ]]; then
         echo "export PATH=\$PATH:$insdir" >> $HOME/.zshrc
-    elif [[ $shell =~ /fish ]]; then
+        msg="\nRun \`source ~/.zshrc\`"
+    elif [[ $shell == "fish" ]]; then
         config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
         mkdir -p "$config_dir/fish"
         echo "fish_add_path $insdir" >> "$config_dir/fish"/config.fish
+        msg="\nRun \`source ~/.config/fish/config.fish\`"
     else
-        echo -e "Notice!\nAdd $insdir to your path."
+        msg="\n**Notice!** Add $insdir to your path."
     fi
+    msg="$msg\nAnd then restart your shell."
 fi
 {
 cat <<ENDL
@@ -81,6 +86,7 @@ cat <<ENDL
 ### **Success**
 
 You're ready to go.
+$msg
 
 screen-query's tmux key strokes:
 
