@@ -1,6 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PIP=$(command -v pipx || command -v pip || command -v pip3 )
+pybin=
 if [[ -z "$PIP" ]]; then 
     echo "Woops, we need python and either pip or pipx."
     exit 1
@@ -23,7 +24,8 @@ if [[ $(uname) == "Linux" ]]; then
     sd="$insdir/sd"
 else
     insdir="$HOME/Library/bin"
-    sd=$(python3 -msite --user-base)"/bin/sd"
+    pybin=$(python3 -msite --user-base)"/bin"
+    sd="$pybin/sd"
 fi
 
 set -eEuo pipefail
@@ -80,10 +82,10 @@ if ! echo $PATH | grep "$insdir" > /dev/null; then
     fi
     msg="**Important!**"
     if [[ $shell == "bash" ]]; then
-        echo "export PATH=\$PATH:$insdir" >> $HOME/.bashrc
+        echo "export PATH=\$PATH:$insdir:$pybin" >> $HOME/.bashrc
         msg="$msg Run \`source ~/.bashrc\`"
     elif [[ $shell == "zsh" ]]; then
-        echo "export PATH=\$PATH:$insdir" >> $HOME/.zshrc
+        echo "export PATH=\$PATH:$insdir:$pybin" >> $HOME/.zshrc
         msg="$msg Run \`source ~/.zshrc\`"
     elif [[ $shell == "fish" ]]; then
         config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
