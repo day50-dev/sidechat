@@ -12,7 +12,10 @@ fi
 if [[ $PIP =~ /pipx$ ]]; then 
     PIP="$PIP install"
 else
-    PIP="$PIP install --user --break-system-packages "
+    PIP="$PIP install --user"
+    if [[ $(uname) == "Linux" ]]; then
+        PIP="$PIP --break-system-packages "
+    fi
 fi
 
 insdir="$HOME/.local/bin"
