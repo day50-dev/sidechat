@@ -1,7 +1,16 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PIP="$( (which pipx || which pip ) | tail -1 ) install"
-[[ $PIP =~ 'pipx' ]] && PIP="$PIP " || PIP="$PIP --break-system-packages"
+PIP=$(command -v pipx || command -v pip )
+if [[ -z "$PIP" ]]; then 
+    echo "Woops, we need python and either pip or pipx."
+    exit 1
+fi
+
+if [[ $PIP =~ /pipx$ ]]; then 
+    PIP="$PIP install"
+else
+    PIP="$PIP --user --break-system-packages"
+fi
 
 insdir="$HOME/.local/bin"
 set -eEuo pipefail
