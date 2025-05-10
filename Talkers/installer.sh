@@ -66,7 +66,11 @@ echo "  ✅ sqlite3"
 
 msg="You're ready to go!"
 if ! echo $PATH | grep "$insdir" > /dev/null; then
-    shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
+    if [[ $(uname) == "Linux" ]]; then
+        shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
+    else
+        shell=$(basname $SHELL)
+    fi
     msg="**Important!**"
     if [[ $shell == "bash" ]]; then
         echo "export PATH=\$PATH:$insdir" >> $HOME/.bashrc
