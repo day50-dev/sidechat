@@ -20,7 +20,7 @@ fi
 
 if [[ $(uname) == "Linux" ]]; then
     insdir="$HOME/.local/bin"
-    sd="$insidr/sd"
+    sd="$insdir/sd"
 else
     insdir="$HOME/Library/bin"
     sd="~/Library/Python/3.x/bin/sd"
@@ -66,7 +66,7 @@ if [[ ! -d ~/.fzf ]]; then
 fi
 
 if ! command -v sqlite3 &> /dev/null; then
-    command -v wget && wget -q https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip ||  curl -s https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip > /tmp/sqlite-tools-linux-x64-3490200.zip
+    command -v wget > /dev/null && wget -q https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip ||  curl -s https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip > /tmp/sqlite-tools-linux-x64-3490200.zip
     cd $insdir && unzip -o -q /tmp/sqlite-tools-linux-x64-3490200.zip 
 fi
 echo "  ✅ sqlite3"
