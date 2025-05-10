@@ -62,7 +62,18 @@ fi
 echo "  ✅ sqlite3"
 
 if ! echo $PATH | grep "$insdir" > /dev/null; then
-    echo -e "Notice!\nAdd $insdir to your path."
+    shell=$(getent passwd $me | awk -F / '{print $NF}')
+    if [[ $shell =~ /bash ]]; then
+        echo "export PATH=\$PATH:$insdir" >> $HOME/.bashrc
+    elif [[ $shell =~ /zsh ]]; then
+        echo "export PATH=\$PATH:$insdir" >> $HOME/.zshrc
+    elif [[ $shell =~ /fish ]]; then
+        config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
+        mkdir -p "$config_dir/fish"
+        echo "fish_add_path $insdir" >> "$config_dir/fish"/config.fish
+    else
+        echo -e "Notice!\nAdd $insdir to your path."
+    fi
 fi
 {
 cat <<ENDL
