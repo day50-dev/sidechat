@@ -18,7 +18,12 @@ else
     fi
 fi
 
-insdir="$HOME/.local/bin"
+if [[ $(uname) == "Linux" ]]; then
+    insdir="$HOME/.local/bin"
+else
+    insdir="$HOME/Library/bin"
+fi
+
 set -eEuo pipefail
 trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 echo -e "\n  INSTALLING\n"
