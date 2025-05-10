@@ -20,8 +20,10 @@ fi
 
 if [[ $(uname) == "Linux" ]]; then
     insdir="$HOME/.local/bin"
+    sd="$insidr/sd"
 else
     insdir="$HOME/Library/bin"
+    sd="~/Library/Python/3.x/bin/sd"
 fi
 
 set -eEuo pipefail
@@ -114,4 +116,4 @@ Our Recommendation:
  3. Use the free models.
 ENDL
 
-} | $insdir/sd 
+} | $sd 
