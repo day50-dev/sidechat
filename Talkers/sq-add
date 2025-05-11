@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MDIR=/tmp/screen-query
+MDIR=/tmp/screen-query/$(whoami)
 pane_id=$(tmux display-message -p '#{pane_id}')
 if [[ -r $MDIR/$pane_id.convo ]]; then
     convo_id=$(cat $MDIR/${pane_id}.convo)
@@ -9,6 +9,29 @@ else
     convo_id=$(cat $MDIR/last.convo)
 fi
 convo_id=${1:-$convo_id}
+if [[ -z "$convo_id" ]]; then
+    echo "No conversation ID, no context to add"
+    exit 1
+fi 
+
+while getopts ":c:" opt; do
+  case $opt in
+    c)
+      convo_id="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -n "$*" ]; then
+  prompt="$*"
+else
+  prompt=$convo_id
+fi
+
 
 echo
 {   echo "The user is running a command and sending it to you by piping it through a program called ${0##*/}, here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
