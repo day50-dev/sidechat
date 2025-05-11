@@ -34,7 +34,7 @@ help() {
   /model    - Switch model.
   /sshot    - Raster screenshot.
   /[off|on] - Toggle capture.
-  \$cmd | sq-add [cid] - Add the output of cmd to the context.
+  \$cmd | sq-add [-c cid] [prompt] - Add the output of cmd to the context.
 
 END
   if [[ -n "$1" ]]; then 
@@ -224,10 +224,12 @@ while [ 0 ]; do
     { echo -e "\n\n"; echo "{$convo_id}:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
-    while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
-        echo "Choose another pane"
-        choose
-    done
+    if [[ -n "$capture" ]]; then
+        while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
+            echo "Choose another pane"
+            choose
+        done
+    fi
 
     {
         if [[ -n "$capture" ]]; then
