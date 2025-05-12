@@ -60,9 +60,9 @@ shellwrap is a new concept, generally. It shepherds your input and output as a t
 Then you type your command in and press enter. This command, plus the context of your previous input and output is then sent off to the llm and its response is wired up to the stdin of the application.
 
 So for instance, 
- * I'm inside my zsh shell and it gives me shell commands.
- * Then I go inside of a full screen program, in this case vim. I pre-empt the vim session and just start typing. The llm infers it's vim and knows what mode I'm in from my previous keystrokes and correctly exits.
- * I give it a prompt at the python shell and it uses the context to infer it and then to my request in a compatible way.
+ * Inside the zsh shell it gives shell commands.
+ * Inside a full screen program, in this case vim. The vim session is pre-empted with a keystroke then just start typing. The llm infers it's vim and knows what mode it's in from the previous keystrokes and correctly exits.
+ * Interactive python is opened. It uses the context to infer it and responds appropriately.
 
 This works seamlessly over ssh boundaries, in visual applications, at REPLs --- anywhere.
 
