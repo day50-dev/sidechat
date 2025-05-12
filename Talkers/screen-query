@@ -47,13 +47,11 @@ END
   fi
 }
 
-running=$(ps -u $me -o comm= | sed -E 's/[^a-zA-Z0-9]/ /g' | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq | tr '\n' ' ')
 system=$(cat <<END
 You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
 They're using $(uname -ar) with $(echo $SHELL | awk -F / '{print $NF}') and can change the capture focus. You will be notified when this happens.
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-Here's a ps: $running
 END
 )
 
