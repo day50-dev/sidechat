@@ -259,7 +259,7 @@ while [ 0 ]; do
         echo $convo_id > $MDIR/${pane_id}.convo
         echo $convo_id > $MDIR/last.convo
         conv="--cid $convo_id"
-        INJECT="Your CID is $convo_id."
+        INJECT="(Your cid is $convo_id)"
     fi
     ata=""
 done
