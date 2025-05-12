@@ -81,7 +81,7 @@ A tool designed to read a directory of files, describe their content, categorize
 
 `kb-capture.py` captures keyboard events from an X server and converts them into a string.  It exits and prints the captured string when a semicolon (`;`) or colon (`:`) is pressed. `llm-magic` is a shell script that uses `kb-capture.py` to capture keyboard input, sends it to an LLM for processing, and displays the LLM's response using `dzen2` and then types it out using xdotool. 
 
-Their powers combined gives you llm prompting in any application. Here I am 
+Their powers combined gives you llm prompting in any application. Here the user is
 
  * ssh'ing to a remote machine
  * using a classic text editor (scite)
