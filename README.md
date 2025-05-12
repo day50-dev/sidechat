@@ -33,7 +33,7 @@ Multiline is available with backslash `\`, just like it is at the shell
 ![2025-05-01_13-38](https://github.com/user-attachments/assets/e57ea643-cb63-4727-9901-e15109b81adb)
 
 
-Here's some screenshots of how it seamlessly works with Streamdown's built in `Savebrace` feature and how it helps workflow.
+Here's some screenshots of how it seamlessly works with [Streamdown's](https://github.com/day50-dev/Streamdown) built in `Savebrace` feature and how it helps workflow.
 ![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
 
 ![2025-04-26_18-49](https://github.com/user-attachments/assets/c8b98e30-cd09-47bc-b751-02a929a82703)
@@ -42,7 +42,7 @@ Here's some screenshots of how it seamlessly works with Streamdown's built in `S
 
 Also you don't need `tmux`! Often you'll be doing things and then realize you want the talk party and you're not in tmux.
 
-That's fine! If you use streamdown  `sq-picker` works like it does inside tmux. You can also `sq-add` by id. It's not great but you're not locked in. That's the point!
+That's fine! If you use [streamdown](https://github.com/day50-dev/Streamdown),  `sq-picker` works like it does inside tmux. You can also `sq-add` by id. It's not great but you're not locked in. That's the point!
 
 ## The Shell Snoopers 
 
