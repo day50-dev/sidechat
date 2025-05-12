@@ -9,7 +9,6 @@ MDIR=/tmp/screen-query
 MDIR=$MDIR/$UID
 [[ -d $MDIR ]] || mkdir $MDIR
 
-LOG=$MDIR/$(date +%s).md
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
