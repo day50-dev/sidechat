@@ -8,11 +8,6 @@ if [[ -r $MDIR/$pane_id.convo ]]; then
 else
     convo_id=$(cat $MDIR/last.convo)
 fi
-convo_id=${1:-$convo_id}
-if [[ -z "$convo_id" ]]; then
-    echo "No conversation ID, no context to add"
-    exit 1
-fi 
 
 while getopts ":c:" opt; do
   case $opt in
@@ -25,6 +20,10 @@ while getopts ":c:" opt; do
   esac
 done
 shift $((OPTIND -1))
+if [[ -z "$convo_id" ]]; then
+    echo "No conversation ID, no context to add"
+    exit 1
+fi 
 
 if [ -n "$*" ]; then
   prompt="$*"
@@ -32,14 +31,13 @@ else
   prompt=$convo_id
 fi
 
-
-echo
-{   echo "The user is running a command and sending it to you by piping it through a program called ${0##*/}, here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
+echo -e "\nAdding to #$convo_id ..."
+{   [[ -r "$1" ]] && cat "$1" 
+    echo "The user is running a command and sending it to you.  Here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
     tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
     echo "----8<----"
     echo "Here is the output of the command"
     echo "----8<----"
-    cat;
+    test -t 0 || cat;
 } | llm "Briefly respond in less than 1 paragraph" --cid $convo_id | sd
-echo -e "\n#$convo_id"
 
