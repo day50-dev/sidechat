@@ -6,7 +6,6 @@
 
 MDIR=/tmp/screen-query
 [[ -d $MDIR ]] || (mkdir $MDIR && chmod 0777 $MDIR)
-me=$(whoami)
 MDIR=$MDIR/$me
 [[ -d $MDIR ]] || mkdir $MDIR
 
@@ -102,7 +101,7 @@ choose() {
         rm $MDIR/pane-id
         tmux select-pane -t $my_id
         touch $MDIR/${pane_id}.{convo,old}
-        INJECT=" (Note: $(whoami) changed focus to a new tmux pane)"
+        INJECT=" (Note: User changed focus to a new tmux pane)"
     else
         echo "Cancelled"
     fi
@@ -166,13 +165,13 @@ while [ 0 ]; do
             if [[ "${filename:0:1}" == "/" || -e "$filename" ]]; then
                 if [[ -e "$filename" ]]; then
                     echo "Adding $filename"
-                    cat "$filename" | llm "$(whoami) is adding a file through a slash command. It is named $filename. They will ask you a question about it in the next message. Your response to this one goes to /dev/null" -s "$system" $conv >> $MDIR/output.txt
+                    cat "$filename" | llm "User is adding a file through a slash command. It is named $filename. They will ask you a question about it in the next message. Your response to this one goes to /dev/null" -s "$system" $conv >> $MDIR/output.txt
                 else
                     echo "Woops, check your spelling, ($filename) not found"
                 fi
             else
                 echo "Running $filename"
-                $filename | tee $MDIR/cmd.$_uuid | llm "$(whoami) is adding the output of $filename They will ask you a question about it in the next message. Your response to this one goes to /dev/null." -s "$system" $conv >> $MDIR/output.txt
+                $filename | tee $MDIR/cmd.$_uuid | llm "User is adding the output of $filename They will ask you a question about it in the next message. Your response to this one goes to /dev/null." -s "$system" $conv >> $MDIR/output.txt
                 echo "Output in $MDIR/cmd.$_uuid"
             fi
         elif [[ $input =~ ^/sshot ]]; then
@@ -198,7 +197,7 @@ while [ 0 ]; do
         elif [[ $input == "/off" ]]; then
             echo "Capturing off"
             capture=
-            INJECT=" (Note: $(whoami) turned capture off)"
+            INJECT="$INJECT (Note: User turned capture off)"
         elif [[ $input == "/on" ]]; then
             while ! tmux list-panes -t "$pane_id" &>/dev/null; do
                 echo "Woops, the pane disappeared. Choose another!"
@@ -207,7 +206,7 @@ while [ 0 ]; do
 
             flash
             echo "Capturing on"
-            INJECT=" (Note: $(whoami) turned capture on)"
+            INJECT="$INJECT (Note: User turned capture on)"
             capture=0
         else
             help 1
@@ -219,7 +218,7 @@ while [ 0 ]; do
     fi
 
     # synchronize input & output
-    { echo -e "\n\n"; echo "{$convo_id}:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
+    { echo -e "\n\n"; echo "$convo_id:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
     if [[ -n "$capture" ]]; then
@@ -251,6 +250,8 @@ while [ 0 ]; do
        | tee -a $MDIR/output.txt \
        | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
+     echo "${text}${INJECT}" >> $MDIR/input.txt
+
     INJECT=
 
     if [[ -z "$conv" ]]; then
@@ -258,6 +259,7 @@ while [ 0 ]; do
         echo $convo_id > $MDIR/${pane_id}.convo
         echo $convo_id > $MDIR/last.convo
         conv="--cid $convo_id"
+        INJECT="Your CID is $convo_id."
     fi
     ata=""
 done
