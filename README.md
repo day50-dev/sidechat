@@ -16,7 +16,7 @@ A full-system, AI-first, privacy respecting, integrated diagnostic and developme
 
 Simple installer:
 
-    curl 9ol.es/talker | bash
+    curl 9ol.es/talker | sh
 
 An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, turning off and on pane capturing, adding external context and more, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
 
