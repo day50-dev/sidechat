@@ -39,5 +39,5 @@ echo -e "\nAdding to #$convo_id ..."
     echo "----8<----"
     test -t 0 || cat;
     [[ -r "$1" ]] && cat "$1" 
-} | cat #| llm "Briefly respond in less than 1 paragraph" --cid $convo_id | sd
+} | llm "Briefly respond in less than 1 paragraph" --cid $convo_id | sd
 
