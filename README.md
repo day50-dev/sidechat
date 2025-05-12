@@ -4,7 +4,7 @@
   <strong>Hackable HCI tools to fix all those AI bugs</strong>
 </p>
 
-A full-system AI-first, privacy respecting, integrated diagnostic and development suite built the Unix way, through small tools that can be orchestrated together.
+A full-system, AI-first, privacy respecting, integrated diagnostic and development suite built the Unix way, through small tools that can be orchestrated together.
 
  * **[Tmux Talkers](#the-tmux-talkers)**: A sidebar chat in tmux
  * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
