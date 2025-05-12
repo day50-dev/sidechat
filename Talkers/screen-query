@@ -32,7 +32,7 @@ help() {
   /model    - Switch model.
   /sshot    - Raster screenshot.
   /[off|on] - Toggle capture.
-  \$cmd | sq-add [-c cid] [prompt] - Add the output of cmd to the context.
+  shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 
 END
   if [[ -n "$1" ]]; then 
@@ -46,7 +46,7 @@ END
 
 system=$(cat <<END
 You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
-They're using $(uname -ar) and can change the capture focus. You will be notified when this happens.
+They're using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
 END
@@ -241,7 +241,7 @@ while [ 0 ]; do
         echo $convo_id > $MDIR/${pane_id}.convo
         echo $convo_id > $MDIR/last.convo
         conv="--cid $convo_id"
-        INJECT="(Your cid is $convo_id)"
+        INJECT=" (Note: cid is $convo_id - there is no need to mention this)"
     fi
     ata=""
 done
