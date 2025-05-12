@@ -32,12 +32,12 @@ else
 fi
 
 echo -e "\nAdding to #$convo_id ..."
-{   [[ -r "$1" ]] && cat "$1" 
-    echo "The user is running a command and sending it to you.  Here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
+{   echo "The user is running a command and sending it to you.  Here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
     tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
     echo "----8<----"
     echo "Here is the output of the command"
     echo "----8<----"
     test -t 0 || cat;
-} | llm "Briefly respond in less than 1 paragraph" --cid $convo_id | sd
+    [[ -r "$1" ]] && cat "$1" 
+} | cat #| llm "Briefly respond in less than 1 paragraph" --cid $convo_id | sd
 
