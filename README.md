@@ -51,7 +51,7 @@ That's fine! If you use streamdown  `sq-picker` works like it does inside tmux. 
 ### shell-hook.zsh
 A Zsh shell hook that intercepts user input before execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response. 
 
-This is probably the most used tool of all of them. I use it probably 10-20 times a day. ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible
+ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible! Highly recommended!
 ![out](https://github.com/user-attachments/assets/01488c16-fb68-4fdb-a7ea-76e12499641d)
 
 ### shellwrap
