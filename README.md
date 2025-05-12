@@ -10,9 +10,6 @@ A full-system AI first integrated diagnostic and development suite built the Uni
  * **[Xorg Xtractors](#the-xorg-xtractors)**: LLM interception and injection in your Xorg
  * **[Shell Snoopers](#the-shell-snoopers)**: Tiny tools for shining up your shell
 
-**The goal**: Take the conversation context from the IDE, to the shell, to the remote system, to any place you are interacting, and then go back to the IDE and continue the conversation without losing the thread. The full development cycle, behavior tailored, without any lock-ins.
-
-Part of a 4 parter: [streamdown](https://github.com/kristopolous/Streamdown) for output parsing, [dejaview](https://github.com/kristopolous/dejaview) as a context and memory routing layer, and [Week7](https://github.com/kristopolous/megacode), a kilo fork as the agentic arm of the group.
 
 ## The Tmux Talkers
 
