@@ -37,7 +37,6 @@ help() {
 END
   if [[ -n "$1" ]]; then 
     {
-        echo "  * **PWD**: $(pwd)"
         echo "  * **Model**: $model"
         echo "  * **CID**: ${convo_id:-*(Not available until first message)*}"
         echo -e "  * **System Prompt**:\n> " $system 
@@ -157,23 +156,7 @@ while [ 0 ]; do
     history -s "$input"  # Save to history
  
     if [[ $input =~ ^/ ]]; then
-        if [[ $input =~ ^/add[[:space:]]+(.*)$ ]]; then
-            cmd=${BASH_REMATCH[1]}
-            filename=${BASH_REMATCH[1]}
-            text=${BASH_REMATCH[2]}
-            if [[ "${filename:0:1}" == "/" || -e "$filename" ]]; then
-                if [[ -e "$filename" ]]; then
-                    echo "Adding $filename"
-                    cat "$filename" | llm "User is adding a file through a slash command. It is named $filename. They will ask you a question about it in the next message. Your response to this one goes to /dev/null" -s "$system" $conv >> $MDIR/output.txt
-                else
-                    echo "Woops, check your spelling, ($filename) not found"
-                fi
-            else
-                echo "Running $filename"
-                $filename | tee $MDIR/cmd.$_uuid | llm "User is adding the output of $filename They will ask you a question about it in the next message. Your response to this one goes to /dev/null." -s "$system" $conv >> $MDIR/output.txt
-                echo "Output in $MDIR/cmd.$_uuid"
-            fi
-        elif [[ $input =~ ^/sshot ]]; then
+        if [[ $input =~ ^/sshot ]]; then
             sshot=$(mktemp --suffix=.png -p $MDIR)
             import $sshot
             ata="-a $sshot"
