@@ -14,7 +14,7 @@ if [[ $PIP =~ /pipx$ ]]; then
     PIP="$PIP install"
 else
     PIP="$PIP install --user"
-    if [[ $(uname) == "Linux" ]]; then
+    if [[ $(uname) == "Linux" || "$(pip3 --version | grep homebrew | wc -l)" != 0 ]]; then
         PIP="$PIP --break-system-packages "
     fi
 fi

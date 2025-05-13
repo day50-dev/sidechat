@@ -20,9 +20,14 @@ MDREAD=sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
 trap 'history -w "$HISTFILE"' EXIT
+if [[ $(uname) == "Linux" ]]; then
+  config=".config"
+else
+  config="Library/Application Support"
+fi
 
-if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
-    model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
+if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
+    model=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
 else
     model=$(llm models default)
 fi
@@ -73,8 +78,8 @@ flash() {
 }
 
 getmodel() {
-    if [[ -r "$HOME/.config/io.datasette.llm/default_model.txt" ]]; then
-        model=$(cat $HOME/.config/io.datasette.llm/default_model.txt)
+    if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
+        model=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
     else
         model=$(llm models default)
     fi
@@ -113,7 +118,7 @@ last() {
         if [[ -r $MDIR/last.conv ]]; then
             convo_id=$( cat $MDIR/last.convo )
         else 
-            convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
+            convo_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
     fi
     { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
@@ -243,7 +248,7 @@ while [ 0 ]; do
     INJECT=
 
     if [[ -z "$conv" ]]; then
-        convo_id=$(sqlite3 $(llm logs path) "select conversation_id from responses order by datetime_utc desc limit 1")
+        convo_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
         echo $convo_id > $MDIR/${pane_id}.convo
         echo $convo_id > $MDIR/last.convo
         conv="--cid $convo_id"
