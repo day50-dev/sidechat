@@ -16,6 +16,9 @@ HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
 MDREAD=sd
+[[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
+DUI=$(< $MDIR/DUI )
+
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
@@ -37,6 +40,7 @@ help() {
   cat <<END
   /choose   - Switch pane capture focus.
   /mindwipe - Forget this crazy world and start over.
+  /dui      - Let the AI run commands. (current: $DUI)
   /model    - Switch model.
   /sshot    - Raster screenshot.
   /[off|on] - Toggle capture.
@@ -46,17 +50,17 @@ END
   if [[ -n "$1" ]]; then 
     {
         echo "  * **Model**: $model"
-        echo "  * **CID**: ${convo_id:-*(Not available until first message)*}"
+        echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
         echo -e "  * **System Prompt**:\n> " $system 
     } | $MDREAD
   fi
 }
-
 system=$(cat <<END
 You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
 They're using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
+ONLY If DUI is "ON", you can request to perform an bash command by emitting "<🥂command 🚗>". Preference should be (1) given capture window, (2) piping through sq-add (3) dui if needed (currently it is $DUI). Make them safe! Your current path is $PWD
 END
 )
 
@@ -64,7 +68,7 @@ pane_id=${1-}
 capture=0
 conv=
 forcecapture=
-[[ -r $MDIR/${pane_id}.convo ]] && convo_id=$(cat $MDIR/${pane_id}.convo) || convo_id=
+[[ -r $MDIR/${pane_id}.convo ]] && conv_id=$(cat $MDIR/${pane_id}.convo) || conv_id=
 
 touch $MDIR/${pane_id}.convo 
 touch $MDIR/${pane_id}.old
@@ -114,28 +118,56 @@ choose() {
 }
 
 last() {
-    if [[ -z "$convo_id" ]]; then
+    amount=${1:-40}
+    if [[ -z "$conv_id" ]]; then
         if [[ -r $MDIR/last.conv ]]; then
-            convo_id=$( cat $MDIR/last.convo )
+            conv_id=$( cat $MDIR/last.convo )
         else 
-            convo_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
+            conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
     fi
-    { echo "# [ $convo_id ] "; llm logs list --cid $convo_id | tail -$1; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
-    conv="--cid $convo_id"
+    { echo "# [ $conv_id ] "; llm logs list --cid $conv_id | tail -$amount; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+    conv="--cid $conv_id"
 }
 
 mindwipe() {
     echo "Memory has been wiped."
     conv=
+    conv_id=
     getmodel
     forcecapture=1
 }
 
+process_cmd() {
+    {
+        grep -Po '<🥂\K(.*)(?=🚗>)' | while read match; do
+            if [[ $DUI == "ON" ]]; then
+                echo "### Running $match"  
+                $match | llm -c $cid "command: $match"
+            else
+                echo "~~ $match ~~ (denied)"
+            fi
+        done
+    } > $MDIR/DUI.out
+}
+    
+dui() {
+    if [[ $DUI == "ON" ]] then
+        echo "DUI now off.";
+        INJECT="$INJECT (Note: DUI is now $DUI. Piping into sq-add is still available)"
+        DUI=OFF
+    else
+        echo "Fuck it, let's roll!"
+        INJECT="$INJECT (Note: DUI is now $DUI. You can do this in a loop if needed)"
+        DUI=ON
+    fi
+    echo $DUI > $MDIR/DUI
+} 
+
 my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
 ata=""
-if [[ -n "$convo_id" ]]; then
+if [[ -n "$conv_id" ]]; then
     last 5
 else
     echo "Conversation Start: Type /help for options"
@@ -169,14 +201,8 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screen shot"
-        elif [[ $input == "/last" ]]; then
-            last 40
-        elif [[ $input == "/mindwipe" ]]; then
-            mindwipe
-        elif [[ $input == "/choose" ]]; then
-            choose
-        elif [[ $input == "/flash" ]]; then
-            flash
+        elif [[ $input =~ (last|dui|mindwipe|choose|flash) ]]; then
+            ${input:1}
         elif [[ $input == "/model" ]]; then
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | sed 's/^\s//g' )
             if [[ -n "$chosen" ]]; then
@@ -208,7 +234,7 @@ while [ 0 ]; do
     fi
 
     # synchronize input & output
-    { echo -e "\n\n"; echo "$convo_id:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
+    { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
     if [[ -n "$capture" ]]; then
@@ -219,7 +245,7 @@ while [ 0 ]; do
     fi
 
     {
-        if [[ -n "$capture" ]]; then
+       if [[ -n "$capture" ]]; then
             _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
             {
                 if [[ $(uname) == "Linux" ]]; then
@@ -239,20 +265,27 @@ while [ 0 ]; do
               | tee -a $MDIR/input.txt 
          fi
 
-     } | llm "${text}${INJECT}" -s "$system" $ata $conv \
-       | tee -a $MDIR/output.txt \
-       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+    } | llm "${text}${INJECT}" -s "$system" $ata $conv \
+      | tee -a $MDIR/output.txt \
+      | tee >( process_cmd ) \
+      | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
-     echo "${text}${INJECT}" >> $MDIR/input.txt
+    while [[ -r "$MDIR"/DUI.out ]]; do
+        $MDREAD -c <(echo -e "[style]\nMargin = 4") "$MDIR"/DUI.out
+        cat "$MDIR"/DUI.out | process_cmd
+        rm "$MDIR"/DUI.out
+    done
+
+    echo "${text}${INJECT}" >> $MDIR/input.txt
 
     INJECT=
 
     if [[ -z "$conv" ]]; then
-        convo_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
-        echo $convo_id > $MDIR/${pane_id}.convo
-        echo $convo_id > $MDIR/last.convo
-        conv="--cid $convo_id"
-        INJECT=" (Note: cid is $convo_id - there is no need to mention this)"
+        conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
+        echo $conv_id > $MDIR/${pane_id}.convo
+        echo $conv_id > $MDIR/last.convo
+        conv="--cid $conv_id"
+        INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
     fi
     ata=""
 done
