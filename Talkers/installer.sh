@@ -74,6 +74,11 @@ fi
 echo "  ✅ sqlite3"
 
 msg="You're ready to go!"
+
+if [[ $(uname) == "Darwin" ]]; then
+    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$insdir:$pybin^g" $insdir/screen-query
+fi
+
 if ! echo $PATH | grep "$insdir" > /dev/null; then
     if [[ $(uname) == "Linux" ]]; then
         shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')

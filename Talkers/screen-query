@@ -4,6 +4,9 @@
 #set -eEuo pipefail
 #trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 
+# This is an OS X install-time hack
+#@@INJECTPATH
+
 MDIR=/tmp/screen-query
 [[ -d $MDIR ]] || (mkdir $MDIR && chmod 0777 $MDIR)
 MDIR=$MDIR/$UID
@@ -214,7 +217,10 @@ while [ 0 ]; do
         if [[ -n "$capture" ]]; then
             _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
             {
-                echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
+                if [[ $(uname) == "Linux" ]]; then
+                    echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
+                fi
+
                 if [[ -n "$forcecapture" ]]; then
                     cat $MDIR/${pane_id}.new
                     focecapture=
