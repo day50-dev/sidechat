@@ -24,7 +24,11 @@ if [[ $(uname) == "Linux" ]]; then
     sd="$insdir/sd"
 else
     insdir="$HOME/Library/bin"
-    pybin=$(python3 -msite --user-base)"/bin"
+    if [[ $PIP =~ /pipx$ ]]; then 
+      pybin="$HOME/.local/bin"
+    else
+      pybin=$(python3 -msite --user-base)"/bin"
+    fi
     sd="$pybin/sd"
 fi
 
@@ -79,7 +83,7 @@ if [[ $(uname) == "Darwin" ]]; then
     sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$insdir:$pybin^g" $insdir/screen-query
 fi
 
-if ! echo $PATH | grep "$insdir" > /dev/null; then
+if ! echo $PATH | grep "$insdir:$pybin" > /dev/null; then
     if [[ $(uname) == "Linux" ]]; then
         shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
     else
