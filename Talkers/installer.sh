@@ -12,6 +12,7 @@ fi
 
 if [[ $PIP =~ /pipx$ ]]; then 
     PIP="$PIP install"
+    pybin=$(pipx environment | grep PIPX_BIN_DIR=/ | cut -d = -f 2)
 else
     PIP="$PIP install --user"
     if [[ $(uname) == "Linux" || "$(pip3 --version | grep homebrew | wc -l)" != 0 ]]; then
@@ -24,9 +25,7 @@ if [[ $(uname) == "Linux" ]]; then
     sd="$insdir/sd"
 else
     insdir="$HOME/Library/bin"
-    if [[ $PIP =~ /pipx$ ]]; then 
-      pybin="$HOME/.local/bin"
-    else
+    if [[ -z "$pybin" ]]; then 
       pybin=$(python3 -msite --user-base)"/bin"
     fi
     sd="$pybin/sd"
