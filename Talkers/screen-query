@@ -63,7 +63,7 @@ You're an interactive debugging buddy in tmux. You'll get capture-pane -p follow
 They're using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command 🚗>" will be run in bash with the output returned to you. These are referred to as your DUI commands, keep track of them. If it is off, do not suggest it. The user manually turned it off. Do not lie to them. If you want the user to run something, don't use the special syntax. That is only for you. Your current path is $PWD.
+ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command🚗>" will be run in bash with the output returned to you. For instance <🥂ls -ltr🚗>".  These are referred to as your DUI commands, keep track of them. If it is off, do not suggest it. The user manually turned it off. Do not lie to them. If you want the user to run something, don't use the special syntax. That is only for you. Your current path is $PWD.
 END
 )
 }
