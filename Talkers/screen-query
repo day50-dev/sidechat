@@ -20,6 +20,7 @@ MDREAD=sd
 DUI=$(< $MDIR/DUI )
 CAPTURE="ON"
 
+[[ -n "$TMUX" ]] && TMUX="ON" || TMUX="OFF"
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
@@ -39,9 +40,12 @@ fi
 help() {
   if [[ "$#" -gt 0 ]]; then 
     {
+        echo "### Parameters"
+        echo -e "  * **System Prompt**:\n> " $SYSTEM
         echo "  * **Model**: $model"
         echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
-        echo -e "  * **System Prompt**:\n> " $SYSTEM
+        echo -e "\n### Commands"
+
     } | $MDREAD
     system_prompt
   fi
@@ -53,7 +57,6 @@ help() {
   /dui      - Toggle agentic. (current: $DUI)
   /capture  - Toggle capture. (current: $CAPTURE)
   shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
-
 END
 }
 system_prompt() {
@@ -77,10 +80,12 @@ touch $MDIR/${pane_id}.convo
 touch $MDIR/${pane_id}.old
 
 flash() {
-    tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
-    tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
-    tmux select-pane -t $pane_id -P 'bg=default' 
-    tmux select-pane -t $my_id
+    if [[ -n "$TMUX" ]]; then
+        tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
+        tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
+        tmux select-pane -t $pane_id -P 'bg=default' 
+        tmux select-pane -t $my_id
+    fi
     set_prompt
 }
 
@@ -98,12 +103,13 @@ getmodel
 set_prompt() {
     local camera="— "
     local dui="— "
-    [[ $CAPTURE == "ON" ]] && camera="📷"
+    [[ $TMUX == "OFF" && $CAPTURE == "ON" ]] && camera="📷"
     [[ $DUI == "ON" ]] && dui="🚗"
     prompt="${camera}${dui}▸ "
 }
 
 choose() {
+    [[ -z "$TMUX" ]] && return
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
     if [[ $? == "1" ]] ; then
         echo "Exiting due to possible infinite loop."
@@ -146,7 +152,7 @@ mindwipe() {
 
 process_cmd() {
     {
-        grep -E '<🥂(.*)🚗>)' "$1" | sed -E 's/(^<.|.>$)//g' | while read match; do
+        grep -E '<🥂(.*)🚗>' "$1" | sed -E 's/(^<.|.>$)//g' | while read match; do
             if [[ $DUI == "ON" ]]; then
                 echo "### Running $match"  
                 where=$(mktemp -p $MDIR)
