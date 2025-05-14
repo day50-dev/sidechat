@@ -52,19 +52,23 @@ END
     {
         echo "  * **Model**: $model"
         echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
-        echo -e "  * **System Prompt**:\n> " $system 
+        echo -e "  * **System Prompt**:\n> " $SYSTEM
     } | $MDREAD
+    system_prompt
   fi
 }
-system=$(cat <<END
+system_prompt() {
+SYSTEM=$(cat <<END
 You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
 They're using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command 🚗>" will be run in bash with the output returned to you. If it is off, do not talk about it. The user manually turned it off and they don't want to hear about it. If you want the user to run something, don't use the special syntax. That is only for you. Your current path is $PWD.
+ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command 🚗>" will be run in bash with the output returned to you. These are referred to as your DUI commands, keep track of them. If it is off, do not suggest it. The user manually turned it off. Do not lie to them. If you want the user to run something, don't use the special syntax. That is only for you. Your current path is $PWD.
 END
 )
+}
 
+system_prompt
 pane_id=${1-}
 conv=
 forcecapture=
@@ -134,6 +138,7 @@ last() {
 
 mindwipe() {
     echo "Memory has been wiped."
+    system_prompt
     conv=
     conv_id=
     getmodel
@@ -150,7 +155,7 @@ process_cmd() {
                 echo "$match" > ${where}.in
                 bash ${where}.in | tee ${where}.out | head -30
                 echo "\`\`\`"
-                cat ${where}.out | llm "command: $match" $conv
+                cat ${where}.out | llm "You ran DUI command: $match" $conv
             else
                 echo "~~ $match ~~ "
             fi
@@ -160,7 +165,7 @@ process_cmd() {
 
 oneshot() {
     echo "$*" >> $MDIR/input.txt
-    llm "$*" -s "$system" $conv >> $MDIR/output.txt &
+    llm "$*" -s "$SYSTEM" $conv >> $MDIR/output.txt &
 }
     
 capture() {
@@ -281,7 +286,7 @@ while [ 0 ]; do
               | tee -a $MDIR/input.txt 
          fi
 
-    } | llm "${text}${INJECT}" -s "$system" $ata $conv \
+    } | llm "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
       | tee $MDIR/out_${_uuid}-0.txt \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
