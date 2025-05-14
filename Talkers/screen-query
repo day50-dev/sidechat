@@ -18,6 +18,7 @@ INJECT=
 MDREAD=sd
 [[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
 DUI=$(< $MDIR/DUI )
+DUIPROMPT='(Note: You are now in DUI mode: the contents of "command" inside this syntax "%🥂command🚗%" will be run in bash with the output returned to you, for instance `%🥂ls -l🚗%`. These are referred to as your DUI commands, keep track of them. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
@@ -66,8 +67,8 @@ You are an interactive debugging buddy in tmux. You will get capture-pane -p fol
 They are using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They are using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command 🚗>" will be run in bash with the output returned to you. These are referred to as your DUI commands, keep track of them. If it is off, do not suggest it. The user manually turned it off. Do not lie to them. If you want the user to run something, don not use the special syntax. That is only for you. Your current path is $PWD.
 END
+[[ "$DUI" == "ON" ]] && echo "$DUIPROMPT"
 )
 }
 
@@ -153,7 +154,7 @@ mindwipe() {
 
 process_cmd() {
     {
-        grep -E '<🥂(.*)🚗>' "$1" | sed -E 's/(^<.|.>$)//g' | while read match; do
+        grep -E '%🥂(.*)🚗%' "$1" | sed -E 's/(^%.|.%$)//g' | while read match; do
             if [[ $DUI == "ON" ]]; then
                 echo "### Running $match"  
                 where=$(mktemp -p $MDIR)
@@ -200,7 +201,7 @@ dui() {
     else
         DUI=ON
         echo "Fuck it, let's roll!"
-        oneshot "(Note: DUI is now $DUI. You may use it now. You can do this in a loop if needed)"
+        oneshot "$DUIPROMPT"
     fi
     echo $DUI > $MDIR/DUI
 } 
