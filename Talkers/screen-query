@@ -18,6 +18,7 @@ INJECT=
 MDREAD=sd
 [[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
 DUI=$(< $MDIR/DUI )
+CAPTURE="ON"
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
@@ -40,10 +41,10 @@ help() {
   cat <<END
   /choose   - Switch pane capture focus.
   /mindwipe - Forget this crazy world and start over.
-  /dui      - Let the AI run commands. (current: $DUI)
   /model    - Switch model.
   /sshot    - Raster screenshot.
-  /[off|on] - Toggle capture.
+  /dui      - Toggle agentic. (current: $DUI)
+  /capture  - Toggle capture. (current: $CAPTURE)
   shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 
 END
@@ -65,7 +66,6 @@ END
 )
 
 pane_id=${1-}
-capture=0
 conv=
 forcecapture=
 [[ -r $MDIR/${pane_id}.convo ]] && conv_id=$(cat $MDIR/${pane_id}.convo) || conv_id=
@@ -95,7 +95,7 @@ getmodel
 set_prompt() {
     local camera="— "
     local dui="— "
-    [[ -n "$capture" ]] && camera="📷"
+    [[ $CAPTURE == "ON" ]] && camera="📷"
     [[ $DUI == "ON" ]] && dui="🚗"
     prompt="${camera}${dui}▸ "
 }
@@ -163,6 +163,24 @@ oneshot() {
     llm "$*" -s "$system" $conv >> $MDIR/output.txt &
 }
     
+capture() {
+    if [[ $CAPTURE == "ON" ]]; then
+        echo "Capturing off. Shades are drawn!"
+        CAPTURE=OFF
+        INJECT="$INJECT (Note: User turned capture off)"
+    else
+        while ! tmux list-panes -t "$pane_id" &>/dev/null; do
+            echo "Woops, the pane disappeared. Choose another!"
+            choose
+        done
+
+        flash
+        echo "Capturing on. I see you!"
+        INJECT="$INJECT (Note: User turned capture on)"
+        CAPTURE=ON
+    fi
+}
+
 dui() {
     if [[ $DUI == "ON" ]] then
         DUI=OFF
@@ -213,7 +231,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screen shot"
-        elif [[ $input =~ (last|dui|mindwipe|choose|flash) ]]; then
+        elif [[ $input =~ (capture|last|dui|mindwipe|choose|flash) ]]; then
             ${input:1}
         elif [[ $input == "/model" ]]; then
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | sed 's/^\s//g' )
@@ -222,20 +240,6 @@ while [ 0 ]; do
               llm models default $chosen
               mindwipe
             fi
-        elif [[ $input == "/off" ]]; then
-            echo "Capturing off"
-            capture=
-            INJECT="$INJECT (Note: User turned capture off)"
-        elif [[ $input == "/on" ]]; then
-            while ! tmux list-panes -t "$pane_id" &>/dev/null; do
-                echo "Woops, the pane disappeared. Choose another!"
-                choose
-            done
-
-            flash
-            echo "Capturing on"
-            INJECT="$INJECT (Note: User turned capture on)"
-            capture=0
         else
             help 1
         fi
@@ -249,7 +253,7 @@ while [ 0 ]; do
     { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
     echo "($text)" >> $MDIR/input.txt
 
-    if [[ -n "$capture" ]]; then
+    if [[ $CAPTURE == "ON" ]]; then
         while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
             echo "Choose another pane"
             choose
@@ -257,7 +261,7 @@ while [ 0 ]; do
     fi
 
     {
-       if [[ -n "$capture" ]]; then
+       if [[ $CAPTURE == "ON" ]]; then
             _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
             {
                 if [[ $(uname) == "Linux" ]]; then
