@@ -164,7 +164,7 @@ oneshot() {
 dui() {
     if [[ $DUI == "ON" ]] then
         DUI=OFF
-        echo "DUI now off.";
+        echo "Sobering up.";
         oneshot "(Note: DUI is now off. Do not talk about it. It no longer exists you. Piping into sq-add is still available)"
     else
         DUI=ON
