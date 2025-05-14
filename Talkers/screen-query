@@ -18,7 +18,7 @@ INJECT=
 MDREAD=sd
 [[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
 DUI=$(< $MDIR/DUI )
-DUIPROMPT='(Note: You are now in DUI mode: the contents of "command" inside this syntax "%🥂command🚗%" will be run in bash with the output returned to you, for instance `%🥂ls -l🚗%`. These are referred to as your DUI commands, keep track of them. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
+DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" inside this syntax "%🥂command🚗%" will be run in bash with the output returned to you, for instance `%🥂ls -l🚗%`. Keep track of them and stay focused. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
@@ -105,9 +105,9 @@ getmodel
 set_prompt() {
     local camera="— "
     local dui="— "
-    [[ $TMUX == "OFF" && $CAPTURE == "ON" ]] && camera="📷"
+    [[ -n "$TMUX" && $CAPTURE == "ON" ]] && camera="📷"
     [[ $DUI == "ON" ]] && dui="🚗"
-    prompt="${camera}${dui}▸ "
+    prompt="${camera} ${dui} > "
 }
 
 choose() {
@@ -197,7 +197,7 @@ dui() {
     if [[ "$DUI" == "ON" ]]; then
         DUI=OFF
         echo "Sobering up.";
-        oneshot "(Note: DUI is now off. Do not talk about it. It no longer exists. Piping into sq-add is still available)"
+        oneshot "(Note: Do-Ur-Inspection is now off. Do not talk about it. It no longer exists. Piping into sq-add is still available)"
     else
         DUI=ON
         echo "Fuck it, let's roll!"
@@ -227,7 +227,7 @@ while [ 0 ]; do
             input+="$line"
             break
         fi
-        pline="  ⸽ "
+        pline="   |  "
     done
     echo 
 
