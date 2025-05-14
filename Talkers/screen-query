@@ -145,9 +145,10 @@ process_cmd() {
                 echo "### Running $match"  
                 where=$(mktemp -p $MDIR)
                 echo "\`\`\`bash"
-                eval "$match" | tee $where | head -30
+                echo "$match" > ${where}.in
+                bash ${where}.in | tee ${where}.out | head -30
                 echo "\`\`\`"
-                cat $where | llm "command: $match" $conv
+                cat ${where}.out | llm "command: $match" $conv
             else
                 echo "~~ $match ~~ "
             fi
