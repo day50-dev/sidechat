@@ -60,7 +60,7 @@ You're an interactive debugging buddy in tmux. You'll get capture-pane -p follow
 They're using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They're using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-ONLY If DUI is "ON", you can request to perform an bash command by emitting "<🥂command 🚗>". Preference should be (1) given capture window, (2) piping through sq-add (3) dui if needed (currently it is $DUI). Make them safe! Your current path is $PWD
+ONLY If DUI is "ON", your output will be grepped - whatever is inside this syntax "<🥂command 🚗>" will be run in bash with the output returned to you. If it is off, do not talk about it. The user manually turned it off and they don't want to hear about it. If you want the user to run something, don't use the special syntax. That is only for you. Your current path is $PWD.
 END
 )
 
@@ -140,26 +140,35 @@ mindwipe() {
 
 process_cmd() {
     {
-        grep -Po '<🥂\K(.*)(?=🚗>)' | while read match; do
+        grep -Po '<🥂\K(.*)(?=🚗>)' "$1" | while read match; do
             if [[ $DUI == "ON" ]]; then
                 echo "### Running $match"  
-                $match | llm -c $cid "command: $match"
+                where=$(mktemp -p $MDIR)
+                echo "\`\`\`bash"
+                eval "$match" | tee $where | head -30
+                echo "\`\`\`"
+                cat $where | llm "command: $match" $conv
             else
-                echo "~~ $match ~~ (denied)"
+                echo "~~ $match ~~ "
             fi
         done
-    } > $MDIR/DUI.out
+    } | tee "$2" | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+}
+
+oneshot() {
+    echo "$*" >> $MDIR/input.txt
+    llm "$*" -s "$system" $conv >> $MDIR/output.txt &
 }
     
 dui() {
     if [[ $DUI == "ON" ]] then
-        echo "DUI now off.";
-        INJECT="$INJECT (Note: DUI is now $DUI. Piping into sq-add is still available)"
         DUI=OFF
+        echo "DUI now off.";
+        oneshot "(Note: DUI is now off. Do not talk about it. It no longer exists you. Piping into sq-add is still available)"
     else
-        echo "Fuck it, let's roll!"
-        INJECT="$INJECT (Note: DUI is now $DUI. You can do this in a loop if needed)"
         DUI=ON
+        echo "Fuck it, let's roll!"
+        oneshot "(Note: DUI is now $DUI. You may use it now. You can do this in a loop if needed)"
     fi
     echo $DUI > $MDIR/DUI
 } 
@@ -258,7 +267,7 @@ while [ 0 ]; do
                 else
                     diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
                         && echo \
-                        || cat $MDIR/${pane_id}.new
+                        || { echo "[capture-pane -p:"; cat $MDIR/${pane_id}.new; echo "]"; }
                    cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
                 fi
             } | grep -Ev "^$"         \
@@ -266,15 +275,19 @@ while [ 0 ]; do
          fi
 
     } | llm "${text}${INJECT}" -s "$system" $ata $conv \
-      | tee -a $MDIR/output.txt \
-      | tee >( process_cmd ) \
+      | tee $MDIR/out_${_uuid}-0.txt \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
-    while [[ -r "$MDIR"/DUI.out ]]; do
-        $MDREAD -c <(echo -e "[style]\nMargin = 4") "$MDIR"/DUI.out
-        cat "$MDIR"/DUI.out | process_cmd
-        rm "$MDIR"/DUI.out
-    done
+    if [[ $DUI == "ON" ]]; then
+        n=0
+        while true; do
+            in="$MDIR/out_${_uuid}-$n.txt"
+            (( n++ ))
+            out="$MDIR/out_${_uuid}-$n.txt"
+            process_cmd "$in" "$out"
+            [[ -s "$out" ]] || break
+        done
+    fi
 
     echo "${text}${INJECT}" >> $MDIR/input.txt
 
