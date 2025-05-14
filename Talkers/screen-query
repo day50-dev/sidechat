@@ -37,7 +37,6 @@ else
 fi
 
 help() {
-  [[ -n "$1" ]] && echo "  /flash    - Flash the current focus."
   cat <<END
   /choose   - Switch pane capture focus.
   /mindwipe - Forget this crazy world and start over.
@@ -48,7 +47,7 @@ help() {
   shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 
 END
-  if [[ -n "$1" ]]; then 
+  if [[ "$#" -gt 0 ]]; then 
     {
         echo "  * **Model**: $model"
         echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
@@ -147,7 +146,7 @@ mindwipe() {
 
 process_cmd() {
     {
-        grep -Po '<🥂\K(.*)(?=🚗>)' "$1" | while read match; do
+        grep -E '<🥂(.*)🚗>)' "$1" | sed -E 's/(^<.|.>$)//g' | while read match; do
             if [[ $DUI == "ON" ]]; then
                 echo "### Running $match"  
                 where=$(mktemp -p $MDIR)
