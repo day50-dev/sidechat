@@ -37,7 +37,6 @@ else
 fi
 
 help() {
-  [[ -n "$1" ]] && echo "  /flash    - Flash the current focus."
   cat <<END
   /choose   - Switch pane capture focus.
   /mindwipe - Forget this crazy world and start over.
@@ -48,7 +47,7 @@ help() {
   shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 
 END
-  if [[ -n "$1" ]]; then 
+  if [[ "$#" -gt 0 ]]; then 
     {
         echo "  * **Model**: $model"
         echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
@@ -59,11 +58,11 @@ END
 }
 system_prompt() {
 SYSTEM=$(cat <<END
-You're an interactive debugging buddy in tmux. You'll get capture-pane -p followed by questions when the pane output changes. 
-They're using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
-They're using a markdown formatter. Only insert newlines into code braces for syntax.
+You are an interactive debugging buddy in tmux. You will get capture-pane -p followed by questions when the pane output changes. 
+They are using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
+They are using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
-ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command🚗>" will be run in bash with the output returned to you. For instance <🥂ls -ltr🚗>".  These are referred to as your DUI commands, keep track of them. If it is off, do not suggest it. The user manually turned it off. Do not lie to them. If you want the user to run something, don't use the special syntax. That is only for you. Your current path is $PWD.
+ONLY If DUI is "ON", your output will be grepped - the contents of "command" inside this syntax "<🥂command 🚗>" will be run in bash with the output returned to you. These are referred to as your DUI commands, keep track of them. If it is off, do not suggest it. The user manually turned it off. Do not lie to them. If you want the user to run something, don not use the special syntax. That is only for you. Your current path is $PWD.
 END
 )
 }
@@ -147,7 +146,7 @@ mindwipe() {
 
 process_cmd() {
     {
-        grep -Po '<🥂\K(.*)(?=🚗>)' "$1" | while read match; do
+        grep -E '<🥂(.*)🚗>)' "$1" | sed -E 's/(^<.|.>$)//g' | while read match; do
             if [[ $DUI == "ON" ]]; then
                 echo "### Running $match"  
                 where=$(mktemp -p $MDIR)
@@ -187,10 +186,10 @@ capture() {
 }
 
 dui() {
-    if [[ $DUI == "ON" ]] then
+    if [[ "$DUI" == "ON" ]]; then
         DUI=OFF
         echo "Sobering up.";
-        oneshot "(Note: DUI is now off. Do not talk about it. It no longer exists you. Piping into sq-add is still available)"
+        oneshot "(Note: DUI is now off. Do not talk about it. It no longer exists. Piping into sq-add is still available)"
     else
         DUI=ON
         echo "Fuck it, let's roll!"
