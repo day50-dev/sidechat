@@ -20,7 +20,6 @@ MDREAD=sd
 DUI=$(< $MDIR/DUI )
 CAPTURE="ON"
 
-[[ -n "$TMUX" ]] && TMUX="ON" || TMUX="OFF"
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 history -r "$HISTFILE"
@@ -36,6 +35,8 @@ if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
 else
     model=$(llm models default)
 fi
+
+[[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
 
 help() {
   if [[ "$#" -gt 0 ]]; then 
@@ -204,7 +205,6 @@ dui() {
     echo $DUI > $MDIR/DUI
 } 
 
-my_id=$(tmux display-message -p '#{pane_id}')
 set_prompt
 ata=""
 if [[ -n "$conv_id" ]]; then
