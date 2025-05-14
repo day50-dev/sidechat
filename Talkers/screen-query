@@ -37,6 +37,14 @@ else
 fi
 
 help() {
+  if [[ "$#" -gt 0 ]]; then 
+    {
+        echo "  * **Model**: $model"
+        echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
+        echo -e "  * **System Prompt**:\n> " $SYSTEM
+    } | $MDREAD
+    system_prompt
+  fi
   cat <<END
   /choose   - Switch pane capture focus.
   /mindwipe - Forget this crazy world and start over.
@@ -47,14 +55,6 @@ help() {
   shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 
 END
-  if [[ "$#" -gt 0 ]]; then 
-    {
-        echo "  * **Model**: $model"
-        echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
-        echo -e "  * **System Prompt**:\n> " $SYSTEM
-    } | $MDREAD
-    system_prompt
-  fi
 }
 system_prompt() {
 SYSTEM=$(cat <<END
