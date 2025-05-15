@@ -12,6 +12,7 @@ MDIR=/tmp/screen-query
 MDIR=$MDIR/$UID
 [[ -d $MDIR ]] || mkdir $MDIR
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
@@ -153,21 +154,34 @@ mindwipe() {
 }
 
 process_cmd() {
+    infile="$1"
+    outfile="$2"
     {
-        grep -E '%🥂(.*)🚗%' "$1" | sed -E 's/(^%.|.%$)//g' | while read match; do
+        local base=$(mktemp -p $MDIR)
+        local llm_in="${base}-IN"
+        local llm_parse="${base}-OUT"
+        #echo $llm_in $llm_parse
+        err=0
+
+        for cmdfile in $(cat "$infile" | $DIR/simple-parse.py -r "%🥂(.*)🚗%" -b $llm_parse); do
+            #echo "## $cmdfile"
             if [[ $DUI == "ON" ]]; then
-                echo "### Running $match"  
-                where=$(mktemp -p $MDIR)
-                echo "\`\`\`bash"
-                echo "$match" > ${where}.in
-                bash ${where}.in | tee ${where}.out | head -30
-                echo "\`\`\`"
-                cat ${where}.out | llm "You ran DUI command: $match" $conv
+                cmd=$( < $cmdfile )
+                echo "### $cmd" | tee -a $llm_in
+                echo '```bash'
+                sed `1i\\set -eEuo pipefail` $cmdfile > ${Pcmdfile}.safe
+                bash ${cmdfile}.safe | tee -a $llm_in | head -30
+                [[ $? -ne 0 ]] && err=$?
+                echo '```'
             else
                 echo "~~ $match ~~ "
             fi
         done
-    } | tee "$2" | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+
+        if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
+            cat $llm_in | llm "You ran Do-Ur-Inspection commands" $conv  | tee $outfile
+        fi
+    } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 }
 
 oneshot() {
@@ -302,6 +316,7 @@ while [ 0 ]; do
             in="$MDIR/out_${_uuid}-$n.txt"
             (( n++ ))
             out="$MDIR/out_${_uuid}-$n.txt"
+            #echo "<< using $in and $out >>"
             process_cmd "$in" "$out"
             [[ -s "$out" ]] || break
         done

@@ -48,7 +48,7 @@ ENDL
     fi
 fi
 
-for cmd in sq-add sq-picker screen-query; do
+for cmd in simple-parse.py sq-add sq-picker screen-query; do
     rm -f "$insdir"/$cmd 
     echo "  ✅ $cmd"
     cp -p "$DIR"/$cmd "$insdir"
