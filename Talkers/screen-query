@@ -20,7 +20,7 @@ INJECT=
 MDREAD=sd
 [[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
 DUI=$(< $MDIR/DUI )
-DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a type AGENT will run. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
+DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ` ``AGENT\nls`` ` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
@@ -280,11 +280,11 @@ while [ 0 ]; do
     fi
 
     # synchronize input & output
-    { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a $MDIR/input.txt | cat >> $MDIR/output.txt 
-    echo "($text)" >> $MDIR/input.txt
+    { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
+    echo "($text)" >> "$MDIR/input.txt"
 
     if [[ $CAPTURE == "ON" ]]; then
-        while ! tmux capture-pane -t "${pane_id}" -p > $MDIR/${pane_id}.new; do
+        while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
             echo "Choose another pane"
             choose
         done
@@ -314,7 +314,7 @@ while [ 0 ]; do
          fi
 
     } | llm "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
-      | tee "${in}.${n}" \
+      | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
     if [[ $DUI == "ON" ]]; then
@@ -325,7 +325,7 @@ while [ 0 ]; do
         done
     fi
 
-    echo "${text}${INJECT}" >> $MDIR/input.txt
+    echo "${text}${INJECT}" >> "$MDIR/input.txt"
 
     INJECT=
 
