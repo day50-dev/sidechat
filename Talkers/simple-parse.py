@@ -21,7 +21,7 @@ def split_on_regex(regex, base_path):
     counter = 0
     input_data = sys.stdin.read()
 
-    matches = re.findall(regex, input_data)
+    matches = re.findall(regex, input_data, re.DOTALL)
 
     for match in matches:
         file_path = os.path.join(base_path, f"out.{counter}")  #Construct file path
