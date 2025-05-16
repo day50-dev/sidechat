@@ -20,9 +20,13 @@ Simple installer:
 
 An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, turning off and on pane capturing, adding external context and more, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure.
 
-**Note**: There's an optional eval loop where it can execute commands and be agentic like all the others. We call it DUI mode. Enable it with `/dui`.
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
+
+## There's an agentic mode. We call it DUI. Enable it with `/dui`.
+![2025-05-15_18-50](https://github.com/user-attachments/assets/d1da6063-b450-49f8-863d-fcf0c32647fc)
+
+
 
 You should also use `sq-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
