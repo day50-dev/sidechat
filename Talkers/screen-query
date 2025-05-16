@@ -20,7 +20,7 @@ INJECT=
 MDREAD=sd
 [[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
 DUI=$(< $MDIR/DUI )
-DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a type AGENT will run. For example. if you want to run ls, you can emit \`\`\`AGENT\nls\`\`\`. Keep track of them and stay focused. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
+DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a type AGENT will run. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
