@@ -7,7 +7,8 @@
 # This is an OS X install-time hack
 #@@INJECTPATH
 
-MDIR=/tmp/screen-query
+tmp=$(python3 -c "import tempfile;print(tempfile.gettempdir())")
+MDIR=/$tmp/screen-query
 [[ -d $MDIR ]] || (mkdir $MDIR && chmod 0777 $MDIR)
 MDIR=$MDIR/$UID
 [[ -d $MDIR ]] || mkdir $MDIR
