@@ -48,6 +48,7 @@ help() {
         echo -e "  * **System Prompt**:\n> " $SYSTEM
         echo "  * **Model**: $model"
         echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
+        echo "  * **TMP**: $MDIR"
         echo -e "\n### Commands"
 
     } | $MDREAD
