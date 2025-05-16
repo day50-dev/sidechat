@@ -156,23 +156,25 @@ mindwipe() {
 
 process_cmd() {
     infile="$1"
-    outfile="$2"
+    n=$2
+    local base="${infile}.${n}"
     {
-        local base=$(mktemp -p $MDIR)
         local llm_in="${base}-IN"
         local llm_parse="${base}-OUT"
         #echo $llm_in $llm_parse
         err=0
 
-        for cmdfile in $(cat "$infile" | $DIR/simple-parse.py -r "%🥂(.*)🚗%" -b $llm_parse); do
+        for cmdfile in $(cat "$base" | "$DIR/simple-parse.py" -r "%🥂(.*)🚗%" -b "$llm_parse"); do
             #echo "## $cmdfile"
             if [[ $DUI == "ON" ]]; then
-                cmd=$( < $cmdfile )
+                cmd=$( < "$cmdfile" )
                 echo "### $cmd" | tee -a $llm_in
                 echo '```bash'
-                { echo "set -eEuo pipefail"; cat $cmdfile; } > ${Pcmdfile}.safe
-                bash ${cmdfile}.safe | tee -a $llm_in | head -30
-                [[ $? -ne 0 ]] && err=$?
+                { echo "set -eEuo pipefail"; cat "$cmdfile"; } > "${cmdfile}.safe"
+                {
+                    bash "${cmdfile}.safe" | tee -a $llm_in | head -30
+                    [[ $? -ne 0 ]] && err=$?
+                }
                 echo '```'
             else
                 echo "~~ $match ~~ "
@@ -180,7 +182,8 @@ process_cmd() {
         done
 
         if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
-            cat $llm_in | llm "You ran Do-Ur-Inspection commands" $conv  | tee $outfile
+            (( n++ ))
+            cat "$llm_in" | llm "You ran Do-Ur-Inspection commands" $conv  | tee "${infile}.${n}"
         fi
     } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 }
@@ -286,6 +289,8 @@ while [ 0 ]; do
         done
     fi
 
+    n=0
+    in="$MDIR/${conv_id}_${_uuid}"
     {
        if [[ $CAPTURE == "ON" ]]; then
             _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
@@ -308,18 +313,14 @@ while [ 0 ]; do
          fi
 
     } | llm "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
-      | tee $MDIR/out_${_uuid}-0.txt \
+      | tee "${in}.${n}" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
     if [[ $DUI == "ON" ]]; then
-        n=0
         while true; do
-            in="$MDIR/out_${_uuid}-$n.txt"
+            process_cmd "$in" $n
             (( n++ ))
-            out="$MDIR/out_${_uuid}-$n.txt"
-            #echo "<< using $in and $out >>"
-            process_cmd "$in" "$out"
-            [[ -s "$out" ]] || break
+            [[ -s "${in}.${n}" ]] || break
         done
     fi
 
