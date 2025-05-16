@@ -169,7 +169,7 @@ process_cmd() {
                 cmd=$( < $cmdfile )
                 echo "### $cmd" | tee -a $llm_in
                 echo '```bash'
-                { echo "set -eEuo pipefail"; cat $cmdfile } > ${Pcmdfile}.safe
+                { echo "set -eEuo pipefail"; cat $cmdfile; } > ${Pcmdfile}.safe
                 bash ${cmdfile}.safe | tee -a $llm_in | head -30
                 [[ $? -ne 0 ]] && err=$?
                 echo '```'
