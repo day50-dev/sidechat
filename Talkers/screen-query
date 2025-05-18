@@ -130,7 +130,9 @@ choose() {
         INJECT=" (Note: User changed focus to a new tmux pane)"
     else
         echo "Cancelled"
+        return 1
     fi
+    return 0
 }
 
 last() {
@@ -287,6 +289,12 @@ while [ 0 ]; do
         while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
             echo "Choose another pane"
             choose
+            if [[ $? == 1 ]]; then 
+                echo "Ok fine, no capture, that's fine."
+                capture
+                set_prompt
+                break
+            fi
         done
     fi
 
