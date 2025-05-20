@@ -18,10 +18,11 @@ HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
 MDREAD=sd
-[[ -r $MDIR/DUI ]] || echo OFF > $MDIR/DUI
-DUI=$(< $MDIR/DUI )
+[[ -r "$MDIR/DUI" ]] || echo OFF > "$MDIR/DUI"
+DUI=$(< "$MDIR/DUI" )
 DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ```AGENT\nls``` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
+USECLIP=
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
@@ -57,6 +58,7 @@ help() {
   fi
   cat <<END
   /choose   - Switch pane capture focus.
+  /clip     - Select text into the clipboard as context.
   /mindwipe - Forget this crazy world and start over.
   /model    - Switch model.
   /sshot    - Raster screenshot.
@@ -81,10 +83,11 @@ system_prompt
 pane_id=${1-}
 conv=
 forcecapture=
-[[ -r $MDIR/${pane_id}.convo ]] && conv_id=$(cat $MDIR/${pane_id}.convo) || conv_id=
+debug=
+[[ -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
 
-touch $MDIR/${pane_id}.convo 
-touch $MDIR/${pane_id}.old
+touch "$MDIR/${pane_id}.convo"
+touch "$MDIR/${pane_id}.old"
 
 flash() {
     if [[ -n "$TMUX" ]]; then
@@ -110,9 +113,11 @@ getmodel
 set_prompt() {
     local camera="— "
     local dui="— "
+    local clipboard=''
     [[ -n "$TMUX" && $CAPTURE == "ON" ]] && camera="📷"
     [[ $DUI == "ON" ]] && dui="🚗"
-    prompt="${camera} ${dui} > "
+    [[ -n "$USECLIP" ]] && clipboard='📋'
+    prompt="${camera} ${dui}${clipboard} > "
 }
 
 choose() {
@@ -140,8 +145,8 @@ choose() {
 last() {
     amount=${1:-40}
     if [[ -z "$conv_id" ]]; then
-        if [[ -r $MDIR/last.conv ]]; then
-            conv_id=$( cat $MDIR/last.convo )
+        if [[ -r "$MDIR/last.conv" ]]; then
+            conv_id=$( cat "$MDIR/last.convo" )
         else 
             conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
@@ -194,8 +199,8 @@ process_cmd() {
 }
 
 oneshot() {
-    echo "$*" >> $MDIR/input.txt
-    llm "$*" -s "$SYSTEM" $conv >> $MDIR/output.txt &
+    echo "$*" >> "$MDIR/input.txt"
+    llm "$*" -s "$SYSTEM" $conv >> "$MDIR/output.txt" &
 }
     
 capture() {
@@ -216,6 +221,49 @@ capture() {
     fi
 }
 
+clip_nvim() {
+    nvim --headless --cmd "echo getreg('+')" --cmd "qa" 2>&1
+}
+
+clip() {
+
+    for i in p c s; do 
+        xclip -o -${i} > "$MDIR/clip.$i"
+    done
+    tmux show-buffer > "$MDIR/clip.tmux"
+    command -v nvim > /dev/null && clip_nvim > "$MDIR/clip.nvim"
+
+    echo "Select the text you want to look at and I'll find out what clipboard it is, hopefully"
+    while [[ 0 ]]; do
+        for i in p c s; do 
+            if ! diff <(xclip -o -${i}) "$MDIR/clip.$i" > /dev/null; then
+                USECLIP="xclip -o -${i}"
+            fi
+        done
+
+        if [[ -r "$MDIR/clip.nvim" ]]; then
+            if ! diff <(clip_nvim) "$MDIR/clip.nvim" > /dev/null; then
+                USECLIP=clip_nvim
+            fi
+        fi
+        if ! diff <(tmux show-buffer) "$MDIR/clip.tmux" > /dev/null; then
+            USECLIP="tmux show-buffer"
+        fi
+        [[ -n "$USECLIP" ]] && break 
+        sleep 0.2
+    done
+
+    if [[ -n "$USECLIP" ]]; then
+        {
+            echo
+            echo "Found!"
+            echo "### Next prompt will use \`$USECLIP\`"
+        } | $MDREAD
+    else
+        echo "Aborted"
+    fi
+}
+
 dui() {
     if [[ "$DUI" == "ON" ]]; then
         DUI=OFF
@@ -226,7 +274,7 @@ dui() {
         echo "Fuck it, let's roll!"
         oneshot "$DUIPROMPT"
     fi
-    echo $DUI > $MDIR/DUI
+    echo $DUI > "$MDIR/DUI"
 } 
 
 set_prompt
@@ -260,12 +308,20 @@ while [ 0 ]; do
     history -s "$input"  # Save to history
  
     if [[ $input =~ ^/ ]]; then
-        if [[ $input =~ ^/sshot ]]; then
-            sshot=$(mktemp --suffix=.png -p $MDIR)
+        if [[ $input == '/debug' ]]; then
+            if [[ -n "$debug" ]]; then
+                echo "Debug Off"
+                debug=; set +x; 
+            else
+                echo "Debug On"
+                debug=1; set -x; 
+            fi
+        elif [[ $input =~ ^/sshot ]]; then
+            sshot=$(mktemp --suffix=.png -p "$MDIR")
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screen shot"
-        elif [[ $input =~ (capture|last|dui|mindwipe|choose|flash) ]]; then
+        elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|flash) ]]; then
             ${input:1}
         elif [[ $input == "/model" ]]; then
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | sed 's/^\s//g' )
@@ -287,7 +343,7 @@ while [ 0 ]; do
     { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
     echo "($text)" >> "$MDIR/input.txt"
 
-    if [[ $CAPTURE == "ON" ]]; then
+    if [[ -z "$USECLIP" && $CAPTURE == "ON" ]]; then
         while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
             echo "Choose another pane"
             choose
@@ -299,33 +355,37 @@ while [ 0 ]; do
             fi
         done
     fi
-
+    
     n=0
     in="$MDIR/${conv_id}_${_uuid}"
     {
-       if [[ $CAPTURE == "ON" ]]; then
-            _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
-            {
-                if [[ $(uname) == "Linux" ]]; then
+       if [[ -n "$USECLIP" ]]; then
+           $USECLIP
+       elif [[ "$CAPTURE" == "ON" ]]; then
+           _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
+           {
+                if [[ "$(uname)" == "Linux" ]]; then
                     echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
                 fi
 
                 if [[ -n "$forcecapture" ]]; then
-                    cat $MDIR/${pane_id}.new
-                    focecapture=
+                    cat "$MDIR/${pane_id}.new"
                 else
-                    diff $MDIR/${pane_id}.new $MDIR/${pane_id}.old > /dev/null \
-                        && echo \
-                        || { echo "[capture-pane -p:"; cat $MDIR/${pane_id}.new; echo "]"; }
-                   cp $MDIR/${pane_id}.new $MDIR/${pane_id}.old
+                    diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
+                        && echo \ || { echo "[capture-pane -p:"; cat "$MDIR/${pane_id}.new"; echo "]"; }
+                   cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
                 fi
-            } | grep -Ev "^$"         \
-              | tee -a $MDIR/input.txt 
-         fi
+           } | grep -Ev "^$"         \
+             | tee -a "$MDIR/input.txt"
+      fi
 
     } | llm "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+
+    [[ -n "$USECLIP" ]]      && USECLIP=
+    [[ -n "$forcecapture" ]] && forcecapture=
+    set_prompt
 
     if [[ $DUI == "ON" ]]; then
         while true; do
@@ -341,8 +401,8 @@ while [ 0 ]; do
 
     if [[ -z "$conv" ]]; then
         conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
-        echo $conv_id > $MDIR/${pane_id}.convo
-        echo $conv_id > $MDIR/last.convo
+        echo $conv_id > "$MDIR/${pane_id}.convo"
+        echo $conv_id > "$MDIR/last.convo"
         conv="--cid $conv_id"
         INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
     fi
