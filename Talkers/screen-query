@@ -227,6 +227,8 @@ clip_nvim() {
 
 clip() {
     USECLIP=
+    xclip=$(command -v xclip)
+    nvim=$(command -v nvim)
 
     for i in p c s; do 
         xclip -o -${i} > "$MDIR/clip.$i"
@@ -236,19 +238,24 @@ clip() {
 
     {
         echo "Select the text you want to send and I'll find out what clipboard it is, hopefully..."
-        echo 'Supported: `XA_PRIMARY` `XA_SECONDARY` `XA_CLIPBOARD` `tmux` `nvim`'
+        echo -n 'Supported: `tmux` '
+        [[ -n "$nvim" ]] && echo -n '`nvim` ' || echo -n '~~`nvim`~~ '
+        [[ -z "$xclip" ]] && echo -n '~~`XA_PRIMARY`~~ ~~`XA_SECONDARY`~~ ~~`XA_CLIPBOARD`~~' ||  echo -n '`XA_PRIMARY` `XA_SECONDARY` `XA_CLIPBOARD`'
+        echo
         echo
     } | $MDREAD
     
     while [[ 0 ]]; do
-        for i in p c s; do 
-            if ! diff <(xclip -o -${i}) "$MDIR/clip.$i" > /dev/null; then
-                USECLIP="xclip -o -${i}"
-                break 2
-            fi
-        done
+        if [[ -n "$xclip" ]]; then
+            for i in p c s; do 
+                if ! diff <(xclip -o -${i}) "$MDIR/clip.$i" > /dev/null; then
+                    USECLIP="xclip -o -${i}"
+                    break 2
+                fi
+            done
+        fi
 
-        if [[ -r "$MDIR/clip.nvim" ]]; then
+        if [[ -n "$nvim" ]]; then
             if ! diff <(clip_nvim) "$MDIR/clip.nvim" > /dev/null; then
                 USECLIP=clip_nvim
                 break
