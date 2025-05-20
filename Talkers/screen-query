@@ -334,11 +334,11 @@ while [ 0 ]; do
         fi
         pline="   |  "
     done
+    [[ -z "$input" ]] && continue
     echo 
 
     _uuid=$(date +%s.%N)
 
-    [[ -z "$input" ]] && break
     history -s "$input"  # Save to history
  
     if [[ $input =~ ^/ ]]; then
