@@ -226,6 +226,7 @@ clip_nvim() {
 }
 
 clip() {
+    USECLIP=
 
     for i in p c s; do 
         xclip -o -${i} > "$MDIR/clip.$i"
