@@ -244,19 +244,21 @@ clip() {
         for i in p c s; do 
             if ! diff <(xclip -o -${i}) "$MDIR/clip.$i" > /dev/null; then
                 USECLIP="xclip -o -${i}"
+                break 2
             fi
         done
 
         if [[ -r "$MDIR/clip.nvim" ]]; then
             if ! diff <(clip_nvim) "$MDIR/clip.nvim" > /dev/null; then
                 USECLIP=clip_nvim
+                break
             fi
         fi
         if ! diff <(tmux show-buffer) "$MDIR/clip.tmux" > /dev/null; then
             USECLIP="tmux show-buffer"
+            break
         fi
-        [[ -n "$USECLIP" ]] && break 
-        sleep 0.2
+        sleep 0.3
     done
 
     if [[ -n "$USECLIP" ]]; then
