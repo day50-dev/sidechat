@@ -239,6 +239,10 @@ clip() {
 
     tmux show-buffer > "$MDIR/clip.tmux" 2> /dev/null
 
+    if [[ -n "$pbpaste" ]]; then
+       pbpaste > "$MDIR/clip.pbpaste"
+    fi
+
     if [[ -n "$nvim" ]]; then
        clip_nvim > "$MDIR/clip.nvim"
     fi
