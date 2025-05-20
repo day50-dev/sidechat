@@ -250,9 +250,9 @@ clip() {
     {
         echo "Select the text you want to send and I'll find out what clipboard it is, hopefully..."
         echo -n 'Supported: `tmux` '
-        [[ -n "$nvim" ]] && echo -n '`nvim` ' || echo -n '~~`nvim`~~ '
+        [[ -n "$nvim" ]]    && echo -n '`nvim` '    || echo -n '~~`nvim`~~ '
         [[ -n "$pbpaste" ]] && echo -n '`pbpaste` ' || echo -n '~~`pbpaste`~~ '
-        [[ -z "$xclip" ]] && echo -n '~~`XA_PRIMARY`~~ ~~`XA_SECONDARY`~~ ~~`XA_CLIPBOARD`~~' ||  echo -n '`XA_PRIMARY` `XA_SECONDARY` `XA_CLIPBOARD`'
+        [[ -n "$xclip" ]]   && echo -n '`xsel`'     || echo -n '~~`xsel`~~'
         echo
         echo
     } | $MDREAD
