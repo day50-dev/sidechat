@@ -230,11 +230,17 @@ clip() {
     xclip=$(command -v xclip)
     nvim=$(command -v nvim)
 
-    for i in p c s; do 
-        xclip -o -${i} > "$MDIR/clip.$i"
-    done
+    if [[ -n "$xclip" ]]; then
+        for i in p c s; do 
+            xclip -o -${i} > "$MDIR/clip.$i"
+        done
+    fi
+
     tmux show-buffer > "$MDIR/clip.tmux"
-    command -v nvim > /dev/null && clip_nvim > "$MDIR/clip.nvim"
+
+    if [[ -n "$nvim" ]]; then
+       clip_nvim > "$MDIR/clip.nvim"
+    fi
 
     {
         echo "Select the text you want to send and I'll find out what clipboard it is, hopefully..."
