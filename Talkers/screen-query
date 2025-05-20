@@ -229,6 +229,7 @@ clip() {
     USECLIP=
     xclip=$(command -v xclip)
     nvim=$(command -v nvim)
+    pbpaste=$(command -v pbpaste)
 
     if [[ -n "$xclip" ]]; then
         for i in p c s; do 
@@ -246,6 +247,7 @@ clip() {
         echo "Select the text you want to send and I'll find out what clipboard it is, hopefully..."
         echo -n 'Supported: `tmux` '
         [[ -n "$nvim" ]] && echo -n '`nvim` ' || echo -n '~~`nvim`~~ '
+        [[ -n "$pbpaste" ]] && echo -n '`pbpaste` ' || echo -n '~~`pbpaste`~~ '
         [[ -z "$xclip" ]] && echo -n '~~`XA_PRIMARY`~~ ~~`XA_SECONDARY`~~ ~~`XA_CLIPBOARD`~~' ||  echo -n '`XA_PRIMARY` `XA_SECONDARY` `XA_CLIPBOARD`'
         echo
         echo
@@ -259,6 +261,13 @@ clip() {
                     break 2
                 fi
             done
+        fi
+
+        if [[ -n "$pbpaste" ]]; then
+            if ! diff <(pbpaste) "$MDIR/clip.pbpaste" > /dev/null; then
+                USECLIP=pbpaste
+                break
+            fi
         fi
 
         if [[ -n "$nvim" ]]; then
