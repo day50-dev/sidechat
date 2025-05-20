@@ -233,7 +233,12 @@ clip() {
     tmux show-buffer > "$MDIR/clip.tmux"
     command -v nvim > /dev/null && clip_nvim > "$MDIR/clip.nvim"
 
-    echo "Select the text you want to look at and I'll find out what clipboard it is, hopefully"
+    {
+        echo "Select the text you want to send and I'll find out what clipboard it is, hopefully..."
+        echo 'Supported: `XA_PRIMARY` `XA_SECONDARY` `XA_CLIPBOARD` `tmux` `nvim`'
+        echo
+    } | $MDREAD
+    
     while [[ 0 ]]; do
         for i in p c s; do 
             if ! diff <(xclip -o -${i}) "$MDIR/clip.$i" > /dev/null; then
