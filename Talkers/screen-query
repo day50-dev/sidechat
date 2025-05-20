@@ -236,7 +236,7 @@ clip() {
         done
     fi
 
-    tmux show-buffer > "$MDIR/clip.tmux"
+    tmux show-buffer > "$MDIR/clip.tmux" 2> /dev/null
 
     if [[ -n "$nvim" ]]; then
        clip_nvim > "$MDIR/clip.nvim"
@@ -267,7 +267,7 @@ clip() {
                 break
             fi
         fi
-        if ! diff <(tmux show-buffer) "$MDIR/clip.tmux" > /dev/null; then
+        if ! diff <(tmux show-buffer 2>/dev/null) "$MDIR/clip.tmux" > /dev/null; then
             USECLIP="tmux show-buffer"
             break
         fi
