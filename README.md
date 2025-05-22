@@ -55,6 +55,9 @@ That's fine! If you use [streamdown](https://github.com/day50-dev/Streamdown),  
 **shell-hook, shellwrap and wtf**
 
 ### shell-hook.zsh
+
+Moving to a new home: [Zummoner](https://github.com/day50-dev/Zummoner).
+
 A Zsh shell hook that intercepts user input before execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response. 
 
 ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible! Highly recommended!
