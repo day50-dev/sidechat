@@ -227,9 +227,11 @@ clip_nvim() {
 
 clip() {
     USECLIP=
-    xclip=$(command -v xclip)
-    nvim=$(command -v nvim)
-    pbpaste=$(command -v pbpaste)
+    local xclip=$(command -v xclip)
+    local nvim=$(command -v nvim)
+    local pbpaste=$(command -v pbpaste)
+    local emacs=$(command -v emacsclient) 
+
 
     if [[ -n "$xclip" ]]; then
         for i in p c s; do 
@@ -247,12 +249,17 @@ clip() {
        clip_nvim > "$MDIR/clip.nvim"
     fi
 
+    if [[ -n "$emacs" ]]; then
+        emacsclient --eval '(current-kill 0)' > "$MDIR/clip.emacs" 2>/dev/null
+    fi
+
     {
         echo "Select the text you want to send and I'll find out what clipboard it is, hopefully..."
         echo -n 'Supported: `tmux` '
         [[ -n "$nvim" ]]    && echo -n '`nvim` '    || echo -n '~~`nvim`~~ '
         [[ -n "$pbpaste" ]] && echo -n '`pbpaste` ' || echo -n '~~`pbpaste`~~ '
-        [[ -n "$xclip" ]]   && echo -n '`xsel`'     || echo -n '~~`xsel`~~'
+        [[ -n "$xclip" ]]   && echo -n '`xsel` '     || echo -n '~~`xsel`~~ '
+        [[ -n "$emacs" ]]   && echo -n '`emacs` '    || echo -n '~~`emacs`~~ '
         echo
         echo
     } | $MDREAD
@@ -265,6 +272,13 @@ clip() {
                     break 2
                 fi
             done
+        fi
+
+        if [[ -n "$emacs" ]]; then
+            if ! diff <(emacsclient --eval '(current-kill 0)' 2>/dev/null) "$MDIR/clip.emacs" > /dev/null; then
+                USECLIP="emacsclient --eval '(current-kill 0)' 2>/dev/null"
+                break
+            fi
         fi
 
         if [[ -n "$pbpaste" ]]; then
