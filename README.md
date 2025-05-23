@@ -56,12 +56,7 @@ That's fine! If you use [streamdown](https://github.com/day50-dev/Streamdown),  
 
 ### shell-hook.zsh
 
-Moving to a new home: [Zummoner](https://github.com/day50-dev/Zummoner).
-
-A Zsh shell hook that intercepts user input before execution. It constructs a detailed prompt including system information and the user's input, sends this to an LLM, and replaces the user's input with the LLM's response. 
-
-ffmpeg, ssh port forwarding, openssl certificate checking, jq stuff ... this one is indispensible! Highly recommended!
-![out](https://github.com/user-attachments/assets/01488c16-fb68-4fdb-a7ea-76e12499641d)
+Moved to a new home: [Zummoner](https://github.com/day50-dev/Zummoner).
 
 ### shellwrap
 shellwrap is a new concept, generally. It shepherds your input and output as a true wrapper and logs both sides of the conversation into files. Then when you invoke the llm it will pre-empt any existing interaction, kind of like the ssh shell escape. This is what the reversed triangle input in the video is. That's invoked with a keyboard shortcut, currently `ctrl+x`.
