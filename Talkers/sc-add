@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MDIR=/tmp/screen-query/$UID
+MDIR=/tmp/sidechat/$UID
 pane_id=$(tmux display-message -p '#{pane_id}')
 if [[ -r $MDIR/$pane_id.convo ]]; then
     convo_id=$(cat $MDIR/${pane_id}.convo)

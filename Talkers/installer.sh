@@ -40,15 +40,15 @@ echo -e "\n  INSTALLING\n"
 touch ~/.tmux.conf
 if ! grep -q "bind h run-shell" ~/.tmux.conf; then
 cat << ENDL >> ~/.tmux.conf
-bind h run-shell "tmux split-window -h '$insdir/screen-query #{pane_id}'"
-bind j display-popup -E "$insdir/sq-picker"
+bind h run-shell "tmux split-window -h '$insdir/sidechat #{pane_id}'"
+bind j display-popup -E "$insdir/sc-picker"
 ENDL
     if pgrep -u $UID tmux > /dev/null; then
         tmux source-file "$HOME"/.tmux.conf
     fi
 fi
 
-for cmd in simple-parse.py sq-add sq-picker screen-query; do
+for cmd in simple-parse.py sc-add sc-picker sidechat; do
     rm -f "$insdir"/$cmd 
     echo "  ✅ $cmd"
     cp -p "$DIR"/$cmd "$insdir"
@@ -79,7 +79,7 @@ echo "  ✅ sqlite3"
 msg="You're ready to go!"
 
 if [[ $(uname) == "Darwin" ]]; then
-    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$insdir:$pybin^g" $insdir/screen-query
+    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$insdir:$pybin^g" $insdir/sidechat
 fi
 
 if ! echo $PATH | grep "$insdir:$pybin" > /dev/null; then
@@ -112,7 +112,7 @@ cat <<ENDL
 
 $msg
 
-screen-query's tmux key strokes:
+Sidechat's TMUX key strokes:
 
  * **tmux key + h**: Chat window
  * **tmux key + j**: Recent code snippets

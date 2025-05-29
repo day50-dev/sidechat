@@ -8,7 +8,7 @@
 #@@INJECTPATH
 
 tmp=$(python3 -c "import tempfile;print(tempfile.gettempdir())")
-MDIR=$tmp/screen-query
+MDIR=$tmp/sidechat
 [[ -d $MDIR ]] || (mkdir $MDIR && chmod 0777 $MDIR)
 MDIR=$MDIR/$UID
 [[ -d $MDIR ]] || mkdir $MDIR
@@ -64,7 +64,7 @@ help() {
   /sshot    - Raster screenshot.
   /dui      - Toggle agentic. (current: $DUI)
   /capture  - Toggle capture. (current: $CAPTURE)
-  shell-cmd | sq-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
+  shell-cmd | sc-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 END
 }
 
@@ -316,7 +316,7 @@ dui() {
     if [[ "$DUI" == "ON" ]]; then
         DUI=OFF
         echo "Sobering up.";
-        oneshot "(Note: Do-Ur-Inspection is now off. Do not talk about it. It no longer exists. Piping into sq-add is still available)"
+        oneshot "(Note: Do-Ur-Inspection is now off. Do not talk about it. It no longer exists. Piping into sc-add is still available)"
     else
         DUI=ON
         echo "Fuck it, let's roll!"
@@ -368,7 +368,7 @@ while [ 0 ]; do
             sshot=$(mktemp --suffix=.png -p "$MDIR")
             import $sshot
             ata="-a $sshot"
-            echo "Next prompt will use your screen shot"
+            echo "Next prompt will use your screenshot"
         elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|flash) ]]; then
             ${input:1}
         elif [[ $input == "/model" ]]; then
