@@ -28,7 +28,7 @@ An llm intervention in your little terminal with suppport for adding screenshots
 
 
 
-You should also use `sq-add` which can pipe anything into the context. Here's an example:
+You should also use `sc-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
 
@@ -48,7 +48,7 @@ Here's some screenshots of how it seamlessly works with [Streamdown's](https://g
 
 Also you don't need `tmux`! Often you'll be doing things and then realize you want the talk party and you're not in tmux.
 
-That's fine! If you use [streamdown](https://github.com/day50-dev/Streamdown),  `sq-picker` works like it does inside tmux. You can also `sq-add` by id. It's not great but you're not locked in. That's the point!
+That's fine! If you use [streamdown](https://github.com/day50-dev/Streamdown),  `sc-picker` works like it does inside tmux. You can also `sc-add` by id. It's not great but you're not locked in. That's the point!
 
 ## The Shell Snoopers 
 
