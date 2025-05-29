@@ -54,25 +54,15 @@ That's fine! If you use [streamdown](https://github.com/day50-dev/Streamdown),  
 
 **shell-hook, shellwrap and wtf**
 
-### shell-hook.zsh
+### Shell-hook.zsh
 
-Moved to a new home: [Zummoner](https://github.com/day50-dev/Zummoner).
+Moved to [Zummoner](https://github.com/day50-dev/Zummoner).
 
-### shellwrap
-shellwrap is a new concept, generally. It shepherds your input and output as a true wrapper and logs both sides of the conversation into files. Then when you invoke the llm it will pre-empt any existing interaction, kind of like the ssh shell escape. This is what the reversed triangle input in the video is. That's invoked with a keyboard shortcut, currently `ctrl+x`.
+### Shellwrap
 
-Then you type your command in and press enter. This command, plus the context of your previous input and output is then sent off to the llm and its response is wired up to the stdin of the application.
+Moved to [ESChatch](https://github.com/day50-dev/ESChatch).
 
-So for instance, 
- * Inside the zsh shell it gives shell commands.
- * Inside a full screen program, in this case vim. The vim session is pre-empted with a keystroke then just start typing. The llm infers it's vim and knows what mode it's in from the previous keystrokes and correctly exits.
- * Interactive python is opened. It uses the context to infer it and responds appropriately.
-
-This works seamlessly over ssh boundaries, in visual applications, at REPLs --- anywhere.
-
-[shellwrap1.webm](https://github.com/user-attachments/assets/29530ecf-15b6-4db1-9928-302c8674228e)
-
-### wtf
+### WTF
 A tool designed to read a directory of files, describe their content, categorize their purposes and answer basic questions. Example!
 
 (Notice how it has no idea what shellwrap does. Told you it was new! ;-) )
