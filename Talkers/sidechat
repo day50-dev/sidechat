@@ -80,21 +80,27 @@ END
 }
 
 system_prompt
-pane_id=${1-}
+
+# Initialize pane_id_list as empty
+pane_id_list=()
 conv=
 forcecapture=
 debug=
-[[ -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
+[[ -r "$MDIR/${pane_id_list[0]}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id_list[0]}.convo") || conv_id=
 
-touch "$MDIR/${pane_id}.convo"
-touch "$MDIR/${pane_id}.old"
+touch "$MDIR/${pane_id_list[0]}.convo"
+touch "$MDIR/${pane_id_list[0]}.old"
 
 flash() {
-    if [[ -n "$TMUX" && -n "$pane_id" ]]; then
-        tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=default' 
-        tmux select-pane -t $my_id
+    if [[ -n "$TMUX" ]]; then
+        for pane_id in "${pane_id_list[@]}"; do
+            if [[ -n "$pane_id" ]]; then
+                tmux select-pane -t "$pane_id" -P 'bg=colour95'; sleep 0.03
+                tmux select-pane -t "$pane_id" -P 'bg=color129'; sleep 0.03
+                tmux select-pane -t "$pane_id" -P 'bg=default'
+            fi
+        done
+        tmux select-pane -t "$my_id"
     fi
     set_prompt
 }
@@ -122,23 +128,31 @@ set_prompt() {
 
 choose() {
     [[ -z "$TMUX" ]] && return
-    tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
-    if [[ $? == "1" ]] ; then
-        echo "Exiting due to possible infinite loop."
-        exit 1
-    fi
-    if [[ -e $MDIR/pane-id ]]; then 
-        pane_id=$(cat $MDIR/pane-id)
-        echo "Using $pane_id"
-        flash
-        rm $MDIR/pane-id
-        tmux select-pane -t $my_id
-        touch $MDIR/${pane_id}.{convo,old}
-        INJECT=" (Note: User changed focus to a new tmux pane)"
-    else
-        echo "Cancelled"
-        return 1
-    fi
+
+    while true; do
+        # Show available panes
+        tmux list-panes -F "#{pane_id}: #{pane_current_command}"
+        
+        # Prompt for pane selection
+        read -p "Enter pane ID to add (press Enter when done): " pane_id
+        
+        # Exit loop if user pressed Enter
+        if [[ -z "$pane_id" ]]; then
+            break
+        fi
+        
+        # Validate pane exists
+        if tmux list-panes -t "$pane_id" &>/dev/null; then
+            pane_id_list+=("$pane_id")
+            echo "Added pane $pane_id"
+            flash
+            tmux select-pane -t $my_id
+            touch $MDIR/${pane_id}.{convo,old}
+            INJECT=" (Note: User added pane $pane_id)"
+        else
+            echo "Invalid pane ID: $pane_id"
+        fi
+    done
     return 0
 }
 
@@ -209,10 +223,18 @@ capture() {
         CAPTURE=OFF
         INJECT="$INJECT (Note: User turned capture off)"
     else
-        while ! tmux list-panes -t "$pane_id" &>/dev/null; do
+        still_exists=0
+        for pane_id in "${pane_id_list[@]}"; do
+            if tmux list-panes -t "$pane_id" &>/dev/null; then
+                still_exists=1
+                break
+            fi
+        done
+
+        if [[ $still_exists -eq 0 ]]; then
             echo "Woops, the pane disappeared. Choose another!"
             choose
-        done
+        fi
 
         flash
         echo "Capturing on. I see you!"
@@ -392,14 +414,17 @@ while [ 0 ]; do
     echo "($text)" >> "$MDIR/input.txt"
 
     if [[ -z "$USECLIP" && $CAPTURE == "ON" ]]; then
-        while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
-            echo "Choose another pane"
+        all_captured=0
+        if [[ ${#pane_id_list[@]} -eq 0 ]]; then
+            # If no panes selected, run choose to get panes
             choose
-            if [[ $? == 1 ]]; then 
-                echo "Ok fine, no capture, that's fine."
-                capture
-                set_prompt
-                break
+        fi
+        
+        for pane_id in "${pane_id_list[@]}"; do
+            if ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; then
+                echo "Problem capturing pane $pane_id"
+            else
+                all_captured=1
             fi
         done
     fi
@@ -410,22 +435,31 @@ while [ 0 ]; do
        if [[ -n "$USECLIP" ]]; then
            $USECLIP
        elif [[ "$CAPTURE" == "ON" ]]; then
-           _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
-           {
+           # Iterate through pane_id_list and capture each pane
+           for pane_id in "${pane_id_list[@]}"; do
+            _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
+            {
                 if [[ "$(uname)" == "Linux" ]]; then
                     echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
                 fi
+
 
                 if [[ -n "$forcecapture" ]]; then
                     cat "$MDIR/${pane_id}.new"
                 else
                     diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
-                        && echo \ || { echo "[capture-pane -p:"; cat "$MDIR/${pane_id}.new"; echo "]"; }
-                   cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
+                        && echo \
+                        || {
+                            echo "[capture-pane -p:";
+                            cat "$MDIR/${pane_id}.new";
+                            echo "]";
+                        }
+                    cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
                 fi
-           } | grep -Ev "^$"         \
-             | tee -a "$MDIR/input.txt"
-      fi
+            } | grep -Ev "^$" \
+              | tee -a "$MDIR/input.txt"
+        done
+       fi
 
     } | llm "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
@@ -449,7 +483,7 @@ while [ 0 ]; do
 
     if [[ -z "$conv" ]]; then
         conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
-        echo $conv_id > "$MDIR/${pane_id}.convo"
+        echo $conv_id > "$MDIR/${pane_id_list[0]}.convo"
         echo $conv_id > "$MDIR/last.convo"
         conv="--cid $conv_id"
         INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
