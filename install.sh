@@ -12,7 +12,11 @@ fi
 
 if [[ $PIP =~ /pipx$ ]]; then 
     PIP="$PIP install"
-    pybin=$(pipx environment | grep PIPX_BIN_DIR=/ | cut -d = -f 2)
+    pybin=$(pipx environment 2> /dev/null | grep PIPX_BIN_DIR=/ | cut -d = -f 2)
+    # really old pipx - apps is used even in the intl tests i did
+    if [[ -z "$pybin" ]]; then
+        pybin=$(pipx --help | grep apps | awk ' { print $NF } ' | grep \/ | sed 's/\.$//g;')
+    fi
 else
     PIP="$PIP install --user"
     if [[ $(uname) == "Linux" || "$(pip3 --version | grep homebrew | wc -l)" != 0 ]]; then
