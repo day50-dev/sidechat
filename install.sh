@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/sidechat
 PIP=$(command -v pipx || command -v pip || command -v pip3 )
 pybin=
 if [[ -z "$PIP" ]]; then 
