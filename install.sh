@@ -78,11 +78,17 @@ echo "  ✅ sqlite3"
 
 msg="You're ready to go!"
 
-if [[ $(uname) == "Darwin" ]]; then
-    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$insdir:$pybin^g" $insdir/sidechat
+if [[ "$insdir" != "$pybin" ]]; then
+    binpath="$insdir:$pybin"
+else
+    binpath="$insdir"
 fi
 
-if ! echo $PATH | grep "$insdir:$pybin" > /dev/null; then
+if [[ $(uname) == "Darwin" ]]; then
+    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$binpath^g" $insdir/sidechat
+fi
+
+if ! echo $PATH | grep "$binpath" > /dev/null; then
     if [[ $(uname) == "Linux" ]]; then
         shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')
     else
@@ -90,18 +96,18 @@ if ! echo $PATH | grep "$insdir:$pybin" > /dev/null; then
     fi
     msg="**Important!**"
     if [[ $shell == "bash" ]]; then
-        echo "export PATH=\$PATH:$insdir:$pybin" >> $HOME/.bashrc
+        echo "export PATH=\$PATH:$binpath" >> $HOME/.bashrc
         msg="$msg Run \`source ~/.bashrc\`"
     elif [[ $shell == "zsh" ]]; then
-        echo "export PATH=\$PATH:$insdir:$pybin" >> $HOME/.zshrc
+        echo "export PATH=\$PATH:$binpath" >> $HOME/.zshrc
         msg="$msg Run \`source ~/.zshrc\`"
     elif [[ $shell == "fish" ]]; then
         config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
         mkdir -p "$config_dir/fish"
-        echo "fish_add_path $insdir" >> "$config_dir/fish"/config.fish
+        echo "fish_add_path $binpath" >> "$config_dir/fish"/config.fish
         msg="$msg Run \`source ~/.config/fish/config.fish\`"
     else
-        msg="$msg Add $insdir to your path"
+        msg="$msg Add $binpath to your path"
     fi
     msg="$msg or restart your shell."
 fi
