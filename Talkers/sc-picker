@@ -6,6 +6,15 @@ if [[ -n "$1" ]] ; then
 fi
 
 selected=$(perl -0777 -ne 'print join("\0", (split(/\0/, $_))[-40..-1])' /$tmp/sd/$UID/savebrace | fzf --read0 --ansi --multi --no-sort --tac --highlight-line --gap)
-if [ -n "$selected" ]; then
-    tmux send-keys -t "$TMUX_PANE" "$selected" 
+if [[ -n "$selected" ]]; then
+    if [[ -z "$TMUX" ]]; then
+        if command -v xclip &>/dev/null; then
+            echo "$selected" | tee /dev/stderr | xclip -i
+            echo "\n\n# Also Added to XA_PRIMARY"
+        else
+            echo "$selected"
+        fi
+    else
+        tmux send-keys -t "$TMUX_PANE" "$selected" 
+    fi
 fi
