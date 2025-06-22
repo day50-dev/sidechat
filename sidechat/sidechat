@@ -18,6 +18,7 @@ HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
 MDREAD=sd
+MODEL=
 [[ -r "$MDIR/DUI" ]] || echo OFF > "$MDIR/DUI"
 DUI=$(< "$MDIR/DUI" )
 DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ```AGENT\nls``` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
@@ -34,11 +35,6 @@ else
   config="Library/Application Support"
 fi
 
-if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
-    model=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
-else
-    model=$(llm models default)
-fi
 
 [[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
 
@@ -48,7 +44,7 @@ help() {
         echo "### Parameters"
         echo "  * **System Prompt**:"
         echo "$SYSTEM" | sed 's/^/> /g'
-        echo "  * **Model**: $model"
+        echo "  * **Model**: $MODEL"
         echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
         echo "  * **TMP**: $MDIR"
         echo -e "\n### Commands"
@@ -99,13 +95,23 @@ flash() {
     set_prompt
 }
 
+setmodel() {
+    MODEL="$1"
+    echo "$MODEL" > "$MDIR"/model
+}
+
 getmodel() {
-    if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
-        model=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
+    if [[ -r "$MDIR/model" ]]; then
+      MODEL=$(cat "$MDIR/model")
     else
-        model=$(llm models default)
+      if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
+        MODEL=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
+      else
+        MODEL=$(llm models default)
+        MODEL=$(echo "$MODEL" | cut -d '/' -f 3-)
+      fi
+      echo "$MODEL" > "$MDIR"/model
     fi
-    model=$(echo "$model" | cut -d '/' -f 3-)
 }
 
 getmodel
@@ -193,14 +199,14 @@ process_cmd() {
 
         if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
             (( n++ ))
-            cat "$llm_in" | llm "You ran Do-Ur-Inspection commands" $conv  | tee "${infile}.${n}"
+            cat "$llm_in" | llm -m "$MODEL" "You ran Do-Ur-Inspection commands" $conv  | tee "${infile}.${n}"
         fi
     } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 }
 
 oneshot() {
     echo "$*" >> "$MDIR/input.txt"
-    llm "$*" -s "$SYSTEM" $conv >> "$MDIR/output.txt" &
+    llm -m "$MODEL" "$*" -s "$SYSTEM" $conv >> "$MDIR/output.txt" &
 }
     
 capture() {
@@ -375,7 +381,7 @@ while [ 0 ]; do
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | sed 's/^\s//g' )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
-              llm models default $chosen
+              setmodel "$chosen"
               mindwipe
             fi
         else
@@ -427,7 +433,7 @@ while [ 0 ]; do
              | tee -a "$MDIR/input.txt"
       fi
 
-    } | llm "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
+    } | llm -m "$MODEL" "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
