@@ -7,11 +7,14 @@
 # This is an OS X install-time hack
 #@@INJECTPATH
 
-tmp=$(python3 -c "import tempfile;print(tempfile.gettempdir())")
-MDIR=$tmp/sidechat
-[[ -d $MDIR ]] || (mkdir $MDIR && chmod 0777 $MDIR)
-MDIR=$MDIR/$UID
-[[ -d $MDIR ]] || mkdir $MDIR
+tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
+CONFIG="$(python3 -c 'import appdirs;print(appdirs.user_config_dir("sidechat"))')"
+
+[[ -r "$CONFIG" ]] || mkdir -p "$CONFIG"
+MDIR="$tmp"/sidechat
+[[ -d "$MDIR" ]] || (mkdir "$MDIR" && chmod 0777 "$MDIR")
+MDIR="$MDIR/$UID"
+[[ -d "$MDIR" ]] || mkdir "$MDIR"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HISTFILE="$MDIR/history"
@@ -30,11 +33,10 @@ USECLIP=
 history -r "$HISTFILE"
 trap 'history -w "$HISTFILE"' EXIT
 if [[ $(uname) == "Linux" ]]; then
-  config=".config"
+  llm_config=".config"
 else
-  config="Library/Application Support"
+  llm_config="Library/Application Support"
 fi
-
 
 [[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
 
@@ -97,20 +99,20 @@ flash() {
 
 setmodel() {
     LLM_MODEL="$1"
-    echo "$LLM_MODEL" > "$MDIR"/model
+    echo "$LLM_MODEL" > "$CONFIG"/model
 }
 
 getmodel() {
-    if [[ -r "$MDIR/model" ]]; then
-      LLM_MODEL=$(cat "$MDIR/model")
+    if [[ -r "$CONFIG/model" ]]; then
+      LLM_MODEL=$(cat "$CONFIG/model")
     else
-      if [[ -r "$HOME/$config/io.datasette.llm/default_model.txt" ]]; then
-        LLM_MODEL=$(cat "$HOME/$config/io.datasette.llm/default_model.txt")
+      if [[ -r "$HOME/$llm_config/io.datasette.llm/default_model.txt" ]]; then
+        LLM_MODEL=$(cat "$HOME/$llm_config/io.datasette.llm/default_model.txt")
       else
         LLM_MODEL=$(llm models default)
         LLM_MODEL=$(echo "$LLM_MODEL" | cut -d '/' -f 3-)
       fi
-      echo "$LLM_MODEL" > "$MDIR"/model
+      echo "$LLM_MODEL" > "$CONFIG"/model
     fi
 }
 
@@ -154,7 +156,7 @@ last() {
         if [[ -r "$MDIR/last.conv" ]]; then
             conv_id=$( cat "$MDIR/last.convo" )
         else 
-            conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
+            conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
         fi
     fi
     { echo "# [ $conv_id ] "; llm logs list --cid $conv_id | tail -$amount; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
@@ -454,7 +456,7 @@ while [ 0 ]; do
     INJECT=
 
     if [[ -z "$conv" ]]; then
-        conv_id=$(sqlite3 "$HOME/$config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
+        conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
         echo $conv_id > "$MDIR/${pane_id}.convo"
         echo $conv_id > "$MDIR/last.convo"
         conv="--cid $conv_id"
