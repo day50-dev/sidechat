@@ -8,7 +8,11 @@
 #@@INJECTPATH
 
 tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
-CONFIG="$(python3 -c 'import appdirs;print(appdirs.user_config_dir("sidechat"))')"
+
+[[ "$(uname)" == "Darwin" ]] && \
+    CONFIG="Library/Application Support" ||\
+    CONFIG=".config"
+CONFIG="${HOME}/${CONFIG}/sidechat"
 
 [[ -r "$CONFIG" ]] || mkdir -p "$CONFIG"
 MDIR="$tmp"/sidechat
