@@ -380,7 +380,7 @@ while [ 0 ]; do
         elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|flash) ]]; then
             ${input:1}
         elif [[ $input == "/model" ]]; then
-            chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | sed 's/^\s//g' )
+            chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
               setmodel "$chosen"
