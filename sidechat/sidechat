@@ -68,6 +68,11 @@ help() {
   /capture  - Toggle capture. (current: $CAPTURE)
   shell-cmd | sc-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 END
+  if [[ "$#" -eq 0 ]]; then 
+cat <<END
+  /last     - Load the most recent conversation
+  /flash    - Flash the focus
+END
 }
 
 system_prompt() {
