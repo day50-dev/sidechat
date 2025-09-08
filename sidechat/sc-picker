@@ -15,6 +15,6 @@ if [[ -n "$selected" ]]; then
             echo "$selected"
         fi
     else
-        tmux send-keys -t "$TMUX_PANE" "$selected" 
+        tmux send-keys -t "$TMUX_PANE" -- "$selected" 
     fi
 fi
