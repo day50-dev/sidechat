@@ -73,6 +73,7 @@ cat <<END
   /last     - Load the most recent conversation
   /flash    - Flash the focus
 END
+  fi
 }
 
 system_prompt() {
