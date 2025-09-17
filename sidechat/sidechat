@@ -433,21 +433,21 @@ while [ 0 ]; do
            _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
            {
                 if [[ "$(uname)" == "Linux" ]]; then
-                    echo "[process hierarchy: $(ps -o comm= --ppid $_pid -p $_pid)]"
+                    echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
                 fi
 
                 if [[ -n "$forcecapture" ]]; then
                     cat "$MDIR/${pane_id}.new"
                 else
                     diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
-                        && echo \ || { echo "[capture-pane -p:"; cat "$MDIR/${pane_id}.new"; echo "]"; }
+                        && echo \ || { echo "<capture-pane -p>"; cat "$MDIR/${pane_id}.new"; echo "</capture-pane -p>"; }
                    cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
                 fi
            } | grep -Ev "^$"         \
              | tee -a "$MDIR/input.txt"
       fi
 
-    } | llm -m "$LLM_MODEL" "${text}${INJECT}" -s "$SYSTEM" $ata $conv \
+    } | llm -m "$LLM_MODEL" "<user-query>${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
