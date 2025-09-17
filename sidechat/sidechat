@@ -354,6 +354,12 @@ else
 fi
 flash
 
+emit_capture() {
+    echo "<capture-pane -p>"
+    cat "$MDIR/${pane_id}.new"
+    echo -n "</capture-pane -p>"
+}
+
 while [ 0 ]; do 
     echo
     input=""
@@ -437,10 +443,10 @@ while [ 0 ]; do
                 fi
 
                 if [[ -n "$forcecapture" ]]; then
-                    cat "$MDIR/${pane_id}.new"
+                    emit_capture
                 else
                     diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
-                        && echo \ || { echo "<capture-pane -p>"; cat "$MDIR/${pane_id}.new"; echo "</capture-pane -p>"; }
+                        && echo \ || emit_capture 
                    cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
                 fi
            } | grep -Ev "^$"         \
