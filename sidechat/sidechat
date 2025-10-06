@@ -19,6 +19,7 @@ MDIR="$tmp"/sidechat
 [[ -d "$MDIR" ]] || (mkdir "$MDIR" && chmod 0777 "$MDIR")
 MDIR="$MDIR/$UID"
 [[ -d "$MDIR" ]] || mkdir "$MDIR"
+LAST="$MDIR/last.convo"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HISTFILE="$MDIR/history"
@@ -165,10 +166,11 @@ choose() {
 last() {
     amount=${1:-40}
     if [[ -z "$conv_id" ]]; then
-        if [[ -r "$MDIR/last.conv" ]]; then
-            conv_id=$( cat "$MDIR/last.convo" )
+        if [[ -s "$LAST" ]]; then
+            conv_id=$( cat "$LAST" )
         else 
             conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
+            echo "$conv_id" > "$LAST"
         fi
     fi
     { echo "# [ $conv_id ] "; llm logs list --cid $conv_id | tail -$amount; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
@@ -475,10 +477,10 @@ while [ 0 ]; do
 
     if [[ -z "$conv" ]]; then
         conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
-        echo $conv_id > "$MDIR/last.convo"
+        echo $conv_id > "$LAST"
         conv="--cid $conv_id"
         INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
     fi
-    echo $conv_id > "$MDIR/last.convo"
+    echo $conv_id > "$LAST"
     ata=""
 done
