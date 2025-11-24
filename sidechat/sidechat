@@ -13,6 +13,7 @@ tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
     CONFIG="Library/Application Support" ||\
     CONFIG=".config"
 CONFIG="${HOME}/${CONFIG}/sidechat"
+SETTINGS="$CONFIG/settings"
 
 [[ -r "$CONFIG" ]] || mkdir -p "$CONFIG"
 MDIR="$tmp"/sidechat
@@ -110,25 +111,32 @@ flash() {
     set_prompt
 }
 
-setmodel() {
-    LLM_MODEL="$1"
-    echo "$LLM_MODEL" > "$CONFIG"/model
+load_pref() {
+    [[ -e "$SETTINGS" ]] && source "$SETTINGS"
+}
+
+save_pref() {
+    local vname="$1"
+    local stanza="$vname='$2'"
+    local tmp="${SETTINGS}.tmp"
+    { grep -vE "^${vname}=" $SETTINGS ; echo "$stanza"; } > "$tmp"
+    mv "$tmp" "$SETTINGS"
+    declare "$stanza"
 }
 
 getmodel() {
-    if [[ -r "$CONFIG/model" ]]; then
-      LLM_MODEL=$(cat "$CONFIG/model")
-    else
+    if [[ -z "$LLM_MODEL" ]]; then
       if [[ -r "$HOME/$llm_config/io.datasette.llm/default_model.txt" ]]; then
         LLM_MODEL=$(cat "$HOME/$llm_config/io.datasette.llm/default_model.txt")
       else
         LLM_MODEL=$(llm models default)
         LLM_MODEL=$(echo "$LLM_MODEL" | cut -d '/' -f 3-)
       fi
-      echo "$LLM_MODEL" > "$CONFIG"/model
+      save_pref LLM_MODEL "$LLM_MODEL"
     fi
 }
 
+load_pref
 getmodel
 
 set_prompt() {
@@ -154,7 +162,7 @@ choose() {
         flash
         rm $MDIR/pane-id
         tmux select-pane -t $my_id
-        touch $MDIR/${pane_id}.{convo,old}
+        touch $MDIR/${paneid}.{convo,old}
         INJECT=" (Note: User changed focus to a new tmux pane)"
     else
         echo "Cancelled"
@@ -169,7 +177,7 @@ last() {
         if [[ -s "$LAST" ]]; then
             conv_id=$( cat "$LAST" )
         else 
-            conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
+            conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1" | head -1)
             echo "$conv_id" > "$LAST"
         fi
     fi
@@ -228,7 +236,7 @@ oneshot() {
 capture() {
     if [[ $CAPTURE == "ON" ]]; then
         echo "Capturing off. Shades are drawn!"
-        CAPTURE=OFF
+        save_pref "CAPTURE" "OFF"
         INJECT="$INJECT (Note: User turned capture off)"
     else
         while ! tmux list-panes -t "$pane_id" &>/dev/null; do
@@ -239,7 +247,7 @@ capture() {
         flash
         echo "Capturing on. I see you!"
         INJECT="$INJECT (Note: User turned capture on)"
-        CAPTURE=ON
+        save_pref "CAPTURE" "ON"
     fi
 }
 
@@ -403,7 +411,7 @@ while [ 0 ]; do
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
-              setmodel "$chosen"
+              save_pref LLM_MODEL "$chosen"
               mindwipe
             fi
         else
@@ -455,7 +463,7 @@ while [ 0 ]; do
              | tee -a "$MDIR/input.txt"
       fi
 
-    } | llm -m "$LLM_MODEL" "<user-query>${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
+    } | llm -m "$LLM_MODEL" "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
