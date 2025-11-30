@@ -121,7 +121,7 @@ save_pref() {
     local tmp="${SETTINGS}.tmp"
     { grep -vE "^${vname}=" $SETTINGS ; echo "$stanza"; } > "$tmp"
     mv "$tmp" "$SETTINGS"
-    declare "$stanza"
+    eval "$stanza"
 }
 
 getmodel() {
