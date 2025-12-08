@@ -407,7 +407,7 @@ while [ 0 ]; do
             echo "Next prompt will use your screenshot"
         elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|flash) ]]; then
             ${input:1}
-        elif [[ $input == "/model" ]]; then
+        elif [[ $input =~ /model ]]; then
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
@@ -455,8 +455,12 @@ while [ 0 ]; do
                 if [[ -n "$forcecapture" ]]; then
                     emit_capture
                 else
-                    diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
-                        && echo \ || emit_capture 
+                   if [[ -e "$MDIR/${pane_id}.old" ]]; then
+                        diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
+                            && echo \ || emit_capture 
+                   else
+                        emit_capture
+                   fi
                    cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
                 fi
            } | grep -Ev "^$"         \
