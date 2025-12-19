@@ -119,6 +119,8 @@ save_pref() {
     local vname="$1"
     local stanza="$vname='$2'"
     local tmp="${SETTINGS}.tmp"
+    [[ -d "$CONFIG" ]] || mkdir "$CONFIG"
+    [[ -e "$SETTINGS" ]] || touch "$SETTINGS"
     { grep -vE "^${vname}=" $SETTINGS ; echo "$stanza"; } > "$tmp"
     mv "$tmp" "$SETTINGS"
     eval "$stanza"
