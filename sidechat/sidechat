@@ -166,6 +166,11 @@ choose() {
         tmux select-pane -t $my_id
         touch $MDIR/${paneid}.{convo,old}
         INJECT=" (Note: User changed focus to a new tmux pane)"
+
+        # If you're choosing something you probably also want to capture
+        # I had forgotten the flow and was running choose a few times 
+        # wondering why it wasn't capturing
+        [[ $CAPTURE == "OFF" ]] && capture
     else
         echo "Cancelled"
         return 1
