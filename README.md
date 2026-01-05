@@ -29,6 +29,14 @@ Multiline is available with backslash `\`, just like it is at the shell
 ![2025-05-01_13-38](https://github.com/user-attachments/assets/e57ea643-cb63-4727-9901-e15109b81adb)
 
 
+There's lots of nice features. Here's the self-update. As you can see it will
+ * install the update
+ * replace itself
+ * pick up where you left off
+
+<img width="1058" height="1193" alt="update" src="https://github.com/user-attachments/assets/c6508ce1-afb8-4c83-9ae1-fae42e96df6a" />
+
+
 Here's some screenshots of how it seamlessly works with [Streamdown's](https://github.com/day50-dev/Streamdown) built in `Savebrace` feature and how it helps workflow.
 ![2025-04-26_18-45](https://github.com/user-attachments/assets/a81cbcea-cb15-46d9-92ac-5430238b2b85)
 
