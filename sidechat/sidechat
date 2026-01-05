@@ -512,6 +512,6 @@ while [ 0 ]; do
         conv="--cid $conv_id"
         INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
     fi
-    echo $conv_id > "$LAST"
+    echo $conv_id | tee "$LAST" | cat > "$MDIR/${pane_id}.convo"
     ata=""
 done
