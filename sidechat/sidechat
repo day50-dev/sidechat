@@ -33,6 +33,7 @@ DUI=$(< "$MDIR/DUI" )
 DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ```AGENT\nls``` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
 USECLIP=
+LAUNCH="$0"
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
@@ -70,10 +71,11 @@ help() {
   /capture  - Toggle capture. (current: $CAPTURE)
   shell-cmd | sc-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 END
-  if [[ "$#" -eq 0 ]]; then 
+  if [[ "$#" -ne 0 ]]; then 
 cat <<END
   /last     - Load the most recent conversation
   /flash    - Flash the focus
+  /update   - Self-update
 END
   fi
 }
@@ -96,10 +98,16 @@ pane_id=${1-}
 conv=
 forcecapture=
 debug=
-[[ -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
+[[ -z "$conv_id" && -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
 
 touch "$MDIR/${pane_id}.convo"
 touch "$MDIR/${pane_id}.old"
+
+update() {
+    curl -s https://day50.dev/sidechat | sh
+    echo -e "----\n## And now the magical in-place upgrade.\n\n----\n" | $MDREAD
+    exec "$LAUNCH" $pane_id
+}
 
 flash() {
     if [[ -n "$TMUX" && -n "$pane_id" ]]; then
@@ -412,7 +420,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|flash) ]]; then
+        elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
         elif [[ $input =~ /model ]]; then
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
