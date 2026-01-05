@@ -254,14 +254,18 @@ capture() {
         save_pref "CAPTURE" "OFF"
         INJECT="$INJECT (Note: User turned capture off)"
     else
-        while ! tmux list-panes -t "$pane_id" &>/dev/null; do
-            echo "Woops, the pane disappeared. Choose another!"
-            choose
-        done
+        if [[ -n "$TMUX" ]]; then
+          while ! tmux list-panes -t "$pane_id" &>/dev/null; do
+              echo "Woops, the pane disappeared. Choose another!"
+              choose
+          done
 
-        flash
-        echo "Capturing on. I see you!"
-        INJECT="$INJECT (Note: User turned capture on)"
+          flash
+          echo "Capturing on. I see you!"
+          INJECT="$INJECT (Note: User turned capture on)"
+        else
+          echo "No TMUX... No capture"
+        fi
         save_pref "CAPTURE" "ON"
     fi
 }
@@ -442,7 +446,7 @@ while [ 0 ]; do
     { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
     echo "($text)" >> "$MDIR/input.txt"
 
-    if [[ -z "$USECLIP" && $CAPTURE == "ON" ]]; then
+    if [[ -z "$USECLIP" && $CAPTURE == "ON" && -n "$TMUX" ]]; then
         while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
             echo "Choose another pane"
             choose
@@ -461,9 +465,9 @@ while [ 0 ]; do
        if [[ -n "$USECLIP" ]]; then
            $USECLIP
        elif [[ "$CAPTURE" == "ON" ]]; then
-           _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
+           [[ -n "$TMUX" ]] && _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
            {
-                if [[ "$(uname)" == "Linux" ]]; then
+                if [[ "$(uname)" == "Linux" && -n "$TMUX" ]]; then
                     echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
                 fi
 
