@@ -92,6 +92,8 @@ if [[ $(uname) == "Darwin" ]]; then
     sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$binpath^g" $insdir/sidechat
 fi
 
+sed -i "s^@@VERSION^$(git describe)^g" $insdir/sidechat
+
 if ! echo $PATH | grep "$binpath" > /dev/null; then
     if [[ $(uname) == "Linux" ]]; then
         shell=$(getent passwd $(whoami) | awk -F / '{print $NF}')

@@ -7,6 +7,8 @@
 # This is an OS X install-time hack
 #@@INJECTPATH
 
+VERSION=@@VERSION
+
 tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
 
 [[ "$(uname)" == "Darwin" ]] && \
@@ -51,7 +53,7 @@ fi
 help() {
   if [[ "$#" -gt 0 ]]; then 
     {
-        echo "### Parameters"
+        echo "### Parameters  (*[sidechat $VERSION](https://github.com/day50-dev/sidechat)*)"
         echo "  * **System Prompt**:"
         echo "$SYSTEM" | sed 's/^/> /g'
         echo "  * **Model**: $LLM_MODEL"
@@ -97,6 +99,7 @@ END
 
 system_prompt
 pane_id=${1-}
+pane_list=( $pane_id )
 conv=
 forcecapture=
 debug=
@@ -166,27 +169,31 @@ set_prompt() {
 }
 
 choose() {
+    local depth=${1:-0}
     [[ -z "$TMUX" ]] && return
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
     if [[ $? == "1" ]] ; then
         echo "Exiting due to possible infinite loop."
         exit 1
     fi
-    if [[ -e $MDIR/pane-id ]]; then 
-        pane_id=$(cat $MDIR/pane-id)
+    if [[ -e "$MDIR/pane-id" ]]; then 
+        pane_id=$(cat "$MDIR/pane-id")
+        [[ "$depth" == 0 ]] && pane_list=( )
+        pane_list+=( $pane_id )
+        (( depth ++ ))
         echo "Using $pane_id"
         flash
-        rm $MDIR/pane-id
+        rm "$MDIR/pane-id"
         tmux select-pane -t $my_id
-        touch $MDIR/${paneid}.{convo,old}
+        touch "$MDIR/${paneid}.{convo,old}"
         INJECT=" (Note: User changed focus to a new tmux pane)"
 
         # If you're choosing something you probably also want to capture
         # I had forgotten the flow and was running choose a few times 
         # wondering why it wasn't capturing
-        [[ $CAPTURE == "OFF" ]] && capture
+        [[ "$CAPTURE" == "OFF" ]] && capture
     else
-        echo "Cancelled"
+        [[ "$depth" == "0" ]] && echo "Cancelled" || echo "Done"
         return 1
     fi
     return 0
