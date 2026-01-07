@@ -11,5 +11,5 @@ cat << ENDL
                                                                           
 ENDL
 insdir=$(mktemp -u)
-git clone --quiet --depth=1 https://github.com/day50-dev/sidechat $insdir
+git clone --quiet https://github.com/day50-dev/sidechat $insdir
 $insdir/install.sh
