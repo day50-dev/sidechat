@@ -7,7 +7,7 @@
 # This is an OS X install-time hack
 #@@INJECTPATH
 
-VERSION=@@VERSION
+VERSION="@@VERSION"
 
 tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
 
