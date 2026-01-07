@@ -13,3 +13,4 @@ ENDL
 insdir=$(mktemp -u)
 git clone --quiet https://github.com/day50-dev/sidechat $insdir
 $insdir/install.sh
+rm -r $insdir
