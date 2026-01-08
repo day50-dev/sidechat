@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # there's a few commands and /help documents them
 
 #set -eEuo pipefail
@@ -65,7 +65,7 @@ help() {
     system_prompt
   fi
   cat <<END
-  /choose   - Switch pane capture focus.
+  /choose   - Switch pane capture focus. (current: ${pane_list[@]})
   /clip     - Select text into the clipboard as context.
   /mindwipe - Forget this crazy world and start over.
   /model    - Switch model.
@@ -86,7 +86,7 @@ END
 
 system_prompt() {
 SYSTEM=$(cat <<END
-You are an interactive debugging buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectural or design. Assume they've already tried the things a competent engineer would do. If they say you're wrong, you probably are.
+You are an interactive debugging buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectu or design. Assume they've already tried the things a competent engineer would do. 
 
 You will get capture-pane -p followed by questions when the pane output changes. 
 They are using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
@@ -109,16 +109,19 @@ touch "$MDIR/${pane_id}.convo"
 touch "$MDIR/${pane_id}.old"
 
 update() {
-    curl -s https://day50.dev/sidechat | sh
-    echo -e "----\n## And now the magical in-place upgrade.\n\n----\n" | $MDREAD
+    tmux split-window -v "curl -s https://day50.dev/sidechat | sh; tmux wait-for -S upgrade"
+    tmux wait-for upgrade
+    echo -e "## And now the magical in-place upgrade.\n" | $MDREAD
     exec "$LAUNCH" $pane_id
 }
 
 flash() {
-    if [[ -n "$TMUX" && -n "$pane_id" ]]; then
-        tmux select-pane -t $pane_id -P 'bg=colour95'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=color129'; sleep 0.03
-        tmux select-pane -t $pane_id -P 'bg=default' 
+    if [[ -n "$TMUX" ]]; then
+        for ix_pane in "${pane_list[@]}"; do
+            tmux select-pane -t $ix_pane -P 'bg=colour95'; sleep 0.03
+            tmux select-pane -t $ix_pane -P 'bg=color129'; sleep 0.03
+            tmux select-pane -t $ix_pane -P 'bg=default' 
+        done
         tmux select-pane -t $my_id
     fi
     set_prompt
@@ -138,7 +141,7 @@ save_pref() {
     local tmp="${SETTINGS}.tmp"
     [[ -d "$CONFIG" ]] || mkdir "$CONFIG"
     [[ -e "$SETTINGS" ]] || touch "$SETTINGS"
-    { grep -vE "^${vname}=" $SETTINGS ; echo "$stanza"; } > "$tmp"
+    { grep -vE "^${vname}=" "$SETTINGS" ; echo "$stanza"; } > "$tmp"
     mv "$tmp" "$SETTINGS"
     eval "$stanza"
 }
@@ -170,6 +173,8 @@ set_prompt() {
 
 choose() {
     local depth=${1:-0}
+    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
+    [[ "$depth" == 0 ]] && echo "Select panes or any other key to end selection" | $MDREAD
     [[ -z "$TMUX" ]] && return
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
     if [[ $? == "1" ]] ; then
@@ -181,21 +186,32 @@ choose() {
         [[ "$depth" == 0 ]] && pane_list=( )
         pane_list+=( $pane_id )
         (( depth ++ ))
-        echo "Using $pane_id"
+        {
+            echo -n "* [ "
+            for _ix in "${pane_list[@]}"; do
+                local v="${_ix/\%/_}"
+                echo -n " ${!v}"
+            done
+            echo " ]"
+        } | $MDREAD
         flash
         rm "$MDIR/pane-id"
         tmux select-pane -t $my_id
-        touch "$MDIR/${paneid}.{convo,old}"
-        INJECT=" (Note: User changed focus to a new tmux pane)"
+        touch "$MDIR/${pane_id}."{convo,old}
+        INJECT=" (Note: User changed tmux panes)"
 
         # If you're choosing something you probably also want to capture
         # I had forgotten the flow and was running choose a few times 
         # wondering why it wasn't capturing
-        [[ "$CAPTURE" == "OFF" ]] && capture
+        choose "$depth"
     else
-        [[ "$depth" == "0" ]] && echo "Cancelled" || echo "Done"
+        [[ "$depth" == "0" ]] && echo "Cancelled" 
         return 1
     fi
+    if [[ "$CAPTURE" == "OFF" ]]; then
+        capture
+    fi
+    read -t 0.05 -n 1
     return 0
 }
 
@@ -365,9 +381,7 @@ clip() {
 
     if [[ -n "$USECLIP" ]]; then
         {
-            echo
-            echo "Found!"
-            echo "### Next prompt will use \`$USECLIP\`"
+            echo -e "\nFound!\n### Next prompt will use \`$USECLIP\`"
         } | $MDREAD
     else
         echo "Aborted"
@@ -397,9 +411,16 @@ fi
 flash
 
 emit_capture() {
-    echo "<capture-pane -p>"
-    cat "$MDIR/${pane_id}.new"
-    echo -n "</capture-pane -p>"
+    local ix=$1
+    echo " has_changed=True>"
+    [[ -n "$TMUX" ]] && _pid=$(tmux display -pt "$ix" '#{pane_pid}')
+
+    if [[ "$(uname)" == "Linux" && -n "$TMUX" ]]; then
+        echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
+    fi
+    echo "<capture>"
+    cat "$MDIR/${ix}.new"
+    echo "</capture>"
 }
 
 while [ 0 ]; do 
@@ -459,19 +480,12 @@ while [ 0 ]; do
     # synchronize input & output
     if [[ -z "$RETRY" ]]; then
         { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
-        echo "($text)" >> "$MDIR/input.txt"
     fi
 
     if [[ -z "$USECLIP" && $CAPTURE == "ON" && -n "$TMUX" ]]; then
-        while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
-            echo "Choose another pane"
-            choose
-            if [[ $? == 1 ]]; then 
-                echo "Ok fine, no capture, that's fine."
-                capture
-                set_prompt
-                break
-            fi
+        for ix_pane in "${pane_list[@]}"; do
+          tmux capture-pane -t "${ix_pane}" -p > "$MDIR/${ix_pane}.new"
+          [[ -s "$MDIR/${ix_pane}.new" ]] || echo "**WARNING: Can't capture ${ix_pane}, Use /choose to update**" | $MDREAD
         done
     fi
     
@@ -479,33 +493,31 @@ while [ 0 ]; do
     in="$MDIR/${conv_id}_${_uuid}"
     {
        if [[ -n "$USECLIP" ]]; then
+           echo "<clipboard>"
            $USECLIP
+           echo "</clipboard>"
        elif [[ "$CAPTURE" == "ON" ]]; then
-           [[ -n "$TMUX" ]] && _pid=$(tmux display -pt "$pane_id" '#{pane_pid}')
-           {
-                if [[ "$(uname)" == "Linux" && -n "$TMUX" ]]; then
-                    echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
-                fi
-
-                if [[ -n "$RETRY" ]]; then
-                    cat "$MDIR/${pane_id}.old"
-                    RETRY=
-                elif [[ -n "$forcecapture" ]]; then
-                    emit_capture
+         for ix_pane in "${pane_list[@]}"; do
+            echo -n "<pane id=$ix_pane"
+            if [[ -n "$RETRY" ]]; then
+                cp "$MDIR/${ix_pane}.old" "$MDIR/${ix_pane}.new"
+                emit_capture "$ix_pane"
+            elif [[ -n "$forcecapture" ]]; then
+                emit_capture "$ix_pane"
+            else
+                if [[ -e "$MDIR/${ix_pane}.old" ]]; then
+                    /usr/bin/diff "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old" > /dev/null && echo -n " has_changed=False>" || emit_capture "$ix_pane"
                 else
-                   if [[ -e "$MDIR/${pane_id}.old" ]]; then
-                        diff "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old" > /dev/null \
-                            && echo \ || emit_capture 
-                   else
-                        emit_capture
-                   fi
-                   cp "$MDIR/${pane_id}.new" "$MDIR/${pane_id}.old"
+                    emit_capture "$ix_pane"
                 fi
-           } | grep -Ev "^$"         \
-             | tee -a "$MDIR/input.txt"
+                cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
+            fi
+            echo "</pane>"
+         done
+         RETRY=
       fi
-
-    } | llm -m "$LLM_MODEL" "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
+    } | tee -a "$MDIR/input.txt" \
+      | llm -m "$LLM_MODEL" "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
