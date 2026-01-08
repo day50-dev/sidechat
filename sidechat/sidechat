@@ -173,7 +173,7 @@ set_prompt() {
 
 choose() {
     local depth=${1:-0}
-    eval 'declare -A _pane_mapping=( '$(tmux list-panes -a -F "[#{pane_id}]=#{pane_index}" | tr '\n' ' ')' )'
+    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
     [[ "$depth" == 0 ]] && echo "Select panes or any other key to end selection" | $MDREAD
     [[ -z "$TMUX" ]] && return
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
@@ -189,7 +189,8 @@ choose() {
         {
             echo -n "* [ "
             for _ix in "${pane_list[@]}"; do
-                echo -n " ${_pane_mapping[$_ix]}"
+                local v="${_ix/\%/_}"
+                echo -n " ${!v}"
             done
             echo -n " ]"
         } | $MDREAD
