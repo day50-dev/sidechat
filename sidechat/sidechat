@@ -109,7 +109,8 @@ touch "$MDIR/${pane_id}.convo"
 touch "$MDIR/${pane_id}.old"
 
 update() {
-    curl -s https://day50.dev/sidechat | sh
+    tmux split-window -v "curl -s https://day50.dev/sidechat | sh; tmux wait-for -S upgrade"
+    tmux wait-for upgrade
     echo -e "----\n## And now the magical in-place upgrade.\n\n----\n" | $MDREAD
     exec "$LAUNCH" $pane_id
 }
