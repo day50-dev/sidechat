@@ -7,6 +7,8 @@
 # This is an OS X install-time hack
 #@@INJECTPATH
 
+VERSION="@@VERSION"
+
 tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
 
 [[ "$(uname)" == "Darwin" ]] && \
@@ -33,6 +35,8 @@ DUI=$(< "$MDIR/DUI" )
 DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ```AGENT\nls``` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 CAPTURE="ON"
 USECLIP=
+LAUNCH="$0"
+RETRY=
 
 [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
 [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
@@ -49,7 +53,7 @@ fi
 help() {
   if [[ "$#" -gt 0 ]]; then 
     {
-        echo "### Parameters"
+        echo "### Parameters  (*[sidechat $VERSION](https://github.com/day50-dev/sidechat)*)"
         echo "  * **System Prompt**:"
         echo "$SYSTEM" | sed 's/^/> /g'
         echo "  * **Model**: $LLM_MODEL"
@@ -70,10 +74,12 @@ help() {
   /capture  - Toggle capture. (current: $CAPTURE)
   shell-cmd | sc-add [-c cid] [prompt] - Add the output of shell-cmd to the context.
 END
-  if [[ "$#" -eq 0 ]]; then 
+  if [[ "$#" -ne 0 ]]; then 
 cat <<END
   /last     - Load the most recent conversation
   /flash    - Flash the focus
+  /update   - Self-update
+  /retry    - Try the last again
 END
   fi
 }
@@ -93,13 +99,20 @@ END
 
 system_prompt
 pane_id=${1-}
+pane_list=( $pane_id )
 conv=
 forcecapture=
 debug=
-[[ -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
+[[ -z "$conv_id" && -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
 
 touch "$MDIR/${pane_id}.convo"
 touch "$MDIR/${pane_id}.old"
+
+update() {
+    curl -s https://day50.dev/sidechat | sh
+    echo -e "----\n## And now the magical in-place upgrade.\n\n----\n" | $MDREAD
+    exec "$LAUNCH" $pane_id
+}
 
 flash() {
     if [[ -n "$TMUX" && -n "$pane_id" ]]; then
@@ -109,6 +122,10 @@ flash() {
         tmux select-pane -t $my_id
     fi
     set_prompt
+}
+
+retry() {
+    RETRY=1
 }
 
 load_pref() {
@@ -152,22 +169,31 @@ set_prompt() {
 }
 
 choose() {
+    local depth=${1:-0}
     [[ -z "$TMUX" ]] && return
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
     if [[ $? == "1" ]] ; then
         echo "Exiting due to possible infinite loop."
         exit 1
     fi
-    if [[ -e $MDIR/pane-id ]]; then 
-        pane_id=$(cat $MDIR/pane-id)
+    if [[ -e "$MDIR/pane-id" ]]; then 
+        pane_id=$(cat "$MDIR/pane-id")
+        [[ "$depth" == 0 ]] && pane_list=( )
+        pane_list+=( $pane_id )
+        (( depth ++ ))
         echo "Using $pane_id"
         flash
-        rm $MDIR/pane-id
+        rm "$MDIR/pane-id"
         tmux select-pane -t $my_id
-        touch $MDIR/${paneid}.{convo,old}
+        touch "$MDIR/${paneid}.{convo,old}"
         INJECT=" (Note: User changed focus to a new tmux pane)"
+
+        # If you're choosing something you probably also want to capture
+        # I had forgotten the flow and was running choose a few times 
+        # wondering why it wasn't capturing
+        [[ "$CAPTURE" == "OFF" ]] && capture
     else
-        echo "Cancelled"
+        [[ "$depth" == "0" ]] && echo "Cancelled" || echo "Done"
         return 1
     fi
     return 0
@@ -411,7 +437,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (clip|capture|last|dui|mindwipe|choose|flash) ]]; then
+        elif [[ $input =~ (retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
         elif [[ $input =~ /model ]]; then
             chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
@@ -424,14 +450,17 @@ while [ 0 ]; do
             help 1
         fi
         set_prompt
-        continue
+        # if we are retrying the last we want the same everything
+        [[ -z "$RETRY" ]] && continue
     else
         text="$input"
     fi
 
     # synchronize input & output
-    { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
-    echo "($text)" >> "$MDIR/input.txt"
+    if [[ -z "$RETRY" ]]; then
+        { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
+        echo "($text)" >> "$MDIR/input.txt"
+    fi
 
     if [[ -z "$USECLIP" && $CAPTURE == "ON" && -n "$TMUX" ]]; then
         while ! tmux capture-pane -t "${pane_id}" -p > "$MDIR/${pane_id}.new"; do
@@ -458,7 +487,10 @@ while [ 0 ]; do
                     echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
                 fi
 
-                if [[ -n "$forcecapture" ]]; then
+                if [[ -n "$RETRY" ]]; then
+                    cat "$MDIR/${pane_id}.old"
+                    RETRY=
+                elif [[ -n "$forcecapture" ]]; then
                     emit_capture
                 else
                    if [[ -e "$MDIR/${pane_id}.old" ]]; then
@@ -499,6 +531,6 @@ while [ 0 ]; do
         conv="--cid $conv_id"
         INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
     fi
-    echo $conv_id > "$LAST"
+    echo $conv_id | tee "$LAST" | cat > "$MDIR/${pane_id}.convo"
     ata=""
 done
