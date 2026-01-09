@@ -514,13 +514,14 @@ while [ 0 ]; do
             fi
             echo "</pane>"
          done
-         RETRY=
       fi
     } | tee -a "$MDIR/input.txt" \
       | llm -m "$LLM_MODEL" "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
       | tee "${in}.${n}" | tee "$MDIR/output.txt" \
       | $MDREAD -c <(echo -e "[style]\nMargin = 4")
 
+    # Needs to be run here and not in any subshell
+    RETRY=
     [[ -n "$USECLIP" ]]      && USECLIP=
     [[ -n "$forcecapture" ]] && forcecapture=
     set_prompt
