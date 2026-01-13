@@ -79,7 +79,7 @@ END
 
 system_prompt() {
 SYSTEM=$(cat <<END
-You are an interactive debugging buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectu or design. Assume they've already tried the things a competent engineer would do. 
+You are an interactive buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectu or design. Assume they've already tried the things a competent engineer would do. 
 
 You will get capture-pane -p followed by questions when the pane output changes. 
 They are using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
@@ -181,12 +181,26 @@ key() {
     save_pref SERVER_AUTH "$SERVER_AUTH"
 }
 server() {
+    local SERVER_URL_
     {
         echo -e "The server URL:\n"
         echo " * Should include the schema, such as http:// or https://"
-        echo -e " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)\n"
+        echo " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)"
+        echo " * Here's somet special values: "
+        echo "   * *or*     - openrouter"
+        echo "   * *ollama*  - ollama    (local)"
+        echo -e "   * *llama*  - llama.cpp (local)\n"
     } | $MDREAD
     read -E -p "  Enter URL: " SERVER_URL
+    case $SERVER_URL in 
+        or) SERVER_URL_=https://openrouter.ai/api ;;
+        ollama) SERVER_URL_=http://localhost:11434 ;;
+        llama) SERVER_URL_=http://localhost:8080 ;;
+    esac
+    if [[ -n "$SERVER_URL_" ]]; then
+        echo -e "\n  Using $SERVER_URL_"
+        SERVER_URL="$SERVER_URL_"
+    fi
     save_pref SERVER_URL "$SERVER_URL"
 }
 
