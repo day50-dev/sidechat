@@ -10,14 +10,16 @@ Simple installer:
 
 An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, turning off and on pane capturing, adding external context and more, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
 
-You can even add multiple panes as a stack. There's also a self-update and retry mechanism built right in.
+You can 
+ * add multiple panes as a stack.
+ * retry calls
+ * use local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
 
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
-## There's an agentic mode. We call it DUI. Enable it with `/dui`.
+There's an agentic mode. We call it DUI. Enable it with `/dui`.
 ![2025-05-15_18-50](https://github.com/user-attachments/assets/d1da6063-b450-49f8-863d-fcf0c32647fc)
-
 
 
 You should also use `sc-add` which can pipe anything into the context. Here's an example:
@@ -35,8 +37,6 @@ There's lots of nice features. Here's the self-update. As you can see it will
  * install the update
  * replace itself
  * pick up where you left off
-
-<img width="1058" height="1193" alt="update" src="https://github.com/user-attachments/assets/c6508ce1-afb8-4c83-9ae1-fae42e96df6a" />
 
 
 Here's some screenshots of how it seamlessly works with [Streamdown's](https://github.com/day50-dev/Streamdown) built in `Savebrace` feature and how it helps workflow.
