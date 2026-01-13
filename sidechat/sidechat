@@ -245,7 +245,7 @@ last() {
 }
 
 ll() {
-    llcat -c "$conv_id" -u "$SERVER_URL" -sk "$SERVER_KEY" "$@"
+    llcat -c "$conv_id" -u "$SERVER_URL" -sk "$SERVER_AUTH" "$@"
 }
 llc() {
     ll -m "$LLM_MODEL" "$@"
@@ -478,7 +478,7 @@ while [ 0 ]; do
         elif [[ $input =~ (server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
         elif [[ $input =~ /model ]]; then
-            chosen=$(ll -m | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
+            chosen=$(ll -m | fzf-tmux )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
               save_pref LLM_MODEL "$chosen"
@@ -546,6 +546,6 @@ while [ 0 ]; do
 
     INJECT=
 
-    echo $conv_id | tee "$LAST" | cat > "$MDIR/${pane_id}.convo"
+    echo $conv_id | cat > "$MDIR/${pane_id}.convo"
     ata=""
 done
