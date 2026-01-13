@@ -60,7 +60,7 @@ done
 
 for pkg in llcat streamdown; do
     echo "  ✅ $pkg"
-    $PIP $pkg &> /dev/null
+    $PIP --force $pkg &> /dev/null
 done
 
 if [[ ! -d ~/.fzf ]]; then
