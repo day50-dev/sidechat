@@ -28,7 +28,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
-MDREAD=sd
+MDREAD='sd -c <(echo -e "[style]\nMargin = 4")'
 LLM_MODEL=
 [[ -r "$MDIR/DUI" ]] || echo OFF > "$MDIR/DUI"
 DUI=$(< "$MDIR/DUI" )
@@ -38,17 +38,9 @@ USECLIP=
 LAUNCH="$0"
 RETRY=
 
-[[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
-[[ -f "$HISTFILE" ]] || touch "$HISTFILE"
-history -r "$HISTFILE"
-trap 'history -w "$HISTFILE"' EXIT
-if [[ $(uname) == "Linux" ]]; then
-  llm_config=".config"
-else
-  llm_config="Library/Application Support"
-fi
-
-[[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
+_warn() {
+    echo "_$@_" | $MDREAD
+}
 
 help() {
   if [[ "$#" -gt 0 ]]; then 
@@ -57,8 +49,8 @@ help() {
         echo "  * **System Prompt**:"
         echo "$SYSTEM" | sed 's/^/> /g'
         echo "  * **Model**: $LLM_MODEL"
-        echo "  * **CID**: ${conv_id:-*(Not available until first message)*}"
-        echo "  * **TMP**: $MDIR"
+        echo "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
+        echo "  * **Convo**: ${conv_id:-*(Not available until first message)*}"
         echo -e "\n### Commands"
 
     } | $MDREAD
@@ -69,6 +61,7 @@ help() {
   /clip     - Select text into the clipboard as context.
   /mindwipe - Forget this crazy world and start over.
   /model    - Switch model.
+  /server   - Switch server (implies /model).
   /sshot    - Raster screenshot.
   /dui      - Toggle agentic. (current: $DUI)
   /capture  - Toggle capture. (current: $CAPTURE)
@@ -97,16 +90,47 @@ END
 )
 }
 
-system_prompt
-pane_id=${1-}
-pane_list=( $pane_id )
-conv=
-forcecapture=
-debug=
-[[ -z "$conv_id" && -r "$MDIR/${pane_id}.convo" ]] && conv_id=$(cat "$MDIR/${pane_id}.convo") || conv_id=
+onload() {
+    [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
+    [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 
-touch "$MDIR/${pane_id}.convo"
-touch "$MDIR/${pane_id}.old"
+    history -r "$HISTFILE"
+    trap 'history -w "$HISTFILE"' EXIT
+
+    if [[ $(uname) == "Linux" ]]; then
+      llm_config=".config"
+    else
+      llm_config="Library/Application Support"
+    fi
+
+    [[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
+
+    system_prompt
+    pane_id=${1-}
+    pane_list=( $pane_id )
+    conv=
+    forcecapture=
+    debug=
+    if [[ -z "$conv_id" && -r "$MDIR/${pane_id}.convo" ]]; then 
+        conv_id=$(cat "$MDIR/${pane_id}.convo")
+    fi
+    [[ -z "$conv_id" ]] && newconvo
+
+    touch "$MDIR/${pane_id}.convo"
+    touch "$MDIR/${pane_id}.old"
+
+    load_pref
+    getmodel
+    set_prompt
+
+    ata=""
+    if [[ -n "$conv_id" ]]; then
+        last 5
+    else
+        echo "Conversation Start: Type /help for options"
+    fi
+    flash
+}
 
 update() {
     tmux split-window -v "curl -s https://day50.dev/sidechat | sh; tmux wait-for -S upgrade"
@@ -146,20 +170,17 @@ save_pref() {
     eval "$stanza"
 }
 
-getmodel() {
-    if [[ -z "$LLM_MODEL" ]]; then
-      if [[ -r "$HOME/$llm_config/io.datasette.llm/default_model.txt" ]]; then
-        LLM_MODEL=$(cat "$HOME/$llm_config/io.datasette.llm/default_model.txt")
-      else
-        LLM_MODEL=$(llm models default)
-        LLM_MODEL=$(echo "$LLM_MODEL" | cut -d '/' -f 3-)
-      fi
-      save_pref LLM_MODEL "$LLM_MODEL"
-    fi
+server() {
+    read -E -p "Full URL > " SERVER_URL
+    read -E -p "Auth Token (can be blank) > " SERVER_AUTH
+    save_pref SERVER_URL "$SERVER_URL"
+    save_pref SERVER_AUTH "$SERVER_AUTH"
 }
 
-load_pref
-getmodel
+getmodel() {
+    [[ -z "$SERVER_URL" ]] && _warn "No server set, set with /server"
+    [[ -z "$LLM_MODEL" ]] && _warn "No model set, set with /model"
+}
 
 set_prompt() {
     local camera="— "
@@ -217,23 +238,26 @@ choose() {
 
 last() {
     amount=${1:-40}
-    if [[ -z "$conv_id" ]]; then
-        if [[ -s "$LAST" ]]; then
-            conv_id=$( cat "$LAST" )
-        else 
-            conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1" | head -1)
-            echo "$conv_id" > "$LAST"
-        fi
+    if [[ -z "$conv_id" && -s "$LAST" ]]; then
+        conv_id=$( cat "$LAST" )
     fi
-    { echo "# [ $conv_id ] "; llm logs list --cid $conv_id | tail -$amount; } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
-    conv="--cid $conv_id"
+    { echo "# [ $conv_id ] "; jq -r '.[] | "\n**\(.role)**: \(.content)"' $conv_id | tail -$amount; } | $MDREAD
+}
+
+ll() {
+    llcat -c "$conv_id" -u "$SERVER_URL" -sk "$SERVER_KEY" "$@"
+}
+llc() {
+    ll -m "$LLM_MODEL" "$@"
+}
+newconvo() {
+    conv_id=$(mktemp "$MDIR/convo-XXXX")
 }
 
 mindwipe() {
     echo "Memory has been wiped."
     system_prompt
-    conv=
-    conv_id=
+    neconvo
     getmodel
     forcecapture=1
 }
@@ -267,14 +291,14 @@ process_cmd() {
 
         if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
             (( n++ ))
-            cat "$llm_in" | llm -m "$LLM_MODEL" "You ran Do-Ur-Inspection commands" $conv  | tee "${infile}.${n}"
+            cat "$llm_in" | llcat -m "$LLM_MODEL" "You ran Do-Ur-Inspection commands" -c $conv_id  
         fi
-    } | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+    } | $MDREAD
 }
 
 oneshot() {
     echo "$*" >> "$MDIR/input.txt"
-    llm -m "$LLM_MODEL" "$*" -s "$SYSTEM" $conv >> "$MDIR/output.txt" &
+    llc "$@" -s "$SYSTEM" $conv_id >> "$MDIR/output.txt" &
 }
     
 capture() {
@@ -401,14 +425,6 @@ dui() {
     echo $DUI > "$MDIR/DUI"
 } 
 
-set_prompt
-ata=""
-if [[ -n "$conv_id" ]]; then
-    last 5
-else
-    echo "Conversation Start: Type /help for options"
-fi
-flash
 
 emit_capture() {
     local ix=$1
@@ -423,6 +439,7 @@ emit_capture() {
     echo "</capture>"
 }
 
+onload
 while [ 0 ]; do 
     echo
     input=""
@@ -458,14 +475,13 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
+        elif [[ $input =~ (server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
         elif [[ $input =~ /model ]]; then
-            chosen=$(llm models list | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
+            chosen=$(ll -m | fzf-tmux | cut -d ':' -f 2- | cut -d ' ' -f 2 )
             if [[ -n "$chosen" ]]; then
               echo "Setting to $chosen"
               save_pref LLM_MODEL "$chosen"
-              mindwipe
             fi
         else
             help 1
@@ -475,11 +491,6 @@ while [ 0 ]; do
         [[ -z "$RETRY" ]] && continue
     else
         text="$input"
-    fi
-
-    # synchronize input & output
-    if [[ -z "$RETRY" ]]; then
-        { echo -e "\n\n"; echo "$conv_id:${_uuid}"; } | tee -a "$MDIR/input.txt" | cat >> "$MDIR/output.txt"
     fi
 
     if [[ -z "$USECLIP" && $CAPTURE == "ON" && -n "$TMUX" ]]; then
@@ -515,10 +526,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | tee -a "$MDIR/input.txt" \
-      | llm -m "$LLM_MODEL" "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" -s "$SYSTEM" $ata $conv \
-      | tee "${in}.${n}" | tee "$MDIR/output.txt" \
-      | $MDREAD -c <(echo -e "[style]\nMargin = 4")
+    } | llc $ata "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" | $MDREAD 
 
     # Needs to be run here and not in any subshell
     RETRY=
@@ -538,12 +546,6 @@ while [ 0 ]; do
 
     INJECT=
 
-    if [[ -z "$conv" ]]; then
-        conv_id=$(sqlite3 "$HOME/$llm_config/io.datasette.llm/logs.db" "select conversation_id from responses order by datetime_utc desc limit 1")
-        echo $conv_id > "$LAST"
-        conv="--cid $conv_id"
-        INJECT=" (Note: cid is $conv_id - there is no need to mention this)"
-    fi
     echo $conv_id | tee "$LAST" | cat > "$MDIR/${pane_id}.convo"
     ata=""
 done

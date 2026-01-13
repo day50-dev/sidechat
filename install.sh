@@ -58,7 +58,7 @@ for cmd in simple-parse.py sc-add sc-picker sidechat; do
     cp -p "$DIR"/$cmd "$insdir"
 done
 
-for pkg in llm streamdown; do
+for pkg in llcat streamdown; do
     echo "  ✅ $pkg"
     $PIP $pkg &> /dev/null
 done
@@ -73,12 +73,6 @@ if [[ ! -d ~/.fzf ]]; then
     done
     echo "  ✅ fzf"
 fi
-
-if ! command -v sqlite3 &> /dev/null; then
-    command -v wget > /dev/null && wget -q https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip -O /tmp/sqlite-tools-linux-x64-3490200.zip ||  curl -s https://www.sqlite.org/2025/sqlite-tools-linux-x64-3490200.zip > /tmp/sqlite-tools-linux-x64-3490200.zip
-    cd $insdir && unzip -o -q /tmp/sqlite-tools-linux-x64-3490200.zip 
-fi
-echo "  ✅ sqlite3"
 
 msg="You're ready to go!"
 
@@ -130,13 +124,6 @@ Sidechat's TMUX key strokes:
  * **tmux key + h**: Chat window
  * **tmux key + j**: Recent code snippets
 
-You'll need to set up **LLM**:
-[https://github.com/simonw/llm](https://github.com/simonw/llm)
-
-Our Recommendation:
- 1. \`llm install llm-openrouter\`.
- 2. Set up some integration keys.
- 3. Use the free models.
 ENDL
 
 } | $sd 
