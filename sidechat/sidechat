@@ -39,7 +39,7 @@ LAUNCH="$0"
 RETRY=
 
 _warn() {
-    echo "Notice: *$@*" | $MDREAD
+    echo "**Notice:** *$@*" | $MDREAD
 }
 
 help() {
@@ -58,11 +58,10 @@ help() {
     system_prompt
   fi
   cat <<END
+  /model | /server | /key - change the model, server or key
   /choose   - Switch pane capture focus. (current: ${pane_list[@]})
   /clip     - Select text into the clipboard as context.
   /mindwipe - Forget this crazy world and start over.
-  /model    - Switch model.
-  /server   - Switch server (implies /model).
   /sshot    - Raster screenshot.
   /dui      - Toggle agentic. (current: $DUI)
   /capture  - Toggle capture. (current: $CAPTURE)
@@ -140,6 +139,7 @@ update() {
 }
 
 flash() {
+    show_panes
     if [[ -n "$TMUX" ]]; then
         for ix_pane in "${pane_list[@]}"; do
             tmux select-pane -t $ix_pane -P 'bg=colour95'; sleep 0.03
@@ -170,11 +170,24 @@ save_pref() {
     eval "$stanza"
 }
 
-server() {
-    read -E -p "Server URL > " SERVER_URL
-    read -E -p "Auth Token (can be blank) > " SERVER_AUTH
-    save_pref SERVER_URL "$SERVER_URL"
+key() {
+    {
+        echo -e "The auuth token:\n"
+        echo " * Does not echo"
+        echo " * Can be blank to clear it"
+        echo -e " * Is stored in plaintext\n"
+    } | $MDREAD
+    read -sE -p "  Enter token: " SERVER_AUTH
     save_pref SERVER_AUTH "$SERVER_AUTH"
+}
+server() {
+    {
+        echo -e "The server URL:\n"
+        echo " * Should include the schema, such as http:// or https://"
+        echo -e " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)\n"
+    } | $MDREAD
+    read -E -p "  Enter URL: " SERVER_URL
+    save_pref SERVER_URL "$SERVER_URL"
 }
 
 model() {
@@ -206,9 +219,20 @@ set_prompt() {
     prompt="${camera} ${dui}${clipboard} > "
 }
 
+show_panes() {
+    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
+    {
+        echo -n "* *Selected Panes:* [ "
+        for _ix in "${pane_list[@]}"; do
+            local v="${_ix/\%/_}"
+            echo -n " ${!v}"
+        done
+        echo " ]"
+    } | $MDREAD
+}
+
 choose() {
     local depth=${1:-0}
-    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
     [[ "$depth" == 0 ]] && echo "Select panes or any other key to end selection" | $MDREAD
     [[ -z "$TMUX" ]] && return
     tmux display-panes -d 0 "run-shell 'echo %% > $MDIR/pane-id'"
@@ -221,14 +245,6 @@ choose() {
         [[ "$depth" == 0 ]] && pane_list=( )
         pane_list+=( $pane_id )
         (( depth ++ ))
-        {
-            echo -n "* [ "
-            for _ix in "${pane_list[@]}"; do
-                local v="${_ix/\%/_}"
-                echo -n " ${!v}"
-            done
-            echo " ]"
-        } | $MDREAD
         flash
         rm "$MDIR/pane-id"
         tmux select-pane -t $my_id
@@ -266,10 +282,12 @@ llc() {
 }
 newconvo() {
     convo_id=$(mktemp "$MDIR/convo-XXXX")
+    _warn "New convo is $convo_id"
+    flash
 }
 
 mindwipe() {
-    echo "Memory has been wiped."
+    echo -e "  Creating a new context\n"
     system_prompt
     newconvo
     forcecapture=1
@@ -487,7 +505,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
+        elif [[ $input =~ (key|server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
         elif [[ $input =~ /model ]]; then
             chosen=$(ll -m | fzf-tmux )
