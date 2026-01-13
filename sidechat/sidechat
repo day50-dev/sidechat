@@ -281,7 +281,8 @@ llc() {
     ll -m "$LLM_MODEL" "$@"
 }
 newconvo() {
-    convo_id=$(mktemp "$MDIR/convo-XXXX")
+    day=$(date +%m%d_%H%M)
+    convo_id=$(mktemp "$MDIR/convo-$day-XXXX.json")
     _warn "New convo is $convo_id"
     flash
 }
