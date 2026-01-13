@@ -469,7 +469,8 @@ emit_capture() {
     echo "</capture>"
 }
 
-onload
+onload $@
+
 while [ 0 ]; do 
     echo
     input=""
