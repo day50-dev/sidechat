@@ -558,7 +558,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | llc $ata "<user-query timestamp="$(date -Iseconds)">${text}${INJECT}</user-query>" | $MDREAD 
+    } | llc $ata "${text}${INJECT}" | $MDREAD 
 
     # Needs to be run here and not in any subshell
     RETRY=
