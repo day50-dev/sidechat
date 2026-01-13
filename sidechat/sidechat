@@ -39,7 +39,7 @@ LAUNCH="$0"
 RETRY=
 
 _warn() {
-    echo "_$@_" | $MDREAD
+    echo "Notice: *$@*" | $MDREAD
 }
 
 help() {
@@ -50,7 +50,8 @@ help() {
         echo "$SYSTEM" | sed 's/^/> /g'
         echo "  * **Model**: $LLM_MODEL"
         echo "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
-        echo "  * **Convo**: ${conv_id:-*(Not available until first message)*}"
+        local size="$(stat -c %s "$convo_id")"
+        echo "  * **Convo**: ${convo_id} ($size B)"
         echo -e "\n### Commands"
 
     } | $MDREAD
@@ -111,20 +112,19 @@ onload() {
     conv=
     forcecapture=
     debug=
-    if [[ -z "$conv_id" && -r "$MDIR/${pane_id}.convo" ]]; then 
-        conv_id=$(cat "$MDIR/${pane_id}.convo")
+    if [[ -z "$convo_id" && -r "$MDIR/${pane_id}.convo" ]]; then 
+        convo_id=$(cat "$MDIR/${pane_id}.convo")
     fi
-    [[ -z "$conv_id" ]] && newconvo
+    [[ -z "$convo_id" ]] && newconvo
 
     touch "$MDIR/${pane_id}.convo"
     touch "$MDIR/${pane_id}.old"
 
     load_pref
-    getmodel
     set_prompt
 
     ata=""
-    if [[ -n "$conv_id" ]]; then
+    if [[ -n "$convo_id" ]]; then
         last 5
     else
         echo "Conversation Start: Type /help for options"
@@ -171,15 +171,29 @@ save_pref() {
 }
 
 server() {
-    read -E -p "Full URL > " SERVER_URL
+    read -E -p "Server URL > " SERVER_URL
     read -E -p "Auth Token (can be blank) > " SERVER_AUTH
     save_pref SERVER_URL "$SERVER_URL"
     save_pref SERVER_AUTH "$SERVER_AUTH"
 }
 
+model() {
+    chosen=$(ll -m | fzf-tmux )
+    if [[ -n "$chosen" ]]; then
+      echo "Setting to $chosen"
+      save_pref LLM_MODEL "$chosen"
+    fi
+}
+
 getmodel() {
-    [[ -z "$SERVER_URL" ]] && _warn "No server set, set with /server"
-    [[ -z "$LLM_MODEL" ]] && _warn "No model set, set with /model"
+    if [[ -z "$SERVER_URL" ]]; then 
+        _warn "You need to set a server before continuing"
+        echo
+        server
+    fi
+    if [[ -z "$LLM_MODEL" ]]; then 
+        model
+    fi
 }
 
 set_prompt() {
@@ -238,27 +252,26 @@ choose() {
 
 last() {
     amount=${1:-40}
-    if [[ -z "$conv_id" && -s "$LAST" ]]; then
-        conv_id=$( cat "$LAST" )
+    if [[ -z "$convo_id" && -s "$LAST" ]]; then
+        convo_id=$( cat "$LAST" )
     fi
-    { echo "# [ $conv_id ] "; jq -r '.[] | "\n**\(.role)**: \(.content)"' $conv_id | tail -$amount; } | $MDREAD
+    { echo "# [ $convo_id ] "; jq -r '.[] | "\n**\(.role)**: \(.content)"' $convo_id | tail -$amount; } | $MDREAD
 }
 
 ll() {
-    llcat -c "$conv_id" -u "$SERVER_URL" -sk "$SERVER_AUTH" "$@"
+    llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "$@"
 }
 llc() {
     ll -m "$LLM_MODEL" "$@"
 }
 newconvo() {
-    conv_id=$(mktemp "$MDIR/convo-XXXX")
+    convo_id=$(mktemp "$MDIR/convo-XXXX")
 }
 
 mindwipe() {
     echo "Memory has been wiped."
     system_prompt
-    neconvo
-    getmodel
+    newconvo
     forcecapture=1
 }
 
@@ -291,14 +304,14 @@ process_cmd() {
 
         if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
             (( n++ ))
-            cat "$llm_in" | llcat -m "$LLM_MODEL" "You ran Do-Ur-Inspection commands" -c $conv_id  
+            cat "$llm_in" | llcat -m "$LLM_MODEL" "You ran Do-Ur-Inspection commands" -c $convo_id  
         fi
     } | $MDREAD
 }
 
 oneshot() {
     echo "$*" >> "$MDIR/input.txt"
-    llc "$@" -s "$SYSTEM" $conv_id >> "$MDIR/output.txt" &
+    llc "$@" -s "$SYSTEM" $convo_id >> "$MDIR/output.txt" &
 }
     
 capture() {
@@ -333,7 +346,6 @@ clip() {
     local nvim=$(command -v nvim)
     local pbpaste=$(command -v pbpaste)
     local emacs=$(command -v emacsclient) 
-
 
     if [[ -n "$xclip" ]]; then
         for i in p c s; do 
@@ -500,8 +512,10 @@ while [ 0 ]; do
         done
     fi
     
+    # If we get here now we know to be picky about if there's a model and a server
+    getmodel
     n=0
-    in="$MDIR/${conv_id}_${_uuid}"
+    in="$MDIR/${convo_id}_${_uuid}"
     {
        if [[ -n "$USECLIP" ]]; then
            echo "<clipboard>"
@@ -513,10 +527,8 @@ while [ 0 ]; do
             if [[ -n "$RETRY" ]]; then
                 cp "$MDIR/${ix_pane}.old" "$MDIR/${ix_pane}.new"
                 emit_capture "$ix_pane"
-            elif [[ -n "$forcecapture" ]]; then
-                emit_capture "$ix_pane"
             else
-                if [[ -e "$MDIR/${ix_pane}.old" ]]; then
+                if [[ -e "$MDIR/${ix_pane}.old" && -z "$forcecapture" ]]; then
                     /usr/bin/diff "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old" > /dev/null && echo -n " has_changed=False>" || emit_capture "$ix_pane"
                 else
                     emit_capture "$ix_pane"
@@ -546,6 +558,6 @@ while [ 0 ]; do
 
     INJECT=
 
-    echo $conv_id | cat > "$MDIR/${pane_id}.convo"
+    echo $convo_id | cat > "$MDIR/${pane_id}.convo"
     ata=""
 done
