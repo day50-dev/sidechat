@@ -39,7 +39,7 @@ LAUNCH="$0"
 RETRY=
 
 _warn() {
-    echo "**Notice:** *$@*" | $MDREAD
+    echo -e "**Notice:** *$@*" | $MDREAD
 }
 
 help() {
@@ -60,7 +60,6 @@ help() {
     system_prompt
   fi
   cat <<END
-  /model | /server | /key - change the model, server or key
   /choose   - Switch pane capture focus. (current: ${pane_list[@]})
   /clip     - Select text into the clipboard as context.
   /mindwipe - Forget this crazy world and start over.
@@ -71,6 +70,7 @@ help() {
 END
   if [[ "$#" -ne 0 ]]; then 
 cat <<END
+  /model | /server | /key - change the model, server or key
   /last     - Load the most recent conversation
   /flash    - Flash the focus
   /update   - Self-update
@@ -81,7 +81,7 @@ END
 
 system_prompt() {
 SYSTEM=$(cat <<END
-You are an interactive buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectu or design. Assume they've already tried the things a competent engineer would do. 
+You're an interactive buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectu or design. Assume they've already tried the things a competent engineer would do. 
 You will get capture-pane -p followed by questions when the pane output changes. 
 They are using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
 They are using a markdown formatter. Only insert newlines into code braces for syntax.
@@ -213,6 +213,15 @@ server() {
             echo -e " Using \`$SERVER_URL_\`" |$MDREAD
             SERVER_URL="$SERVER_URL_"
         fi
+
+        if [[ ! "${SERVER_URL@L}" =~ "http" ]]; then
+            _warn "This is a very unusual url, testing...\n"
+            if ! llcat -u $SERVER_URL -m > /dev/null; then
+                echo -e "\n  Yep! Thought so, let's try this again!\n"
+                server
+            fi
+        fi
+            
         save_pref SERVER_URL "$SERVER_URL"
         if [[ -n "$getkey" ]]; then
             echo
