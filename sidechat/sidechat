@@ -245,7 +245,7 @@ check() {
 
 model() {
     check server
-    chosen=$(ll -m | fzf-tmux )
+    chosen=$(ll -m | sort | fzf-tmux )
     if [[ -n "$chosen" ]]; then
       echo "  Setting model to \`$chosen\`" | $MDREAD
       save_pref LLM_MODEL "$chosen"
