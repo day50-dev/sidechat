@@ -131,7 +131,7 @@ onload() {
         convo_id=$(cat "$MDIR/${pane_id}.convo")
     fi
     if [[ -z "$convo_id" ]]; then 
-        newconvo
+        newconvo 1
     else
         flash 1
     fi
@@ -331,7 +331,7 @@ newconvo() {
     day=$(date +%m%d_%H%M)
     convo_id=$(mktemp "$MDIR/convo-$day-XXXX.json")
     _warn "New convo is $convo_id"
-    flash
+    flash $1
 }
 
 mindwipe() {
