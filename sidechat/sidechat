@@ -37,9 +37,29 @@ CAPTURE="ON"
 USECLIP=
 LAUNCH="$0"
 RETRY=
-
 _warn() {
     echo -e "**Notice:** *$@*" | $MDREAD
+}
+
+show_params() {
+    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
+    {
+        echo -n "  * **Selected Panes:** [ "
+        for _ix in "${pane_list[@]}"; do
+            local v="${_ix/\%/_}"
+            echo -n " ${!v}"
+        done
+        echo " ]"
+    }
+    if [[ $1 == "panes" ]]; then
+        return
+    fi
+    echo "  * **Model**: ${LLM_MODEL:-*(None Set)*}"
+    echo -n "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
+    [[ -n "$SERVER_AUTH" ]] && echo " 🔒" || echo " 🔓"
+    local size="$(stat -c %s "$convo_id")"
+    echo "  * **Convo**: ${convo_id} ($size B)"
+    echo "  * **Config**: ${SETTINGS}"
 }
 
 help() {
@@ -48,19 +68,14 @@ help() {
         echo "### Parameters  (*[sidechat $VERSION](https://github.com/day50-dev/sidechat)*)"
         echo "  * **System Prompt**:"
         echo "$SYSTEM" | sed 's/^/> /g'
-        echo "  * **Model**: ${LLM_MODEL:-*(None Set)*}"
-        echo -n "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
-        [[ -n "$SERVER_AUTH" ]] && echo " 🔒" || echo " 🔓"
-        local size="$(stat -c %s "$convo_id")"
-        echo "  * **Convo**: ${convo_id} ($size B)"
-        echo "  * **Config**: ${SETTINGS}"
+        show_params
         echo -e "\n### Commands"
 
     } | $MDREAD
     system_prompt
   fi
   cat <<END
-  /choose   - Switch pane capture focus. (current: ${pane_list[@]})
+  /choose   - Switch pane capture focus. 
   /clip     - Select text into the clipboard as context.
   /mindwipe - Forget this crazy world and start over.
   /sshot    - Raster screenshot.
@@ -107,7 +122,7 @@ onload() {
     [[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
 
     system_prompt
-    pane_id=${1-}
+    ane_id=${1-}
     pane_list=( $pane_id )
     conv=
     forcecapture=
@@ -118,7 +133,7 @@ onload() {
     if [[ -z "$convo_id" ]]; then 
         newconvo
     else
-        flash
+        flash 1
     fi
 
     touch "$MDIR/${pane_id}.convo"
@@ -143,7 +158,7 @@ update() {
 }
 
 flash() {
-    show_panes
+    [[ -z "$1" ]] && show_params panes | $MDREAD
     if [[ -n "$TMUX" ]]; then
         for ix_pane in "${pane_list[@]}"; do
             tmux select-pane -t $ix_pane -P 'bg=colour95'; sleep 0.03
@@ -263,18 +278,6 @@ set_prompt() {
     prompt="${camera} ${dui}${clipboard} > "
 }
 
-show_panes() {
-    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
-    {
-        echo -n "* *Selected Panes:* [ "
-        for _ix in "${pane_list[@]}"; do
-            local v="${_ix/\%/_}"
-            echo -n " ${!v}"
-        done
-        echo " ]"
-    } | $MDREAD
-}
-
 choose() {
     local depth=${1:-0}
     [[ "$depth" == 0 ]] && echo "Select panes or any other key to end selection" | $MDREAD
@@ -315,7 +318,7 @@ last() {
     if [[ -z "$convo_id" && -s "$LAST" ]]; then
         convo_id=$( cat "$LAST" )
     fi
-    { echo "# [ $convo_id ] "; jq -r '.[] | "\n**\(.role)**: \(.content)"' $convo_id | tail -$amount; } | $MDREAD
+    { show_params; echo -e "\n------\n"; jq -r '.[] | "\n**\(.role)**: \(.content)"' $convo_id | tail -$amount; } | $MDREAD
 }
 
 ll() {
