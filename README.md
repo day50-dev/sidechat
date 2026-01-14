@@ -8,7 +8,7 @@ Simple installer:
 
     curl day50.dev/sidechat | sh
 
-An llm intervention in your little terminal with suppport for adding screenshots, command output, cycling pane focus, local and remote models, turning off and on pane capturing, adding external context and more, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
+An llm intervention in your little terminal with suppport for adding screenshots, command output, reading from multiple clipboards, cycling pane focus, local and remote models, turning off and on pane capturing, adding external context and more, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
 
 You can 
  * add multiple panes as a stack.
