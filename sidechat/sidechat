@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # there's a few commands and /help documents them
 
-#set -eEuo pipefail
-#trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
+# set -eEuo pipefail
+# trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 
 # This is an OS X install-time hack
 #@@INJECTPATH
@@ -51,7 +51,7 @@ show_params() {
         done
         echo " ]"
     }
-    if [[ $1 == "panes" ]]; then
+    if [[ "$#" -gt 0 && "$1" == "panes" ]]; then
         return
     fi
     echo "  * **Model**: ${LLM_MODEL:-*(None Set)*}"
@@ -102,7 +102,7 @@ They are using $(uname -ar) and can change the capture focus. You will be notifi
 They are using a markdown formatter. Only insert newlines into code braces for syntax.
 They can do the following: $(help)
 END
-[[ "$DUI" == "ON" ]] && echo "$DUIPROMPT"
+[[ "$DUI" == "ON" ]] && echo "$DUIPROMPT" || echo ""
 )
 }
 
@@ -124,7 +124,7 @@ onload() {
     system_prompt
     pane_id=${1-}
     pane_list=( $pane_id )
-    conv=
+    convo_id=
     forcecapture=
     debug=
     if [[ -z "$convo_id" && -r "$MDIR/${pane_id}.convo" ]]; then 
