@@ -113,7 +113,11 @@ onload() {
     if [[ -z "$convo_id" && -r "$MDIR/${pane_id}.convo" ]]; then 
         convo_id=$(cat "$MDIR/${pane_id}.convo")
     fi
-    [[ -z "$convo_id" ]] && newconvo
+    if [[ -z "$convo_id" ]]; then 
+        newconvo
+    else
+        flash
+    fi
 
     touch "$MDIR/${pane_id}.convo"
     touch "$MDIR/${pane_id}.old"
@@ -127,7 +131,6 @@ onload() {
     else
         echo "Conversation Start: Type /help for options"
     fi
-    flash
 }
 
 update() {
@@ -196,7 +199,7 @@ server() {
         echo "   * \`ollama\`  - ollama    (local)"
         echo -e "   * \`llama\`  - llama.cpp (local)\n"
     } | $MDREAD
-    read -E -p "  Enter URL: " input
+    builtin read -p "  Enter URL: " input
     if [[ -n "$input" ]]; then
         case $input in 
             or) SERVER_URL_=https://openrouter.ai/api ;;
