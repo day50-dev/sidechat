@@ -122,7 +122,7 @@ onload() {
     [[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
 
     system_prompt
-    ane_id=${1-}
+    pane_id=${1-}
     pane_list=( $pane_id )
     conv=
     forcecapture=
