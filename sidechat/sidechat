@@ -325,7 +325,6 @@ prev() {
     else
         convo_id=$choice
         last
-        { echo "-----"; show_params; } | $MDREAD
     fi
 }
 
