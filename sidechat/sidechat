@@ -48,10 +48,12 @@ help() {
         echo "### Parameters  (*[sidechat $VERSION](https://github.com/day50-dev/sidechat)*)"
         echo "  * **System Prompt**:"
         echo "$SYSTEM" | sed 's/^/> /g'
-        echo "  * **Model**: $LLM_MODEL"
-        echo "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
+        echo "  * **Model**: ${LLM_MODEL:-*(None Set)*}"
+        echo -n "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
+        [[ -n "$SERVER_AUTH" ]] && echo " 🔒" || echo " 🔓"
         local size="$(stat -c %s "$convo_id")"
         echo "  * **Convo**: ${convo_id} ($size B)"
+        echo "  * **Config**: ${SETTINGS}"
         echo -e "\n### Commands"
 
     } | $MDREAD
@@ -202,7 +204,7 @@ server() {
     builtin read -p "  Enter URL: " input
     if [[ -n "$input" ]]; then
         case $input in 
-            or) SERVER_URL_=https://openrouter.ai/api ;;
+            or) getkey=1; SERVER_URL_=https://openrouter.ai/api ;;
             ollama) SERVER_URL_=http://localhost:11434 ;;
             llama) SERVER_URL_=http://localhost:8080 ;;
         esac
@@ -212,29 +214,35 @@ server() {
             SERVER_URL="$SERVER_URL_"
         fi
         save_pref SERVER_URL "$SERVER_URL"
+        if [[ -n "$getkey" ]]; then
+            echo
+            key
+        fi
     else
         _warn "Cancelled"
     fi
 }
 
-model() {
-    chosen=$(ll -m | fzf-tmux )
-    if [[ -n "$chosen" ]]; then
-      echo "Setting to $chosen"
-      save_pref LLM_MODEL "$chosen"
-    fi
-}
-
-getmodel() {
-    if [[ -z "$SERVER_URL" ]]; then 
+check() {
+    if [[ "$1" =~ (server|both) && -z "$SERVER_URL" ]]; then 
         _warn "You need to set a server before continuing"
         echo
         server
     fi
-    if [[ -z "$LLM_MODEL" ]]; then 
+    if [[ "$1" =~ (model|both) && -z "$LLM_MODEL" ]]; then 
         model
     fi
 }
+
+model() {
+    check server
+    chosen=$(ll -m | fzf-tmux )
+    if [[ -n "$chosen" ]]; then
+      echo "  Setting model to \`$chosen\`" | $MDREAD
+      save_pref LLM_MODEL "$chosen"
+    fi
+}
+
 
 set_prompt() {
     local camera="— "
@@ -534,14 +542,8 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (key|server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
+        elif [[ $input =~ (model|key|server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
-        elif [[ $input =~ /model ]]; then
-            chosen=$(ll -m | fzf-tmux )
-            if [[ -n "$chosen" ]]; then
-              echo "Setting to $chosen"
-              save_pref LLM_MODEL "$chosen"
-            fi
         else
             help 1
         fi
@@ -560,7 +562,7 @@ while [ 0 ]; do
     fi
     
     # If we get here now we know to be picky about if there's a model and a server
-    getmodel
+    check both
     n=0
     in="$MDIR/${convo_id}_${_uuid}"
     {
