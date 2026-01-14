@@ -86,7 +86,7 @@ END
   if [[ "$#" -ne 0 ]]; then 
 cat <<END
   /model | /server | /key - change the model, server or key
-  /last     - Load the most recent conversation
+  /prev     - Load a previous conversation
   /flash    - Flash the focus
   /update   - Self-update
   /retry    - Try the last again
@@ -267,7 +267,6 @@ model() {
     fi
 }
 
-
 set_prompt() {
     local camera="— "
     local dui="— "
@@ -313,13 +312,25 @@ choose() {
     return 0
 }
 
+getlast(){
+    local wid=$(( $(tput cols) / 2 ))
+    find $MDIR -name \*.json -size +0c |\
+        fzf --style full --preview "sd -w $wid <(jq -r '.[] |  select(.role != \"system\") | \"\n**\(.role)**: \(.content)\"' {} | tail -40)"
+}
+
+prev() {
+    convo_id=$(getlast)
+    last
+    { echo "-----"; show_params; } | $MDREAD
+}
+
 last() {
     amount=${1:-40}
     if [[ -z "$convo_id" && -s "$LAST" ]]; then
         convo_id=$( cat "$LAST" )
     fi
     { show_params; echo -e "\n------\n"; jq -r '.[] | "\n**\(.role)**: \(.content)"' $convo_id | tail -$amount; } | $MDREAD
-}
+    }
 
 ll() {
     llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "$@"
@@ -554,7 +565,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (model|key|server|retry|clip|capture|last|dui|mindwipe|choose|update|flash) ]]; then
+        elif [[ $input =~ (model|key|server|retry|clip|capture|prev|dui|mindwipe|choose|update|flash) ]]; then
             ${input:1}
         else
             help 1
