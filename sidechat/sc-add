@@ -1,5 +1,10 @@
 #!/bin/bash
 
+[[ "$(uname)" == "Darwin" ]] && \
+    CONFIG="Library/Application Support" ||\
+    CONFIG=".config"
+CONFIG="${HOME}/${CONFIG}/sidechat"
+source "$CONFIG/settings"
 MDIR=/tmp/sidechat/$UID
 pane_id=$(tmux display-message -p '#{pane_id}')
 if [[ -s "$MDIR/$pane_id.convo" ]]; then
@@ -38,5 +43,5 @@ echo -e "\nAdding to #$convo_id ..."
     echo "----8<----"
     test -t 0 || cat;
     [[ -r "$1" ]] && cat "$1" 
-} | llm "Briefly respond in less than 1 paragraph" --cid $convo_id | sd
+} | llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "Briefly respond in less than 1 paragraph" | sd
 
