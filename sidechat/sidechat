@@ -504,7 +504,7 @@ dui() {
 emit_capture() {
     local ix=$1
     echo " has_changed=True>"
-    [[ -n "$TMUX" ]] && _pid=$(tmux display -pt "$ix" '#{pane_pid}')
+    [[ -n "$TMUX" && -s "$MDIR/${ix_pane}.new" ]] && _pid=$(tmux display -pt "$ix" '#{pane_pid}')
 
     if [[ "$(uname)" == "Linux" && -n "$TMUX" ]]; then
         echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
