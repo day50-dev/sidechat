@@ -38,7 +38,7 @@ USECLIP=
 LAUNCH="$0"
 RETRY=
 _warn() {
-    echo -e "**Notice:** *$@*" | $MDREAD
+    echo -e "**⚠️** *$@*" | $MDREAD
 }
 
 show_params() {
