@@ -22,7 +22,6 @@ MDIR="$tmp"/sidechat
 [[ -d "$MDIR" ]] || (mkdir "$MDIR" && chmod 0777 "$MDIR")
 MDIR="$MDIR/$UID"
 [[ -d "$MDIR" ]] || mkdir "$MDIR"
-LAST="$MDIR/last.convo"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HISTFILE="$MDIR/history"
@@ -127,11 +126,11 @@ onload() {
     convo_id=
     forcecapture=
     debug=
-    if [[ -z "$convo_id" && -r "$MDIR/${pane_id}.convo" ]]; then 
+    if [[ -r "$MDIR/${pane_id}.convo" ]]; then 
         convo_id=$(cat "$MDIR/${pane_id}.convo")
     fi
     if [[ -z "$convo_id" ]]; then 
-        newconvo 1
+        newconvo 
     else
         flash 1
     fi
@@ -330,11 +329,12 @@ prev() {
 
 last() {
     amount=${1:-40}
-    if [[ -z "$convo_id" && -s "$LAST" ]]; then
-        convo_id=$( cat "$LAST" )
-    fi
-    { show_params; echo -e "\n------\n"; jq -r '.[] | "\n**\(.role)**: \(.content)"' $convo_id | tail -$amount; } | $MDREAD
-    }
+    { 
+        show_params; 
+        echo -e "\n------\n"; 
+        jq -r '.[] | "\n**\(.role)**: \(.content)"' $convo_id | tail -$amount; 
+    } | $MDREAD
+}
 
 ll() {
     llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "$@"
