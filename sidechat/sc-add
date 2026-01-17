@@ -25,7 +25,7 @@ while getopts ":c:" opt; do
 done
 shift $((OPTIND -1))
 if [[ -z "$convo_id" ]]; then
-    echo "No conversation ID, no context to add"
+    echo "No conversation means no context to add"
     exit 1
 fi 
 
@@ -35,7 +35,7 @@ else
   prompt=$convo_id
 fi
 
-echo -e "\nAdding to #$convo_id ..."
+echo -e "\nAdding to $convo_id ..."
 {   echo "The user is running a command and sending it to you.  Here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
     tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
     echo "----8<----"

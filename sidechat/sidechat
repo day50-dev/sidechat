@@ -350,7 +350,6 @@ newconvo() {
 }
 
 mindwipe() {
-    echo -e "  Creating a new context\n"
     system_prompt
     newconvo
     forcecapture=1
@@ -614,7 +613,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | llc $ata "${text}${INJECT}" | $MDREAD 
+    } | llc $ata "${text}${INJECT}" 2> >(jq . >&2) 1> >($MDREAD >&1)
 
     # Needs to be run here and not in any subshell
     RETRY=
