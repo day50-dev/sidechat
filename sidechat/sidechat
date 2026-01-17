@@ -323,6 +323,7 @@ prev() {
         _warn "Cancelled"
     else
         convo_id=$choice
+        echo $convo_id > "$MDIR/${pane_id}.convo"
         last
     fi
 }
@@ -343,8 +344,9 @@ llc() {
     ll -m "$LLM_MODEL" "$@"
 }
 newconvo() {
-    day=$(date +%m%d_%H%M)
-    convo_id=$(mktemp "$MDIR/convo-$day-XXXX.json")
+    day=$(date +%m%d-%H%M)
+    convo_id=$(mktemp "$MDIR/$day-XXXX.json")
+    echo $convo_id > "$MDIR/${pane_id}.convo"
     _warn "New convo is $convo_id"
     flash $1
 }
@@ -371,7 +373,9 @@ process_cmd() {
                 cmd=$( < "$cmdfile" )
                 cat "$cmdfile" | grep -v '^$' | tee -a "$llm_in" | sed 's/^/### /g' 
                 echo '```bash'
-                { echo "set -eEuo pipefail"; cat "$cmdfile"; } > "${cmdfile}.safe"
+                { 
+                    echo "set -eEuo pipefail"; 
+                    cat "$cmdfile"; } > "${cmdfile}.safe"
                 {
                     bash "${cmdfile}.safe" | tee -a $llm_in | head -30
                     [[ $? -ne 0 ]] && err=$?
@@ -384,13 +388,12 @@ process_cmd() {
 
         if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
             (( n++ ))
-            cat "$llm_in" | llcat -m "$LLM_MODEL" "You ran Do-Ur-Inspection commands" -c $convo_id  
+            cat "$llm_in" | ll "You ran Do-Ur-Inspection commands"   
         fi
     } | $MDREAD
 }
 
 oneshot() {
-    echo "$*" >> "$MDIR/input.txt"
     llc "$@" -s "$SYSTEM" $convo_id >> "$MDIR/output.txt" &
 }
     
@@ -617,6 +620,8 @@ while [ 0 ]; do
 
     # Needs to be run here and not in any subshell
     RETRY=
+    INJECT=
+    ata=""
     [[ -n "$USECLIP" ]]      && USECLIP=
     [[ -n "$forcecapture" ]] && forcecapture=
     set_prompt
@@ -628,11 +633,4 @@ while [ 0 ]; do
             [[ -s "${in}.${n}" ]] || break
         done
     fi
-
-    echo "${text}${INJECT}" >> "$MDIR/input.txt"
-
-    INJECT=
-
-    echo $convo_id | cat > "$MDIR/${pane_id}.convo"
-    ata=""
 done
