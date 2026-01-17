@@ -44,7 +44,7 @@ _warn() {
 show_params() {
     eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
     {
-        echo -n "  * **Selected:** [ "
+        echo -n "  * **Shared:** [ "
         for _ix in "${pane_list[@]}"; do
             local v="${_ix/\%/_}"
             echo -n " ${!v}"
