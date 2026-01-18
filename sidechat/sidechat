@@ -595,7 +595,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | llc $ata "${text}${INJECT}" 2> >(jq . >&2) 1> >($MDREAD >&1)
+    } | llc $ata "${text}${INJECT}" 2> >(jq . >&2) | $MDREAD 
 
     # Needs to be run here and not in any subshell
     RETRY=
