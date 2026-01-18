@@ -216,7 +216,7 @@ server() {
         fi
             
         save_pref SERVER_URL "$SERVER_URL"
-        if [[ -n "$getkey" ]]; then
+        if [[ -n "$getkey" && -z "$SERVER_AUTH" ]]; then
             echo
             key
         fi
