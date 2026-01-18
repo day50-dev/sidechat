@@ -35,5 +35,33 @@
         "required": ["filename", "path"]
       }
     }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "save_memory",
+      "description": "Save a memory",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "memory": {
+            "type": "string",
+            "description": "The memory to save"
+          }
+        },
+        "required": ["memory"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "show_memory",
+      "description": "Show all memories - check here if you do not know something",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
   }
 ]
