@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. common.sh
+. sc-_common
 
 pane_id=$(tmux display-message -p '#{pane_id}')
 [[ -s "$MDIR/$pane_id.convo" ]] && convo_id=$(cat "$MDIR/${pane_id}.convo")

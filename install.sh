@@ -52,7 +52,7 @@ ENDL
     fi
 fi
 
-for cmd in simple-parse.py sc-add sc-picker sidechat; do
+for cmd in sc-_parse.py sc-add sc-_common sc-picker sidechat; do
     rm -f "$insdir"/$cmd 
     echo "  ✅ $cmd"
     cp -p "$DIR"/$cmd "$insdir"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. $DIR/common.sh
+. $DIR/sc-_common
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
@@ -346,7 +346,7 @@ process_cmd() {
         #echo $llm_in $llm_parse
         err=0
 
-        for cmdfile in $(cat "$base" | "$DIR/simple-parse.py" -r '```AGENT\n(.*)```' -b "$llm_parse"); do
+        for cmdfile in $(cat "$base" | "$DIR/sc-_parse.py" -r '```AGENT\n(.*)```' -b "$llm_parse"); do
             #echo "## $cmdfile"
             if [[ $DUI == "ON" ]]; then
                 cmd=$( < "$cmdfile" )
