@@ -252,7 +252,7 @@ set_prompt() {
     [[ -n "$TMUX" && $CAPTURE == "ON" ]] && camera="📷"
     [[ $DUI == "ON" ]] && dui="🚗"
     [[ -n "$USECLIP" ]] && clipboard='📋'
-    prompt="${camera} ${dui}${clipboard} > "
+    prompt="${camera}${dui}${clipboard} > "
 }
 
 choose() {
