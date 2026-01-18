@@ -26,6 +26,7 @@ clean() {
 }
 
 spinner() {
+    tput civis
     trap clean EXIT SIGINT SIGTERM SIGQUIT
     SPINNER="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 
@@ -40,7 +41,7 @@ spinner() {
     {
       echo -en "$tok"
       cat;
-    } | ( [[ -n "$1" ]] && $@ || cat )
+    } | ( [[ -n "$1" ]] && "$@" || cat )
 
     tput cnorm
 }
