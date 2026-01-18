@@ -8,7 +8,7 @@ args = input_data.get('arguments', {})
 
 if tool_name == "list_files":
     DIR = Path(args.get('path') or '.').expanduser()
-    mp3s = [f.name for f in DIR.rglob("*")]
+    mp3s = [f.name for f in DIR.glob("*")]
     print(json.dumps(mp3s))
 
 elif tool_name == "read_file":
