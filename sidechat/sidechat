@@ -331,7 +331,6 @@ newconvo() {
     convo_id=$(mktemp "$MDIR/c-$day-XXXX")
     echo $convo_id > "$MDIR/${pane_id}.convo"
     _warn "New convo is $convo_id"
-    flash $1
 }
 
 mindwipe() {
