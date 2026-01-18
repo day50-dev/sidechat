@@ -319,7 +319,7 @@ last() {
 
 ll() {
     llcat -c "$convo_id" \
-        -tf $DIR/tool_file.json -tp $DIR/tool_program.py \
+        -tf $DIR/sc-tf.json -tp $DIR/sc-tp.py \
         -u "$SERVER_URL" -s "$SYSTEM" \
         -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
 }
