@@ -246,9 +246,9 @@ model() {
 }
 
 set_prompt() {
-    local camera="— "
-    local dui="— "
-    local clipboard=''
+    local camera=""
+    local dui=""
+    local clipboard=""
     [[ -n "$TMUX" && $CAPTURE == "ON" ]] && camera="📷"
     [[ $DUI == "ON" ]] && dui="🚗"
     [[ -n "$USECLIP" ]] && clipboard='📋'
@@ -375,10 +375,6 @@ process_cmd() {
     } | $MDREAD
 }
 
-oneshot() {
-    llc "$@" -s "$SYSTEM" $convo_id >> "$MDIR/output.txt" &
-}
-    
 capture() {
     if [[ $CAPTURE == "ON" ]]; then
         echo "Capturing off. Shades are drawn!"
@@ -493,11 +489,11 @@ dui() {
     if [[ "$DUI" == "ON" ]]; then
         DUI=OFF
         echo "Sobering up.";
-        oneshot "(Note: Do-Ur-Inspection is now off. Do not talk about it. It no longer exists. Piping into sc-add is still available)"
+        llc "(Note: Do-Ur-Inspection is now off. Do not talk about it. It no longer exists. Piping into sc-add is still available)"
     else
         DUI=ON
         echo "Fuck it, let's roll!"
-        oneshot "$DUIPROMPT"
+        llc "$DUIPROMPT"
     fi
     echo $DUI > "$MDIR/DUI"
 } 
