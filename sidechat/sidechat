@@ -318,7 +318,10 @@ last() {
 }
 
 ll() {
-    llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
+    llcat -c "$convo_id" \
+        -tf $DIR/tool_file.json -tp $DIR/tool_program.py \
+        -u "$SERVER_URL" -s "$SYSTEM" \
+        -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
 }
 llc() {
     ll -m "$LLM_MODEL" "$@"

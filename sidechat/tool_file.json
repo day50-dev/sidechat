@@ -1,0 +1,39 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "list_files",
+      "description": "List files in a given path",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "An optional path to search for files, otherwise cwd"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_file",
+      "description": "Read a file in a given path",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "The name of the file to read"
+          },
+          "path": {
+            "type": "string",
+            "description": "The path of the flie"
+          }
+        },
+        "required": ["filename", "path"]
+      }
+    }
+  }
+]

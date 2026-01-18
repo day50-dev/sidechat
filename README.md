@@ -50,4 +50,3 @@ Also you don't need `tmux`! Often you'll be doing things and then realize you wa
 
 That's fine! If you use DAY50's [streamdown](https://github.com/day50-dev/Streamdown),  `sc-picker` works like it does inside tmux. You can also `sc-add` by id. It's not great but you're not locked in. That's the point!
 
-**Note**: This used to be the home of many tools. They've been moved to [llm-incubator](https://github.com/day50-dev/llm-incubator)
