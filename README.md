@@ -11,7 +11,7 @@ Simple installer:
 Sidechat is an LLM intervention in your little terminal. 
 
 It suppports 
-    * adding 
+    * adding the following:
         * screenshots 
         * multiple panes as a stack.
         * command output 
