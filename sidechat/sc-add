@@ -1,15 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+. common.sh
 
-[[ "$(uname)" == "Darwin" ]] && \
-    CONFIG="Library/Application Support" ||\
-    CONFIG=".config"
-CONFIG="${HOME}/${CONFIG}/sidechat"
-source "$CONFIG/settings"
-MDIR=/tmp/sidechat/$UID
 pane_id=$(tmux display-message -p '#{pane_id}')
-if [[ -s "$MDIR/$pane_id.convo" ]]; then
-    convo_id=$(cat "$MDIR/${pane_id}.convo")
-fi
+[[ -s "$MDIR/$pane_id.convo" ]] && convo_id=$(cat "$MDIR/${pane_id}.convo")
 
 while getopts ":c:" opt; do
   case $opt in
@@ -22,29 +15,25 @@ while getopts ":c:" opt; do
   esac
 done
 shift $((OPTIND -1))
+
 if [[ -z "$convo_id" ]]; then
     echo "No conversation means no context to add"
     exit 1
 fi 
 
-if [ -n "$*" ]; then
-  prompt="$*"
-else
-  prompt=$convo_id
-fi
-
 echo -e "\nAdding to $convo_id ..."
-{   echo "The user is running a command and sending it to you.  Here's the last 5 lines of tmux capture-pane, delimited by ----8<----"
+{   echo "<most-recent-commands>"
     tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
-    echo "----8<----"
-    echo "Here is the output of the command"
-    echo "----8<----"
+    echo -e "</most-recent-commands>\n<output>"
     test -t 0 || cat;
+    # This takes a potential file passed in sc-add and cats it
     [[ -r "$1" ]] && cat "$1" 
+    echo "</output>"
 } | llcat \
     -c "$convo_id" \
     -u "$SERVER_URL" \
+    -m "$LLM_MODEL" \
     -s "$SYSTEM" \
     -sk "$SERVER_AUTH" \
-    "Briefly respond in less than 1 paragraph" 2> >(jq . >&2) 1> >(sd >&1) 
+    "Acknowlege in 1 paragraph" 2> >(jq . >&2) 1> >(sd >&1) 
 

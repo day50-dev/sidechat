@@ -1,29 +1,6 @@
 #!/usr/bin/env bash
-# there's a few commands and /help documents them
-
-# set -eEuo pipefail
-# trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
-
-# This is an OS X install-time hack
-#@@INJECTPATH
-
-VERSION="@@VERSION"
-
-tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
-
-[[ "$(uname)" == "Darwin" ]] && \
-    CONFIG="Library/Application Support" ||\
-    CONFIG=".config"
-CONFIG="${HOME}/${CONFIG}/sidechat"
-SETTINGS="$CONFIG/settings"
-
-[[ -r "$CONFIG" ]] || mkdir -p "$CONFIG"
-MDIR="$tmp"/sidechat
-[[ -d "$MDIR" ]] || (mkdir "$MDIR" && chmod 0777 "$MDIR")
-MDIR="$MDIR/$UID"
-[[ -d "$MDIR" ]] || mkdir "$MDIR"
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/common.sh
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
