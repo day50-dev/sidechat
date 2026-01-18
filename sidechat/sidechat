@@ -17,6 +17,8 @@ _warn() {
     echo -e "**⚠️** *$@*" | $MDREAD
 }
 
+[[ "$(uname)" == "Darwin" ]] && msize="-f %z" || msize="-c %c"
+     
 show_params() {
     eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
     {
@@ -33,7 +35,7 @@ show_params() {
     echo "  * **Model**: ${LLM_MODEL:-*(None Set)*}"
     echo -n "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
     [[ -n "$SERVER_AUTH" ]] && echo " 🔒" || echo " 🔓"
-    local size="$(stat -c %s "$convo_id")"
+    local size="$(stat $msize "$convo_id")"
     echo "  * **Convo**: ${convo_id} ($size B)"
     echo "  * **Config**: ${SETTINGS}"
 }
@@ -315,7 +317,7 @@ last() {
 }
 
 ll() {
-    llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "$@"
+    llcat -c "$convo_id" -u "$SERVER_URL" -s "$SYSTEM" -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
 }
 llc() {
     ll -m "$LLM_MODEL" "$@"
