@@ -321,7 +321,7 @@ ll() {
     llcat -c "$convo_id" \
         -tf $DIR/sc-tf.json -tp $DIR/sc-tp.py \
         -u "$SERVER_URL" -s "$SYSTEM" \
-        -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
+        -sk "$SERVER_AUTH" "$@" 2> >(grep -v '"level":"debug"' | jq . >&2) 
 }
 llc() {
     ll -m "$LLM_MODEL" "$@"
