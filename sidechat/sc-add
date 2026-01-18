@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-. sc-_common
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/sc-_common
 
 pane_id=$(tmux display-message -p '#{pane_id}')
 [[ -s "$MDIR/$pane_id.convo" ]] && convo_id=$(cat "$MDIR/${pane_id}.convo")
@@ -21,7 +22,7 @@ if [[ -z "$convo_id" ]]; then
     exit 1
 fi 
 
-echo -e "\nAdding to $convo_id ..."
+echo -e "\nAdding to $convo_id"
 {   echo "<most-recent-commands>"
     tmux capture-pane -t "${pane_id}" -p | grep -v '^$' | tail -5
     echo -e "</most-recent-commands>\n<output>"
@@ -35,5 +36,4 @@ echo -e "\nAdding to $convo_id ..."
     -m "$LLM_MODEL" \
     -s "$SYSTEM" \
     -sk "$SERVER_AUTH" \
-    "Acknowlege in 1 paragraph" 2> >(jq . >&2) 1> >(sd >&1) 
-
+    "Acknowlege in 1 paragraph" 2> >(jq . >&2) | sd
