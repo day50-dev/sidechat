@@ -19,3 +19,26 @@ MDIR="$tmp"/sidechat
 MDIR="$MDIR/$UID"
 [[ -d "$MDIR" ]] || mkdir "$MDIR"
 MDREAD='sd -c <(echo -e "[style]\nMargin = 4")'
+
+clean() {
+    tput cnorm
+    exit
+}
+
+spinner() {
+    trap clean EXIT SIGINT SIGTERM SIGQUIT
+    SPINNER="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+    i=0
+    while ! read -N 1 -t 0.05 tok ; do
+      printf "\e[2K${SPINNER:$i:1}\r"
+      (( i = ( i + 1 ) % ${#SPINNER} ))
+    done
+
+    {
+        echo -en "$tok"
+        cat;
+    } | ( [[ -n "$1" ]] && $@ || cat )
+
+    tput cnorm
+}
