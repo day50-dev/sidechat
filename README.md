@@ -8,12 +8,23 @@ Simple installer:
 
     curl day50.dev/sidechat | sh
 
-Sidechat is an LLM intervention in your little terminal. It suppports adding screenshots, command output, reading from multiple clipboards, cycling pane focus, local and remote models, turning off and on pane capturing, adding external context and more, all sitting agnostically on top of tmux so there's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
+Sidechat is an LLM intervention in your little terminal. 
 
-You can 
- * add multiple panes as a stack.
- * retry calls
- * use local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
+It suppports 
+    * adding 
+        * screenshots 
+        * multiple panes as a stack.
+        * command output 
+        * external context
+        * memories 
+    * reading from multiple clipboards
+    * tool calling
+    * agentic loops
+    * cycling pane focus
+    * use local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
+    * turning off and on pane capturing
+ 
+All sitting agnostically on top of tmux. There's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
 
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)

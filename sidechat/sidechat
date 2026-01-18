@@ -55,16 +55,15 @@ help() {
         echo -e "\n### Commands"
 
     } | $MDREAD
-    system_prompt
   fi
   cat <<END
-  /choose   - Choose shared panes 
+  /choose   - Choose shared panes
   /clip     - Select text into the clipboard as context
   /mindwipe - Forget this crazy world and start over
   /sshot    - Raster screenshot
   /dui      - Toggle agentic. (current: $DUI)
   /capture  - Toggle capture. (current: $CAPTURE)
-  cmd | sc-add [-c cid] [prompt] - Add the output of cmd to the context.
+  cmd | sc-add [-c cid] [prompt] - Add the output of cmd to the context
 END
   if [[ "$#" -ne 0 ]]; then 
 cat <<END
@@ -78,21 +77,11 @@ END
   fi
 }
 
-system_prompt() {
-SYSTEM=$(cat <<END
-You're an interactive buddy in tmux talking to a highly competent engineer with decades of experience whose instincts are far better than yours. If they disagree with you, trust them and don't argue. Don't persist on things they insist are wrong. Your job is mostly either small things like syntax or arcane knowledge. It's generally not big sweeping architectu or design. Assume they've already tried the things a competent engineer would do. 
-You will get capture-pane -p followed by questions when the pane output changes. 
-They are using $(uname -ar) and can change the capture focus. You will be notified when this happens and when our cid is established. These come in the form (Note: <message>).
-They are using a markdown formatter. Only insert newlines into code braces for syntax.
-They can do the following: $(help)
-END
-[[ "$DUI" == "ON" ]] && echo "$DUIPROMPT" || echo ""
-)
-}
-
 onload() {
     [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
     [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
+
+    SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes.  They are using $(uname -ar). Notices to you come in the form (Note: <message>). They can do the following: $(help | tr "\n" ",")"
 
     history -r "$HISTFILE"
     trap 'history -w "$HISTFILE"' EXIT
@@ -105,7 +94,6 @@ onload() {
 
     [[ -n "$TMUX" ]] && my_id=$(tmux display-message -p '#{pane_id}') || my_id=
 
-    system_prompt
     pane_id=${1-}
     pane_list=( $pane_id )
     convo_id=
@@ -362,7 +350,6 @@ newconvo() {
 }
 
 mindwipe() {
-    system_prompt
     newconvo
     forcecapture=1
 }
