@@ -292,7 +292,7 @@ choose() {
 
 getlast(){
     local wid=$(( $(tput cols) / 2 ))
-    find $MDIR -name \*.json -size +0c | \
+    find $MDIR -name c-\* -size +0c | \
         rev | cut -d '/' -f 1 | rev | \
         fzf --style full --preview "sd -w $wid <(jq -r '.[] | select(.role != \"system\") | \"\n**\(.role)**: \(.content)\"' \"$MDIR\"/{} | tail -40)"
 }
@@ -325,7 +325,7 @@ llc() {
 }
 newconvo() {
     day=$(date +%m%d-%H%M)
-    convo_id=$(mktemp "$MDIR/$day-XXXX.json")
+    convo_id=$(mktemp "$MDIR/c-$day-XXXX")
     echo $convo_id > "$MDIR/${pane_id}.convo"
     _warn "New convo is $convo_id"
     flash $1
