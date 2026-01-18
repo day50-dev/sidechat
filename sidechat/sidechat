@@ -32,11 +32,11 @@ show_params() {
     if [[ "$#" -gt 0 && "$1" == "panes" ]]; then
         return
     fi
-    echo "  * **Model**: ${LLM_MODEL:-*(None Set)*}"
+    echo "  * **Model**:  ${LLM_MODEL:-*(None Set)*}"
     echo -n "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
     [[ -n "$SERVER_AUTH" ]] && echo " 🔒" || echo " 🔓"
     local size="$(stat $msize "$convo_id")"
-    echo "  * **Convo**: ${convo_id} ($size B)"
+    echo "  * **Convo**:  ${convo_id} ($size B)"
     echo "  * **Config**: ${SETTINGS}"
 }
 
