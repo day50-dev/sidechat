@@ -14,12 +14,13 @@ USECLIP=
 LAUNCH="$0"
 RETRY=
 TOOLS=
+
+[[ "$(uname)" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
+     
 _warn() {
     echo -e "**⚠️** *$@*" | $MDREAD
 }
 
-[[ "$(uname)" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
-     
 show_params() {
     eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
     {
@@ -34,7 +35,7 @@ show_params() {
         return
     fi
     echo -n "  * **Model**:  ${LLM_MODEL:-*(None Set)*}"
-    [[ -n "$TOOLS" ]] && echo "🛠" || echo ""
+    [[ "$TOOLS" == "ON" ]] && echo " 🛠" || echo ""
 
     echo -n "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
     [[ -n "$SERVER_AUTH" ]] && echo " 🔒" || echo " 🔓"
@@ -72,7 +73,7 @@ cat <<END
   /flash    - Flash the shared panes
   /update   - Self-update
   /retry    - Try the last request again
-  /tools    - Toggle Tools
+  /tools    - Toggle Tools (current: $TOOLS)
 END
   fi
 }
@@ -268,7 +269,7 @@ edit() {
          echo $SETTINGS;
         } | fzf --style full --preview "batcat {}"
     )
-    $EDITOR "$fname"
+    [[ -z "$fname" ]] && _warn Cancelled || $EDITOR "$fname"
 }
 
 choose() {
@@ -325,8 +326,8 @@ prev() {
 }
 
 tools() {
-    [[ -z "$TOOLS" ]] && TOOLS=1 || TOOLS=
-    [[ -z "$TOOLS" ]] && _warn "Tools are off" || _warn "Tools are on"
+    [[ "$TOOLS" == "ON" ]] && TOOLS="OFF" || TOOLS="ON"
+    _warn "Tools are ${TOOLS@L}" 
     save_pref TOOLS "$TOOLS"
 }
 
@@ -340,9 +341,10 @@ last() {
 }
 
 ll() {
-    [[ -n "$TOOLS" ]] && _TOOL="-tf $DIR/sc-tf.json -tp $DIR/sc-tp.py" || _TOOL= 
+    local tool=
+    [[ "$TOOLS" == "ON" ]] && tool="-tf $DIR/sc-tf.json -tp $DIR/sc-tp.py"
 
-    llcat -c "$convo_id" _TOOL \
+    llcat -c "$convo_id" tool \
         -u "$SERVER_URL" -s "$SYSTEM" \
         -sk "$SERVER_AUTH" "$@" 2> >(grep -Ev '"level":\s+"debug"' | jq . >&2) 
 }
