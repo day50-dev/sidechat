@@ -12,18 +12,18 @@ Sidechat is an LLM intervention in your little terminal.
 
 It suppports 
 
-   * adding the following:
-      * screenshots 
-      * multiple panes as a stack.
-      * command output 
-      * external context
-      * memories 
-   * reading from multiple clipboards
-   * tool calling
-   * agentic loops
-   * cycling pane focus
-   * use local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
-   * turning off and on pane capturing
+ * adding the following:
+    * screenshots 
+    * multiple panes as a stack.
+    * command output 
+    * external context
+    * memories 
+ * reading from multiple clipboards
+ * tool calling
+ * agentic loops
+ * cycling pane focus
+ * local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
+ * turning off and on pane capturing
  
 All sitting agnostically on top of tmux. There's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
 
