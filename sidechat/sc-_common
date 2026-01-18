@@ -30,14 +30,16 @@ spinner() {
     SPINNER="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 
     i=0
-    while ! read -N 1 -t 0.05 tok ; do
+    while [[ 0 ]]; do
+      read -N 1 -t 0.05 tok
+      [[ $? != 142 ]] && break
       printf "\e[2K${SPINNER:$i:1}\r"
       (( i = ( i + 1 ) % ${#SPINNER} ))
     done
 
     {
-        echo -en "$tok"
-        cat;
+      echo -en "$tok"
+      cat;
     } | ( [[ -n "$1" ]] && $@ || cat )
 
     tput cnorm
