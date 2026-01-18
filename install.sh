@@ -83,10 +83,10 @@ else
 fi
 
 if [[ $(uname) == "Darwin" ]]; then
-    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$binpath^g" $insdir/sidechat
-    sed -i "" "s^@@VERSION^$(cd $DIR;git describe)^g" $insdir/sidechat
+    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$binpath^g" $insdir/sc-_common
+    sed -i "" "s^@@VERSION^$(cd $DIR;git describe)^g" $insdir/sc-_common
 else
-    sed -i "s^@@VERSION^$(cd $DIR;git describe)^g" $insdir/sidechat
+    sed -i "s^@@VERSION^$(cd $DIR;git describe)^g" $insdir/sc-_common
 fi
 
 if ! echo $PATH | grep "$binpath" > /dev/null; then
