@@ -292,8 +292,9 @@ choose() {
 
 getlast(){
     local wid=$(( $(tput cols) / 2 ))
-    find $MDIR -name \*.json -size +0c |\
-        fzf --style full --preview "sd -w $wid <(jq -r '.[] |  select(.role != \"system\") | \"\n**\(.role)**: \(.content)\"' {} | tail -40)"
+    find $MDIR -name \*.json -size +0c | \
+        rev | cut -d '/' -f 1 | rev | \
+        fzf --style full --preview "sd -w $wid <(jq -r '.[] | select(.role != \"system\") | \"\n**\(.role)**: \(.content)\"' \"$MDIR\"/{} | tail -40)"
 }
 
 prev() {
@@ -301,8 +302,8 @@ prev() {
     if [[ -z "$choice" ]]; then
         _warn "Cancelled"
     else
-        convo_id=$choice
-        echo $convo_id > "$MDIR/${pane_id}.convo"
+        convo_id="$MDIR/$choice"
+        echo "$convo_id" > "$MDIR/${pane_id}.convo"
         last
     fi
 }
