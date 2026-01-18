@@ -17,7 +17,7 @@ _warn() {
     echo -e "**⚠️** *$@*" | $MDREAD
 }
 
-[[ "$(uname)" == "Darwin" ]] && msize="-f %z" || msize="-c %c"
+[[ "$(uname)" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
      
 show_params() {
     eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
