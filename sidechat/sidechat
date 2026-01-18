@@ -255,6 +255,17 @@ set_prompt() {
     prompt="${camera}${dui}${clipboard} > "
 }
 
+edit() {
+    local fname=$(
+        {
+         sd --help | grep '^  config' | rev | cut -d ' ' -f 1 | rev;
+         echo $convo_id;
+         echo $SETTINGS;
+        } | fzf --style full --preview "batcat {}"
+    )
+    $EDITOR "$fname"
+}
+
 choose() {
     local depth=${1:-0}
     [[ "$depth" == 0 ]] && echo "Select panes or any other key to end selection" | $MDREAD
@@ -549,7 +560,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (model|key|server|retry|clip|capture|prev|dui|mindwipe|choose|update|flash) ]]; then
+        elif [[ $input =~ (model|key|server|retry|clip|capture|prev|dui|mindwipe|edit|choose|update|flash) ]]; then
             ${input:1}
         else
             help 1
