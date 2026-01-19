@@ -40,7 +40,7 @@
     "type": "function",
     "function": {
       "name": "save_memory",
-      "description": "Save a memory",
+      "description": "Save a memory. It should be in the form 'The User' or if you have the name, use the name.",
       "parameters": {
         "type": "object",
         "properties": {
