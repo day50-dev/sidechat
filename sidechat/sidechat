@@ -335,7 +335,7 @@ ll() {
 
     llcat -c "$convo_id" $tool \
         -u "$SERVER_URL" -s "$SYSTEM" \
-        -sk "$SERVER_AUTH" "$@" 2> >(grep -Ev '"level":\s+"debug"' | jq . >&2) 
+        -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
 }
 
 llc() {
