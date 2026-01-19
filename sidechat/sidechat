@@ -133,7 +133,7 @@ onload() {
 update() {
     tmux split-window -v "curl -s https://day50.dev/sidechat | sh; tmux wait-for -S upgrade"
     tmux wait-for upgrade
-    echo -e "## And now the magical in-place upgrade.\n" | $MDREAD
+    echo -e "## And now the magical in-place upgrade\n" | $MDREAD
     exec "$LAUNCH" $pane_id
 }
 
