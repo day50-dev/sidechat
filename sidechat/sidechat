@@ -73,6 +73,7 @@ cat <<END
   /update   - Self-update
   /retry    - Try the last request again
   /tools    - Toggle Tools (current: $TOOLS)
+  /edit     - Edit the internal state
 END
   fi
 }
@@ -83,6 +84,9 @@ onload() {
 
     SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes.  They are using $(uname -ar). Notices to you come in the form (Note: <message>). They can do the following: $(help | tr "\n" ",")"
 
+    if [[ -s "$CONFIG/memories.json" ]]; then
+        SYSTEM="$SYSTEM. User memories: $(jq -r ".[]" "$CONFIG/memories.json" | tr '\n' ',')"
+    fi
     history -r "$HISTFILE"
     trap 'history -w "$HISTFILE"' EXIT
 
@@ -335,7 +339,7 @@ ll() {
 
     llcat -c "$convo_id" $tool \
         -u "$SERVER_URL" -s "$SYSTEM" \
-        -sk "$SERVER_AUTH" "$@" 2> >(jq . >&2) 
+        -sk "$SERVER_AUTH" "$@" 2> >(jq '.' >&2) 
 }
 
 llc() {
