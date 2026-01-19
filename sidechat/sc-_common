@@ -3,10 +3,11 @@
 #@@INJECTPATH
 
 VERSION="@@VERSION"
+_uname="$(uname)"
 
 tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
 
-[[ "$(uname)" == "Darwin" ]] && \
+[[ "$_uname" == "Darwin" ]] && \
     CONFIG="Library/Application Support" ||\
     CONFIG=".config"
 CONFIG="${HOME}/${CONFIG}/sidechat"

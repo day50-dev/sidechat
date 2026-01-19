@@ -15,7 +15,7 @@ LAUNCH="$0"
 RETRY=
 TOOLS=
 
-[[ "$(uname)" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
+[[ "$_uname" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
      
 _warn() {
     echo -e "**⚠️** *$@*" | $MDREAD
@@ -78,19 +78,23 @@ END
   fi
 }
 
+nlchomp() {
+  [[ "$_uname" == "Darwin" ]] && awk '{printf "%s, ", $0} END{print ""}' || sed -z 's/\n/, /g' 
+}
+
 onload() {
     [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
     [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 
-    SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes.  They are using $(uname -ar). Notices to you come in the form (Note: <message>). They can do the following: $(help | tr "\n" ",")"
+    SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes.  They are using $(uname -ar). Notices to you come in the form (Note: <message>). They can do the following: $(help | nl_chomp)"
 
     if [[ -s "$CONFIG/memories.json" ]]; then
-        SYSTEM="$SYSTEM. User memories: $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' |  tr '\n' ',')"
+        SYSTEM="$SYSTEM. User memories: $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' | nlchomp )"
     fi
     history -r "$HISTFILE"
     trap 'history -w "$HISTFILE"' EXIT
 
-    if [[ $(uname) == "Linux" ]]; then
+    if [[ "$_uname" == "Linux" ]]; then
       llm_config=".config"
     else
       llm_config="Library/Application Support"
@@ -247,8 +251,8 @@ set_prompt() {
     local camera=""
     local dui=""
     local clipboard=""
-    [[ -n "$TMUX" && $CAPTURE == "ON" ]] && camera="📷"
-    [[ $DUI == "ON" ]] && dui="🚗"
+    [[ -n "$TMUX" && "$CAPTURE" == "ON" ]] && camera="📷"
+    [[ "$DUI" == "ON" ]] && dui="🚗"
     [[ -n "$USECLIP" ]] && clipboard='📋'
     prompt="${camera}${dui}${clipboard} > "
 }
@@ -387,7 +391,7 @@ process_cmd() {
             fi
         done
 
-        if [[ $err == 0 && $DUI == "ON" && -s "$llm_in" ]]; then
+        if [[ $err == 0 && "$DUI" == "ON" && -s "$llm_in" ]]; then
             (( n++ ))
             cat "$llm_in" | ll "You ran Do-Ur-Inspection commands"   
         fi
@@ -395,7 +399,7 @@ process_cmd() {
 }
 
 capture() {
-    if [[ $CAPTURE == "ON" ]]; then
+    if [[ "$CAPTURE" == "ON" ]]; then
         echo "Capturing off. Shades are drawn!"
         save_pref "CAPTURE" "OFF"
         INJECT="$INJECT (Note: User turned capture off)"
@@ -523,7 +527,7 @@ emit_capture() {
     echo " has_changed=True>"
     [[ -n "$TMUX" && -s "$MDIR/${ix_pane}.new" ]] && _pid=$(tmux display -pt "$ix" '#{pane_pid}')
 
-    if [[ "$(uname)" == "Linux" && -n "$TMUX" ]]; then
+    if [[ "$_uname" == "Linux" && -n "$TMUX" ]]; then
         echo "<ps hierarchy>$(ps -o comm= --ppid $_pid -p $_pid | tr '\n' ' ')</ps hierarchy>"
     fi
     echo "<capture>"
@@ -623,7 +627,7 @@ while [ 0 ]; do
     [[ -n "$forcecapture" ]] && forcecapture=
     set_prompt
 
-    if [[ $DUI == "ON" ]]; then
+    if [[ "$DUI" == "ON" ]]; then
         while true; do
             process_cmd "$in" $n
             (( n++ ))
