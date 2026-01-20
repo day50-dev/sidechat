@@ -342,6 +342,7 @@ ll() {
     [[ "$TOOLS" == "ON" ]] && tool="-tf $DIR/sc-tf.json -tp $DIR/sc-tp.py"
 
     llcat -c "$convo_id" $tool \
+        -bq result \
         -u "$SERVER_URL" -s "$SYSTEM" \
         -sk "$SERVER_AUTH" "$@" 2> >(jq '.' >&2) 
 }
