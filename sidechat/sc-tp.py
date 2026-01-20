@@ -22,6 +22,15 @@ elif tool_name == "read_file":
     with open(Path(args.get('path')).expanduser() / args.get('filename'), 'r') as r:
         print(r.read())
 
+elif tool_name == "read_man_section":
+    print(subprocess.run(
+        ["mansnip", "--llm", args['manpage'], args['section']],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False      
+    ).stdout)
+
 elif "memory" in tool_name:
     fd = os.open(memfile, os.O_RDONLY | os.O_CREAT, mode=0o644)
     with os.fdopen(fd, 'r') as f:

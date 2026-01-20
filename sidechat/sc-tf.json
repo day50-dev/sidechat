@@ -56,6 +56,27 @@
   {
     "type": "function",
     "function": {
+      "name": "read_man_section",
+      "description": "Show a contextual snippet of a man page",
+      "parameters": {
+        "type": "object",
+        "properties": {
+            "manpage": {
+                "type": "string",
+                "description": "The manpage to view"
+            },
+            "section": {
+                "type": "string",
+                "description": "The parameter or section to view, such as '-z' or 'compgen'"
+            }
+        },
+        "required": ["manpage", "section"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "show_memory",
       "description": "Show all memories - check here if you do not know something",
       "parameters": {
