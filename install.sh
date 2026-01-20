@@ -11,7 +11,7 @@ if ! command -v unzip > /dev/null; then
 fi
 
 if [[ $PIP =~ /pipx$ ]]; then 
-    PIP="$PIP install"
+    PIP="$PIP upgrade --install"
     pybin=$(pipx environment 2> /dev/null | grep PIPX_BIN_DIR=/ | cut -d = -f 2)
     # really old pipx - apps is used even in the intl tests i did
     if [[ -z "$pybin" ]]; then
@@ -60,7 +60,7 @@ done
 
 for pkg in mansnip llcat streamdown; do
     echo "  ✅ $pkg"
-    $PIP upgrade --install $pkg &> /dev/null
+    $PIP $pkg &> /dev/null
 done
 
 if [[ ! -d ~/.fzf ]]; then
