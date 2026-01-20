@@ -58,9 +58,9 @@ for cmd in sc-tp.py sc-tf.json sc-_parse.py sc-add sc-_common sc-picker sidechat
     cp -p "$DIR"/$cmd "$insdir"
 done
 
-for pkg in llcat streamdown; do
+for pkg in mansnip llcat streamdown; do
     echo "  ✅ $pkg"
-    $PIP --force $pkg &> /dev/null
+    $PIP upgrade --install $pkg &> /dev/null
 done
 
 if [[ ! -d ~/.fzf ]]; then
