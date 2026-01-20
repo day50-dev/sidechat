@@ -23,6 +23,7 @@ It suppports
  * agentic loops
  * cycling pane focus
  * local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
+ * reading sections of manpages with [mansnip](https://github.com/day50-dev/Mansnip).
  * turning off and on pane capturing
  
 **Sidechat** sits agnostically on top of tmux. There's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
