@@ -61,8 +61,8 @@ help() {
   /clip     - Select text into the clipboard as context
   /mindwipe - Forget this crazy world and start over
   /sshot    - Raster screenshot
-  /dui      - Toggle agentic (current: $DUI)
-  /capture  - Toggle capture (current: $CAPTURE)
+  /dui      - Toggle agentic (now: $DUI)
+  /capture  - Toggle capture (now: $CAPTURE)
   cmd | sc-add [-c cid] [prompt] - Add the output of cmd to the context
 END
   if [[ "$#" -ne 0 ]]; then 
@@ -72,14 +72,14 @@ cat <<END
   /flash    - Flash the shared panes
   /update   - Self-update
   /retry    - Try the last request again
-  /tools    - Toggle Tools (current: $TOOLS)
+  /tools    - Toggle Tools (now: $TOOLS)
   /edit     - Edit the internal state
 END
   fi
 }
 
 nlchomp() {
-  [[ "$_uname" == "Darwin" ]] && awk '{printf "%s, ", $0} END{print ""}' || sed -z 's/\n/, /g' 
+  [[ "$_uname" == "Darwin" ]] && awk '{printf "%s, ", $0} END{print ""}' || { sed -z 's/\n/, /g' | sed -E 's/, $//' ; }
 }
 
 onload() {
@@ -89,7 +89,7 @@ onload() {
     SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes. Run tools when appropriate. They are using $(uname -ar). Notices come to you like (Note: <message>). They can do the following: $(help | nlchomp)"
 
     if [[ -s "$CONFIG/memories.json" ]]; then
-        SYSTEM="$SYSTEM. User memories: $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' | nlchomp )"
+        SYSTEM="$SYSTEM. User memories are [ $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' | nlchomp ) ]"
     fi
     history -r "$HISTFILE"
     trap 'history -w "$HISTFILE"' EXIT
