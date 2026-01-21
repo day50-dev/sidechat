@@ -20,6 +20,7 @@ It suppports
     * memories 
  * reading from multiple clipboards
  * tool calling
+ * MCP
  * agentic loops
  * cycling pane focus
  * local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
