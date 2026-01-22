@@ -83,19 +83,23 @@ nlchomp() {
   [[ "$_uname" == "Darwin" ]] && awk '{printf "%s, ", $0} END{print ""}' || { sed -z 's/\n/, /g' | sed -E 's/, $//' ; }
 }
 
+sys_prompt() {
+    SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes. Run tools when appropriate. They are using $(uname -ar). Notices come to you like (Note: <message>). They can do the following: $(help | nlchomp)"
+
+    if [[ -s "$CONFIG/memories.json" ]]; then
+        SYSTEM="$SYSTEM. User memories are [ $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' | nlchomp ) ]"
+    fi
+}
 onload() {
     [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
     [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
 
     [[ -e "$CONFIG/mcp.json" ]] ||  echo '{"mcpServers": {}}' | jq -r .  > "$CONFIG/mcp.json"
 
-    SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes. Run tools when appropriate. They are using $(uname -ar). Notices come to you like (Note: <message>). They can do the following: $(help | nlchomp)"
-
-    if [[ -s "$CONFIG/memories.json" ]]; then
-        SYSTEM="$SYSTEM. User memories are [ $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' | nlchomp ) ]"
-    fi
     history -r "$HISTFILE"
     trap 'history -w "$HISTFILE"' EXIT
+
+    sys_prompt
 
     if [[ "$_uname" == "Linux" ]]; then
       llm_config=".config"
@@ -363,6 +367,7 @@ newconvo() {
 }
 
 mindwipe() {
+    sys_prompt
     newconvo
     forcecapture=1
 }
