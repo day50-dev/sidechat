@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DUI=OFF
+TOOLS=ON
+CAPTURE="ON"
+# Loads settings overrides
 . $DIR/sc-_common
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
@@ -7,13 +11,10 @@ INJECT=
 MDREAD='sd -c <(echo -e "[style]\nMargin = 4")'
 LLM_MODEL=
 [[ -r "$MDIR/DUI" ]] || echo OFF > "$MDIR/DUI"
-DUI=$(< "$MDIR/DUI" )
 DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ```AGENT\nls``` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
-CAPTURE="ON"
 USECLIP=
 LAUNCH="$0"
 RETRY=
-TOOLS=
 
 [[ "$_uname" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
      
@@ -85,6 +86,8 @@ nlchomp() {
 onload() {
     [[ -r $HOME/.local/bin/sd ]] && MDREAD=$HOME/.local/bin/sd
     [[ -f "$HISTFILE" ]] || touch "$HISTFILE"
+
+    [[ -e "$CONFIG/mcp.json" ]] ||  echo '{"mcpServers": {}}' | jq -r .  > "$CONFIG/mcp.json"
 
     SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes. Run tools when appropriate. They are using $(uname -ar). Notices come to you like (Note: <message>). They can do the following: $(help | nlchomp)"
 
@@ -264,6 +267,7 @@ edit() {
          echo $convo_id;
          echo $SETTINGS;
          echo $CONFIG/memories.json;
+         echo $CONFIG/mcp.json;
         } | fzf --style full --preview "batcat {}"
     )
     [[ -z "$fname" ]] && _warn Cancelled || $EDITOR "$fname"
@@ -342,9 +346,9 @@ ll() {
     [[ "$TOOLS" == "ON" ]] && tool="-tf $DIR/sc-tf.json -tp $DIR/sc-tp.py"
 
     llcat -c "$convo_id" $tool \
-        -bq result \
+        -bq result -mf "$CONFIG/mcp.json" \
         -u "$SERVER_URL" -s "$SYSTEM" \
-        -sk "$SERVER_AUTH" "$@" 2> >(jq '.' >&2) 
+        -sk "$SERVER_AUTH" "$@" #2> >(jq '.' >&2) 
 }
 
 llc() {
@@ -519,7 +523,7 @@ dui() {
         echo "Fuck it, let's roll!"
         llc "$DUIPROMPT"
     fi
-    echo $DUI > "$MDIR/DUI"
+    save_prev DUI "$DUI"
 } 
 
 
@@ -618,7 +622,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | llc $ata "${text}${INJECT}" 2> >(jq . >&2) | spinner $MDREAD 
+    } | llc $ata "${text}${INJECT}" | spinner $MDREAD 
 
     # Needs to be run here and not in any subshell
     RETRY=
