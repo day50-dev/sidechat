@@ -71,7 +71,7 @@ cat <<END
   /model | /server | /key - change the {model, server, key}
   /prev     - Load a previous conversation
   /flash    - Flash the shared panes
-  /update   - Self-update
+  /upgrade  - Self-upgrade
   /retry    - Try the last request again
   /tools    - Toggle Tools (now: $TOOLS)
   /edit     - Edit the internal state
@@ -142,6 +142,9 @@ update() {
     tmux wait-for upgrade
     echo -e "## And now the magical in-place upgrade\n" | $MDREAD
     exec "$LAUNCH" $pane_id
+}
+upgrade() {
+    update
 }
 
 flash() {
@@ -582,7 +585,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (choose|clip|capture|dui|edit|flash|key|mindwipe|model|prev|retry|server|tools|update) ]]; then
+        elif [[ $input =~ (choose|clip|capture|dui|edit|flash|key|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
             ${input:1}
         else
             help 1
