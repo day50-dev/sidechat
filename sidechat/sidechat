@@ -352,7 +352,7 @@ ll() {
     llcat -c "$convo_id" $tool \
         -bq result -mf "$CONFIG/mcp.json" \
         -u "$SERVER_URL" -s "$SYSTEM" \
-        -sk "$SERVER_AUTH" "$@" #2> >(jq '.' >&2) 
+        -sk "$SERVER_AUTH" "$@" 2> >(jq '.' >&2) 
 }
 
 llc() {
