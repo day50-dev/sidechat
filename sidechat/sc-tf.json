@@ -65,12 +65,12 @@
                 "type": "string",
                 "description": "The manpage to view"
             },
-            "section": {
+            "parameter": {
                 "type": "string",
-                "description": "The parameter or section to view, such as '-z' or 'compgen'"
+                "description": "The parameter or command to view, such as '-z' or 'compgen'"
             }
         },
-        "required": ["manpage", "section"]
+        "required": ["manpage", "parameter"]
       }
     }
   },
