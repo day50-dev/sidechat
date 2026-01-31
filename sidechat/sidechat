@@ -350,12 +350,11 @@ last() {
 
 ll() {
     local tool=
-    [[ "$TOOLS" == "ON" ]] && tool="-tf $DIR/sc-tf.json -tp $DIR/sc-tp.py"
+    [[ "$TOOLS" == "ON" ]] && tool="-tf $DIR/sc-tf.json -tp $DIR/sc-tp.py -mf \"$CONFIG/mcp.json\" "
 
     llcat -c "$convo_id" $tool \
-        -bq result -mf "$CONFIG/mcp.json" \
-        -u "$SERVER_URL" -s "$SYSTEM" \
-        -sk "$SERVER_AUTH" "$@" 2> >(jq '.' >&2) 
+        -bq result -u "$SERVER_URL" -s "$SYSTEM" \
+        -sk "$SERVER_AUTH" "$@" 2> >(cat >&2) 
 }
 
 llc() {
