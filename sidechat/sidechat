@@ -204,7 +204,7 @@ server() {
     builtin read -p "  Enter URL: " input
     if [[ -n "$input" ]]; then
         case $input in 
-            prev) SERVER_URL_="$(cat "$CONFIG"/servers.txt | fzf)" ;;
+            prev) SERVER_URL_="$(cat "$CONFIG"/servers.txt | fzf | cut -d ' ' -f 1)" ;;
             or) getkey=1; SERVER_URL_=https://openrouter.ai/api ;;
             ollama) SERVER_URL_=http://localhost:11434 ;;
             llama) SERVER_URL_=http://localhost:8080 ;;
