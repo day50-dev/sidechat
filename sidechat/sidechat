@@ -270,9 +270,10 @@ edit() {
         {
          sd --help | grep '^  config' | rev | cut -d ' ' -f 1 | rev;
          echo $convo_id;
-         echo $SETTINGS;
-         echo $CONFIG/memories.json;
-         echo $CONFIG/mcp.json;
+         echo "$SETTING"
+         echo "$CONFIG/memories.json"
+         echo "$CONFIG/mcp.json"
+         echo "$CONFIG/servers.txt";
         } | fzf --style full --preview "batcat {}"
     )
     [[ -z "$fname" ]] && _warn Cancelled || $EDITOR "$fname"
