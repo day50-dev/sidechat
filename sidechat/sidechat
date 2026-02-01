@@ -230,6 +230,9 @@ server() {
             echo
             key
         fi
+        if [[ "$SERVER_URL" =~ 11434 ]]; then
+            echo "Currently running **"$(curl -s "$SERVER_URL"/api/ps | jq -r '.models[0].name')"**" | $MDREAD
+        fi
     else
         _warn "Cancelled"
     fi
