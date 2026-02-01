@@ -223,6 +223,7 @@ server() {
             fi
         fi
             
+        touch "$CONFIG/servers.txt" 
         grep -c "$SERVER_URL" "$CONFIG/servers.txt" > /dev/null || echo "$SERVER_URL" >> "$CONFIG/servers.txt"
         save_pref SERVER_URL "$SERVER_URL"
         if [[ -n "$getkey" && -z "$SERVER_AUTH" ]]; then
