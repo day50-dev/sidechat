@@ -270,7 +270,7 @@ edit() {
         {
          sd --help | grep '^  config' | rev | cut -d ' ' -f 1 | rev;
          echo $convo_id;
-         echo "$SETTING"
+         echo "$SETTINGS"
          echo "$CONFIG/memories.json"
          echo "$CONFIG/mcp.json"
          echo "$CONFIG/servers.txt";
