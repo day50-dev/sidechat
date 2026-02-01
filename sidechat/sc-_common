@@ -23,7 +23,6 @@ MDREAD='sd -c <(echo -e "[style]\nMargin = 4")'
 
 clean() {
     tput cnorm
-    exit
 }
 
 spinner() {

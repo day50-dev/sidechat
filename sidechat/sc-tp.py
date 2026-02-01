@@ -35,8 +35,23 @@ if tool_name == "list_files":
     rpc([f.name for f in DIR.glob("*")])
 
 elif tool_name == "read_file":
-    with open(Path(args.get('path')).expanduser() / args.get('filename'), 'r') as r:
-        rpc(r.read())
+    file_path = Path(args.get('path') or '.').expanduser() / args.get('filename')
+    
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        
+        formatted_lines = []
+        for i, line in enumerate(lines, 1):
+            formatted_lines.append(f"<line number={i}>{line}</line>")
+        
+        rpc("".join(formatted_lines))
+    except Exception as e:
+        rpc({
+            "ok": False,
+            "error": str(e),
+            "path": str(file_path)
+        })
 
 elif tool_name == "read_man_section":
     rpc(subprocess.run(
