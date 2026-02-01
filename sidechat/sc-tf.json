@@ -19,7 +19,7 @@
     "type": "function",
     "function": {
       "name": "read_file",
-      "description": "Read a file in a given path",
+      "description": "Read a file and return content with XML line numbering. Output format: <line number=N>{line content}</line> for each line. Use line numbers from output to make precise edits.", 
       "parameters": {
         "type": "object",
         "properties": {
