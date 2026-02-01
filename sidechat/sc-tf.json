@@ -56,6 +56,23 @@
   {
     "type": "function",
     "function": {
+      "name": "read_pydoc",
+      "description": "Show the pydoc for some object",
+      "parameters": {
+        "type": "object",
+        "properties": {
+            "object": {
+                "type": "object",
+                "description": "The object to get the documentation on"
+            }
+        },
+        "required": ["object"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "read_man_section",
       "description": "Show a contextual snippet of a man page",
       "parameters": {
