@@ -18,21 +18,66 @@
   {
     "type": "function",
     "function": {
+      "name": "create_file",
+      "description": "Create a file at a given path",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "A relative path to create a file"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "edit_file",
+      "description": "Edit a file by replacing content between specific lines or replacing specific text",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to the file to edit"
+          },
+          "line_start": {
+            "type": "integer",
+            "description": "The starting line number to replace (inclusive)"
+          },
+          "line_end": {
+            "type": "integer",
+            "description": "The ending line number to replace (inclusive)"
+          },
+          "old_content": {
+            "type": "string",
+            "description": "The specific text to replace"
+          },
+          "new_content": {
+            "type": "string",
+            "description": "The new content to insert"
+          }
+        },
+        "required": ["path", "filename", "line_start", "line_end", "old_content", "new_content"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "read_file",
       "description": "Read a file and return content with XML line numbering. Output format: <line number=N>{line content}</line> for each line. Use line numbers from output to make precise edits.", 
       "parameters": {
         "type": "object",
         "properties": {
-          "filename": {
-            "type": "string",
-            "description": "The name of the file to read"
-          },
           "path": {
             "type": "string",
             "description": "The path of the flie"
           }
         },
-        "required": ["filename", "path"]
+        "required": ["path"]
       }
     }
   },

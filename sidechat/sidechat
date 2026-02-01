@@ -15,6 +15,7 @@ DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command
 USECLIP=
 LAUNCH="$0"
 RETRY=
+NEWCONVO=
 
 [[ "$_uname" == "Darwin" ]] && msize="-f %z" || msize="-c %s"
      
@@ -84,7 +85,9 @@ nlchomp() {
 }
 
 sys_prompt() {
-    SYSTEM="You're an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and don't argue. Your job is mostly either small things like syntax or arcane knowledge. It's generally not architecture or design. Assume they've already tried what a competent engineer would do.  You will get capture-pane -p followed by questions when the pane output changes. Run tools when appropriate. They are using $(uname -ar). Notices come to you like (Note: <message>). They can do the following: $(help | nlchomp)"
+
+    # Try to not use contractions to keep escaping clean
+    SYSTEM="You are an interactive buddy in tmux talking to a competent engineer whose instincts are better than yours. If they disagree with you, trust them and do not argue. Your job is mostly either small things like syntax or arcane knowledge. It is generally not architecture or design. Assume they have already tried what a competent engineer would do. You will get capture-pane -p followed by questions when the pane output changes. Run tools when appropriate. They are using $(uname -ar). Notices come to you like (Note: <message>). They can do the following: $(help | nlchomp)"
 
     if [[ -s "$CONFIG/memories.json" ]]; then
         SYSTEM="$SYSTEM. User memories are [ $(jq -r ".[]" "$CONFIG/memories.json" | sed -E 's/your?\s/user /ig' | nlchomp ) ]"
@@ -351,11 +354,17 @@ last() {
 }
 
 ll() {
-    local tool=
+    local tool=()
+    local system=()
     [[ "$TOOLS" == "ON" ]] && tool=( "-tf" "$DIR/sc-tf.json" "-tp" "$DIR/sc-tp.py" "-mf" "$CONFIG/mcp.json" )
 
+    if [[ -n "$NEWCONVO" ]]; then
+        system=("-s" "$SYSTEM")
+        NEWCONVO=
+    fi
+
     llcat -c "$convo_id" "${tool[@]}" \
-        -bq result -u "$SERVER_URL" -s "$SYSTEM" \
+        -bq result -u "$SERVER_URL" "${system[@]}" \
         -sk "$SERVER_AUTH" "$@" 2> >(cat >&2) 
 }
 
@@ -368,6 +377,7 @@ newconvo() {
     convo_id=$(mktemp "$MDIR/c-$day-XXXX")
     echo $convo_id > "$MDIR/${pane_id}.convo"
     _warn "New convo is $convo_id"
+    NEWCONVO=1
 }
 
 mindwipe() {

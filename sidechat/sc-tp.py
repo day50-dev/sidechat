@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --with Levenshtein python
 import json, sys, os, subprocess
 from pathlib import Path
 import platform
+from Levenshtein import ratio
 
 CONFIG=".config"
 if platform.system() == "Darwin":
@@ -34,12 +35,20 @@ if tool_name == "list_files":
     DIR = Path(args.get('path') or '.').expanduser()
     rpc([f.name for f in DIR.glob("*")])
 
-
 elif tool_name == "create_file":
-    file_path = Path(args.get('path') or '.').expanduser() / args.get('filename')
+    file_path = Path(args.get('path') or '.').expanduser()
+    if file_path.exists():
+        rpc({
+            "ok": False,
+            "reason": f"path {file_path} already exists"
+            })
+        sys.exit(0)
+
+    fd = os.open(file_path, os.O_CREAT | os.O_WRONLY)
+    rpc({"ok": True, "message": f"File created: {file_path}"})
 
 elif tool_name == "edit_file":
-    file_path = Path(args.get('path') or '.').expanduser() / args.get('filename')
+    file_path = Path(args.get('path') or '.').expanduser() 
     line_start = args.get('line_start')
     line_end = args.get('line_end')
     old_content = args.get('old_content')
@@ -59,14 +68,17 @@ elif tool_name == "edit_file":
         
         # Get the actual content being edited
         lines_in_range = ''.join(lines[line_start - 1:line_end])
+
+        similarity = ratio(lines_in_range, old_content)
         
         # Verify content matches (sanity check)
-        if lines_in_range != old_content:
+        if similarity < 0.8:
             rpc({
                 "ok": False,
                 "reason": "Content mismatch. Reread the file",
                 "line_start": line_start,
                 "line_end": line_end,
+                "similarity": similarity,
                 "expected": old_content[:100],  # partial view for debugging
                 "actual": lines_in_range[:100]
             })
@@ -83,6 +95,7 @@ elif tool_name == "edit_file":
             "path": str(file_path),
             "line_start": line_start,
             "line_end": line_end,
+            "similarity": similarity,
             "old_length": line_end - line_start + 1,
             "new_length": 1 if line_start == line_end else len(lines[line_end:]) + 1
         })
@@ -95,7 +108,7 @@ elif tool_name == "edit_file":
         })
 
 elif tool_name == "read_file":
-    file_path = Path(args.get('path') or '.').expanduser() / args.get('filename')
+    file_path = Path(args.get('path') or '.')
     
     try:
         with open(file_path, 'r') as f:
