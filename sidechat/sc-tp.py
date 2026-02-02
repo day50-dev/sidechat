@@ -109,13 +109,36 @@ elif tool_name == "edit_file":
 
 elif tool_name == "read_file":
     file_path = Path(args.get('path') or '.')
+    line_start = args.get('line_start')
+    line_end = args.get('line_end')
     
     try:
         with open(file_path, 'r') as f:
             lines = f.readlines()
         
+        # Handle line range
+        total_lines = len(lines)
+        if line_start is not None or line_end is not None:
+            # Default values if not provided
+            start = line_start if line_start is not None else 1
+            end = line_end if line_end is not None else total_lines
+            
+            # Validate line range
+            if start < 1 or end > total_lines or start > end:
+                rpc({
+                    "ok": False,
+                    "reason": f"Invalid line range: line_start={start}, line_end={end}, total_lines={total_lines}"
+                })
+                sys.exit(0)
+            
+            # Slice lines to requested range
+            lines = lines[start - 1:end]
+            line_offset = start - 1
+        else:
+            line_offset = 0
+        
         formatted_lines = []
-        for i, line in enumerate(lines, 1):
+        for i, line in enumerate(lines, 1 + line_offset):
             formatted_lines.append(f"<line number={i}>{line}</line>")
         
         rpc("".join(formatted_lines))

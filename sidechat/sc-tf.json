@@ -75,6 +75,14 @@
           "path": {
             "type": "string",
             "description": "The path of the flie"
+          },
+          "line_start": {
+            "type": "integer",
+            "description": "Optional starting line number to read from (1-indexed)"
+          },
+          "line_end": {
+            "type": "integer",
+            "description": "Optional ending line number to read to (inclusive)"
           }
         },
         "required": ["path"]
