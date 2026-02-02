@@ -108,7 +108,7 @@ elif tool_name == "edit_file":
         })
 
 elif tool_name == "read_file":
-    file_path = Path(args.get('path') or '.')
+    file_path = Path(args.get('path') or '.').expanduser()
     line_start = args.get('line_start')
     line_end = args.get('line_end')
     

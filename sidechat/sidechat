@@ -69,6 +69,7 @@ help() {
 END
   if [[ "$#" -ne 0 ]]; then 
 cat <<END
+  /amnesia  - Like mindwipe but take some ideas with you
   /model | /server | /key - change the {model, server, key}
   /prev     - Load a previous conversation
   /flash    - Flash the shared panes
@@ -380,6 +381,12 @@ newconvo() {
     NEWCONVO=1
 }
 
+amnesia() {
+    newconcepts=$(llc 'list out all the desires of this conversation as a json array following the format "User wants to " followed by a description of what the user wants to do. Also list the topics in the format "Topic is..." and if there are open or difficulties "We are working on...". If the user has specified preferences list those as well.' | fzf --multi)
+    newconvo
+    echo "Injecting: $newconcepts" | $MDREAD
+    llc "$newconcepts" | $MDREAD
+}
 mindwipe() {
     sys_prompt
     newconvo
@@ -447,6 +454,7 @@ capture() {
 clip_nvim() {
     nvim --headless --cmd "echo getreg('+')" --cmd "qa" 2>&1
 }
+
 
 clip() {
     USECLIP=
@@ -596,7 +604,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (choose|clip|capture|dui|edit|flash|key|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
+        elif [[ $input =~ (choose|clip|capture|dui|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
             ${input:1}
         else
             help 1
