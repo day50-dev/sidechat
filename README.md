@@ -29,7 +29,7 @@ It suppports
  
 **Sidechat** sits agnostically on top of tmux. There's no substantive workflow change needed. You can just beckon your trusty friend at your leisure. 
 
-Unlike opencode and friends you don't have to edit a freakin json file to use a local model nor do you have to violate the single-source-of-truth pattern and specify your own copy of the models that can be trivially found by using a basic end point. You don't have to do stupid shit in sidechat.
+Unlike opencode and friends you don't have to edit a freakin json file to use a local model nor do you have to violate the single-source-of-truth pattern and specify your own copy of the models that can be trivially found by using a basic end point. You don't have to do that stupid shit that causes sync problems in sidechat.
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
