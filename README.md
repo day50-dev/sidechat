@@ -21,6 +21,7 @@ It suppports
  * reading from multiple clipboards
  * tool calling
  * MCP
+ * context editing (try `/edit`)
  * agentic loops
  * cycling pane focus
  * local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
@@ -31,7 +32,7 @@ It suppports
 
 Unlike opencode and friends you don't have to edit a json file to use a local model nor do you have to violate the single-source-of-truth pattern and specify your own copy of the models that can be trivially found by using a basic end point. 
 
-We also know that "local model" means "model I control the infra for" and not necessarily something running on the same exact computer. So when you enter server addresses they get maintained in a list you can toggle through. You can even leave notes in them (only the first space delimited field is used). It's almost like adults made it.
+We also know that "local model" means "model I control the infra for" and not necessarily something running on the same exact computer. So when you enter server addresses they get maintained in a list you can toggle through. You can even leave notes in them.
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
@@ -66,4 +67,17 @@ Here's some screenshots of how it seamlessly works with [Streamdown's](https://g
 Also you don't need `tmux`! Often you'll be doing things and then realize you want the talk party and you're not in tmux.
 
 That's fine! If you use DAY50's [streamdown](https://github.com/day50-dev/Streamdown),  `sc-picker` works like it does inside tmux. You can also `sc-add` by id. It's not great but you're not locked in. That's the point!
+
+## Advanced features
+
+### Amnesia
+`/amnesia` is a selective memory feature to fight against context rot. I 
+
+ * Use `/prev` to see the previous conversations
+ * Scroll up (or use the fzf fuzzy finder) to find one I want to talk about
+ * Use `/amnesia` to get a summary of the conversation
+ * Use fzf to select the topics I want to carry on to the new context
+ * Then a new context is made, the concepts get injected and we're ready to go
+
+https://github.com/user-attachments/assets/03f5e3cb-594b-44a1-a6f1-013ad066bfc6
 
