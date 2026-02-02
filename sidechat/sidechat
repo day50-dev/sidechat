@@ -323,9 +323,13 @@ choose() {
 
 getlast(){
     local wid=$(( $(tput cols) / 2 ))
-    find $MDIR -name c-\* -size +0c | \
-        rev | cut -d '/' -f 1 | rev | \
-        fzf --style full --preview "sd -w $wid <(jq -r '.[] | select(.role != \"system\") | \"\n**\(.role)**: \(.content)\"' \"$MDIR\"/{} | tail -40)"
+    {
+        cd $MDIR
+        fzf --disabled \
+            --bind 'start:reload:find . -type f -size +0c -name c\*' \
+            --bind 'change:reload:grep -l {q} c* || true' \
+            --style full --preview "sd -w $wid <(jq -r '.[] | select(.role != \"system\") | \"\n**\(.role)**: \(.content)\"' \"$MDIR\"/{} | tail -40)";
+    }
 }
 
 prev() {

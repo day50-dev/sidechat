@@ -60,7 +60,7 @@
             "description": "The new content to insert"
           }
         },
-        "required": ["path", "filename", "line_start", "line_end", "old_content", "new_content"]
+        "required": ["path", "line_start", "line_end", "old_content", "new_content"]
       }
     }
   },
