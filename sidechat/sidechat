@@ -382,7 +382,7 @@ newconvo() {
 }
 
 amnesia() {
-    newconcepts=$(llc 'list out all the desires of this conversation as a json array following the format "User wants to " followed by a description of what the user wants to do. Also list the topics in the format "Topic is..." and if there are open or difficulties "We are working on...". If the user has specified preferences list those as well.' | fzf --multi)
+    newconcepts=$(llc 'list out all the desires of this conversation as a json array following the format "User wants to " followed by a description of what the user wants to do. Also list the topics in the format "Topic is..." and if there are open or difficulties "We are working on...". If the user has specified preferences list those as well.' | grep -Ev '(```|\[|\])' | fzf --multi)
     newconvo
     echo "Injecting: $newconcepts" | $MDREAD
     llc "$newconcepts" | $MDREAD
