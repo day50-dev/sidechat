@@ -67,3 +67,16 @@ Also you don't need `tmux`! Often you'll be doing things and then realize you wa
 
 That's fine! If you use DAY50's [streamdown](https://github.com/day50-dev/Streamdown),  `sc-picker` works like it does inside tmux. You can also `sc-add` by id. It's not great but you're not locked in. That's the point!
 
+## Advanced features
+
+### Amnesia
+`/amnesia` is a selective memory feature to fight against context rot. I 
+
+ * Use `/prev` to see the previous conversations
+ * Scroll up (or use the fzf fuzzy finder) to find one I want to talk about
+ * Use `/amnesia` to get a summary of the conversation
+ * This time I use fzf to select the topics I want to carry on to the new context
+ * Then a new context is made, the concepts get injected and we're ready to go
+
+https://github.com/user-attachments/assets/03f5e3cb-594b-44a1-a6f1-013ad066bfc6
+
