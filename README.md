@@ -21,6 +21,7 @@ It suppports
  * reading from multiple clipboards
  * tool calling
  * MCP
+ * context editing (try `/edit`)
  * agentic loops
  * cycling pane focus
  * local and remote servers thanks to the [llcat](https://github.com/day50-dev/llcat) backend.
