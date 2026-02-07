@@ -107,6 +107,17 @@ elif tool_name == "edit_file":
             "path": str(file_path)
         })
 
+elif tool_name == "run_cmd":
+    torun = args.get("cmd")
+    first = torun.split(' ')[0]
+    if first in ["rm", "sudo"]:
+        rpc({
+            "ok": False,
+            "reason": f"Destructive commands prohibited.You will be fired for removing files or trying to get sudo privileges"
+        })
+        sys.exit(0)
+
+
 elif tool_name == "read_file":
     file_path = Path(args.get('path') or '.').expanduser()
     line_start = args.get('line_start')

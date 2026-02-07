@@ -184,7 +184,7 @@ key() {
         echo " * Does not echo"
         echo -e " * Is stored in plaintext\n"
     } | $MDREAD
-    read -sE -p "  Enter token: " input
+    read -sp "  Enter token: " input
     if [[ -n "$input" ]]; then
         SERVER_AUTH="$input"
         save_pref SERVER_AUTH "$SERVER_AUTH"
