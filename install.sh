@@ -11,8 +11,6 @@ if ! command -v unzip > /dev/null; then
 fi
 
 if [[ $PIP =~ /pipx$ ]]; then 
-    PIP="$PIP upgrade --install"
-    pybin=$(pipx environment 2> /dev/null | grep PIPX_BIN_DIR=/ | cut -d = -f 2)
     # really old pipx - apps is used even in the intl tests i did
     if [[ -z "$pybin" ]]; then
         pybin=$(pipx --help | grep apps | awk ' { print $NF } ' | grep \/ | sed 's/\.$//g;')
@@ -35,7 +33,6 @@ else
     sd="$pybin/sd"
 fi
 
-set -eEuo pipefail
 trap 'echo "Error on line $LINENO"; read -rp "Press enter to exit..."; exit 1' ERR
 echo -e "\n  INSTALLING\n"
 
@@ -60,7 +57,13 @@ done
 
 for pkg in mansnip llcat streamdown; do
     echo "  ✅ $pkg"
-    $PIP $pkg &> /dev/null
+    if ! $PIP $pkg &> /dev/null; then
+        if pipx list |& grep $pkg >/dev/null; then
+            pipx upgrade $pkg
+        else
+            pipx install $pkg
+        fi
+    fi
 done
 
 if [[ ! -d ~/.fzf ]]; then
