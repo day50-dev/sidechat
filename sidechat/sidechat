@@ -274,6 +274,7 @@ set_prompt() {
 
 edit() {
     local _cat=$(command -v batcat || command -v cat)
+    local _edit=${EDITOR:-vi}
 
     local fname=$(
         {
@@ -285,7 +286,7 @@ edit() {
          echo "$CONFIG/servers.txt";
         } | fzf --style full --preview "$_cat {}"
     )
-    [[ -z "$fname" ]] && _warn Cancelled || $EDITOR "$fname"
+    [[ -z "$fname" ]] && _warn Cancelled || $_edit "$fname"
 }
 
 choose() {
