@@ -273,6 +273,8 @@ set_prompt() {
 }
 
 edit() {
+    local _cat=$(command -v batcat || command -v cat)
+
     local fname=$(
         {
          sd --help | grep '^  config' | rev | cut -d ' ' -f 1 | rev;
@@ -281,7 +283,7 @@ edit() {
          echo "$CONFIG/memories.json"
          echo "$CONFIG/mcp.json"
          echo "$CONFIG/servers.txt";
-        } | fzf --style full --preview "batcat {}"
+        } | fzf --style full --preview "$_cat {}"
     )
     [[ -z "$fname" ]] && _warn Cancelled || $EDITOR "$fname"
 }
