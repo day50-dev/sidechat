@@ -1,9 +1,9 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/sidechat
-PIP=$(command -v pipx || command -v pip || command -v pip3 )
+PIP=$(command -v uv || command -v pipx || command -v pip || command -v pip3 )
 pybin=
 if [[ -z "$PIP" ]]; then 
-    echo "Woops, we need python and either pip or pipx."
+    echo "Woops, we need python and either uv, pip or pipx."
     exit 1
 fi
 if ! command -v unzip > /dev/null; then
@@ -15,6 +15,8 @@ if [[ $PIP =~ /pipx$ ]]; then
     if [[ -z "$pybin" ]]; then
         pybin=$(pipx --help | grep apps | awk ' { print $NF } ' | grep \/ | sed 's/\.$//g;')
     fi
+elif [[ $PIP =~ /uv$ ]]; then 
+    PIP="$PIP tool install --force"
 else
     PIP="$PIP install --user"
     if [[ $(uname) == "Linux" || "$(pip3 --version | grep homebrew | wc -l)" != 0 ]]; then
