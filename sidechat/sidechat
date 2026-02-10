@@ -24,7 +24,7 @@ _warn() {
 }
 
 show_params() {
-    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" | tr '%\n' '_;' )"
+    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" >& /dev/null | tr '%\n' '_;' )"
     {
         echo -n "  * **Shared:** [ "
         for _ix in "${pane_list[@]}"; do
