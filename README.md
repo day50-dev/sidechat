@@ -36,9 +36,6 @@ We also know that "local model" means "model I control the infra for" and not ne
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
-There's an agentic mode. We call it DUI. Enable it with `/dui`.
-![2025-05-15_18-50](https://github.com/user-attachments/assets/d1da6063-b450-49f8-863d-fcf0c32647fc)
-
 
 You should also use `sc-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)

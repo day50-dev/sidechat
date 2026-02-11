@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DUI=OFF
 TOOLS=ON
 CAPTURE="ON"
 # Loads settings overrides
@@ -10,8 +9,6 @@ HISTSIZE=1000
 INJECT=
 MDREAD='sd -c <(echo -e "[style]\nMargin = 4")'
 LLM_MODEL=
-[[ -r "$MDIR/DUI" ]] || echo OFF > "$MDIR/DUI"
-DUIPROMPT='(Note: You are now in Do-Ur-Inspection mode: the contents of "command" code blocks with a syntax type AGENT will run. For example, ```AGENT\nls``` will run ls. Only run what is necessary. Remember, if you mention it N times, N things will run, so use it carefully. If you want the user to run something, do not use the special syntax. That is only for you. Your current path is '$PWD')'
 USECLIP=
 LAUNCH="$0"
 RETRY=
@@ -68,7 +65,6 @@ help() {
   /clip     - Select text into the clipboard as context
   /mindwipe - Forget this crazy world and start over
   /sshot    - Raster screenshot
-  /dui      - Toggle agentic (now: $DUI)
   /capture  - Toggle capture (now: $CAPTURE)
   cmd | sc-add [-c cid] [prompt] - Add the output of cmd to the context
 END
@@ -275,12 +271,10 @@ models() {
 
 set_prompt() {
     local camera=""
-    local dui=""
     local clipboard=""
     [[ -n "$INTMUX" && "$CAPTURE" == "ON" ]] && camera="📷"
-    [[ "$DUI" == "ON" ]] && dui="🚗"
     [[ -n "$USECLIP" ]] && clipboard='📋'
-    prompt="${camera}${dui}${clipboard} > "
+    prompt="${camera}${clipboard} > "
 }
 
 edit() {
@@ -412,42 +406,6 @@ mindwipe() {
     forcecapture=1
 }
 
-process_cmd() {
-    infile="$1"
-    n=$2
-    local base="${infile}.${n}"
-    {
-        local llm_in="${base}-IN"
-        local llm_parse="${base}-OUT"
-        #echo $llm_in $llm_parse
-        err=0
-
-        for cmdfile in $(cat "$base" | "$DIR/sc-_parse.py" -r '```AGENT\n(.*)```' -b "$llm_parse"); do
-            #echo "## $cmdfile"
-            if [[ $DUI == "ON" ]]; then
-                cmd=$( < "$cmdfile" )
-                cat "$cmdfile" | grep -v '^$' | tee -a "$llm_in" | sed 's/^/### /g' 
-                echo '```bash'
-                { 
-                    echo "set -eEuo pipefail"; 
-                    cat "$cmdfile"; } > "${cmdfile}.safe"
-                {
-                    bash "${cmdfile}.safe" | tee -a $llm_in | head -30
-                    [[ $? -ne 0 ]] && err=$?
-                }
-                echo '```'
-            else
-                echo "~~ $match ~~ "
-            fi
-        done
-
-        if [[ $err == 0 && "$DUI" == "ON" && -s "$llm_in" ]]; then
-            (( n++ ))
-            cat "$llm_in" | ll "You ran Do-Ur-Inspection commands"   
-        fi
-    } | $MDREAD
-}
-
 capture() {
     if [[ "$CAPTURE" == "ON" ]]; then
         echo "Capturing off. Shades are drawn!"
@@ -559,19 +517,6 @@ clip() {
     fi
 }
 
-dui() {
-    if [[ "$DUI" == "ON" ]]; then
-        DUI=OFF
-        echo "Sobering up.";
-        llc "(Note: Do-Ur-Inspection is now off. Do not talk about it. It no longer exists. Piping into sc-add is still available)"
-    else
-        DUI=ON
-        echo "Fuck it, let's roll!"
-        llc "$DUIPROMPT"
-    fi
-    save_prev DUI "$DUI"
-} 
-
 
 emit_capture() {
     local ix=$1
@@ -623,7 +568,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (choose|clip|capture|dui|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
+        elif [[ $input =~ (choose|clip|capture|edit|flash|key|amnesia|mindwipe|models|prev|retry|server|tools|upgrade|update) ]]; then
             ${input:1}
         else
             help 1
@@ -677,12 +622,4 @@ while [ 0 ]; do
     [[ -n "$USECLIP" ]]      && USECLIP=
     [[ -n "$forcecapture" ]] && forcecapture=
     set_prompt
-
-    if [[ "$DUI" == "ON" ]]; then
-        while true; do
-            process_cmd "$in" $n
-            (( n++ ))
-            [[ -s "${in}.${n}" ]] || break
-        done
-    fi
 done
