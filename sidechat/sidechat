@@ -568,7 +568,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (choose|clip|capture|edit|flash|key|amnesia|mindwipe|models|prev|retry|server|tools|upgrade|update) ]]; then
+        elif [[ $input =~ (choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
             ${input:1}
         else
             help 1
