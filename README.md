@@ -19,7 +19,7 @@ It suppports
     * external context
     * memories 
  * reading from multiple clipboards
- * tool calling
+ * tool calling ... even for models that don't support it. 
  * MCP
  * context editing (try `/edit`)
  * agentic loops
