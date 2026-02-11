@@ -13,6 +13,7 @@ USECLIP=
 LAUNCH="$0"
 RETRY=
 NEWCONVO=
+CANTOOLS=0
 
 tty=$(tty)
 tmux list-panes -a -F '#{pane_tty}' 2>/dev/null | grep -qx "$tty"
@@ -260,8 +261,15 @@ model() {
     [[ -z "$INTMUX" ]] && _fzf=fzf
     chosen=$(ll -m | sort | $_fzf )
     if [[ -n "$chosen" ]]; then
-      echo "  Setting model to \`$chosen\`" | $MDREAD
+
+      echo " * Setting model to \`$chosen\`." | $MDREAD
       save_pref LLM_MODEL "$chosen"
+
+      echo " * Checking for tool support..." | $MDREAD
+      llcat -u "$SERVER_URL" -m "$LLM_MODEL" --info | grep tool > /dev/null
+      CANTOOLS=$?
+      save_pref CANTOOLS "$CANTOOLS"
+      toolhack
     fi
 }
 
@@ -352,10 +360,22 @@ prev() {
     fi
 }
 
+toolhack() {
+    if [[ "$CANTOOLS" == 1 && "$TOOLS" == "ON" ]]; then
+        echo ' * No formal toolcall support. Using the hack! ' | $MDREAD
+        sys_prompt
+        save_pref TOOLS "OFF"
+        SYSTEM+=". IMPORTANT: To call tools Respond only with the json '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"<insert function name>\",\"arguments\":{<insert paramaters here>}}}'. You will get the response in the reply. Here are the tools you can call $(jq -r '.[].function' "$DIR/sc-tf.json" | tr "\n" " " | sed -E "s/\s+/ /g")"
+        # force system-prompt re-injection
+        NEWCONVO=1
+    fi
+}
+
 tools() {
     [[ "$TOOLS" == "ON" ]] && TOOLS="OFF" || TOOLS="ON"
     _warn "Tools are ${TOOLS@L}" 
     save_pref TOOLS "$TOOLS"
+    toolhack
 }
 
 last() {
@@ -370,7 +390,7 @@ last() {
 ll() {
     local tool=()
     local system=()
-    [[ "$TOOLS" == "ON" ]] && tool=( "-tf" "$DIR/sc-tf.json" "-tp" "$DIR/sc-tp.py" "-mf" "$CONFIG/mcp.json" )
+    [[ "$TOOLS" == "ON" && "$CANTOOLS" == "0" ]] && tool=( "-tf" "$DIR/sc-tf.json" "-tp" "$DIR/sc-tp.py" "-mf" "$CONFIG/mcp.json" )
 
     if [[ -n "$NEWCONVO" ]]; then
         system=("-s" "$SYSTEM")
@@ -530,6 +550,31 @@ emit_capture() {
     cat "$MDIR/${ix}.new"
     echo "</capture>"
 }
+process_out() {
+    read -r -N 1 firstc
+    if [[ "$firstc" == "{" ]]; then
+        echo "Running tool"
+        {
+            echo '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"mcpcat","version":"1.0"}}}'
+            echo -n "{";
+            cat
+        } > $MDIR/tc-input 
+        cat $MDIR/tc-input | tr "'" '"' | "$DIR/sc-tp.py" > $MDIR/tc-output
+        echo "Feeding it back..."
+        {
+            echo "This is the result of the tool call:"
+            echo "\`\`\`"
+            cat "$MDIR/tc-output"
+            echo "\`\`\`"
+            echo "You can call an additional tool. If you are done calling tools, respond in normal written english."
+        } | llc | spinner process_out
+    else
+        {
+            echo -n "$firstc"
+            cat 
+        } | $MDREAD
+    fi
+}
 
 onload $@
 
@@ -569,7 +614,7 @@ while [ 0 ]; do
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
         elif [[ $input =~ (choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
-            ${input:1}
+            ${input:1} "${input#* }"
         else
             help 1
         fi
@@ -613,7 +658,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | llc $ata "${text}${INJECT}" | spinner $MDREAD 
+    } | llc $ata "${text}${INJECT}" | spinner process_out 
 
     # Needs to be run here and not in any subshell
     RETRY=
