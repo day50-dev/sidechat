@@ -1,0 +1,13 @@
+name: Test Installer
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-installer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run installer
+        run: curl -fsSL day50.dev/sidechat | sh
