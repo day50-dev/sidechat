@@ -280,9 +280,11 @@ models() {
 set_prompt() {
     local camera=""
     local clipboard=""
+    local tools=""
+    [[ "$TOOLS" == "ON" ]] && tools="🔧"
     [[ -n "$INTMUX" && "$CAPTURE" == "ON" ]] && camera="📷"
     [[ -n "$USECLIP" ]] && clipboard='📋'
-    prompt="${camera}${clipboard} > "
+    prompt="${camera}${tools}${clipboard} > "
 }
 
 edit() {
