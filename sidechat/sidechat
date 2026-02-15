@@ -630,7 +630,11 @@ while [ 0 ]; do
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
         elif [[ $input =~ (choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
-            ${input:1} "${input#* }"
+            if [[ "$intput" == *" "* ]]; then
+                ${input:1} "${input#* }"
+            else
+                ${input:1}
+            fi
         else
             help 1
         fi
