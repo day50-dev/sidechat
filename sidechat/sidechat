@@ -194,6 +194,7 @@ key() {
         _warn "Cancelled. (To clear a key, replace it with something bogus, like a space)"
     fi
 }
+
 server() {
     local SERVER_URL_
     local input
@@ -202,6 +203,7 @@ server() {
         echo " * Should include the schema, such as \`http://\` or \`https://\`"
         echo " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)"
         echo " * Can be some special values: "
+        echo "   * \`[MAS format](https://day50.dev/mas.html)\` - http://(host)#m=(model)"
         echo "   * \`prev\`   - choose from prior servers"
         echo "   * \`or\`     - openrouter"
         echo "   * \`ollama\`  - ollama    (local)"
@@ -229,6 +231,12 @@ server() {
             fi
         fi
             
+        if [[ "${SERVER_URL}" =~ "#m=" ]]; then
+            LLM_MODEL="${SERVER_URL#*#m=}"
+            SERVER_URL="${SERVER_URL%%#m=*}"
+            model "$LLM_MODEL"
+        fi
+
         touch "$CONFIG/servers.txt" 
         grep -c "$SERVER_URL" "$CONFIG/servers.txt" > /dev/null || echo "$SERVER_URL" >> "$CONFIG/servers.txt"
         save_pref SERVER_URL "$SERVER_URL"
@@ -237,7 +245,7 @@ server() {
             key
         fi
         if [[ "$SERVER_URL" =~ 11434 ]]; then
-            echo "Currently running **"$(curl -s "$SERVER_URL"/api/ps | jq -r '.models[0].name')"**" | $MDREAD
+            echo "Currently running **"$(curl -s "$SERVER_URL"/api/ps | jq -r '.models[0].name')"**. (null is good)" | $MDREAD
         fi
     else
         _warn "Cancelled"
@@ -258,8 +266,14 @@ check() {
 model() {
     check server
     local _fzf=fzf-tmux
-    [[ -z "$INTMUX" ]] && _fzf=fzf
-    chosen=$(ll -m | sort | $_fzf )
+
+    if [[ -n "$1" ]]; then
+        chosen="$1"
+    else
+        [[ -z "$INTMUX" ]] && _fzf=fzf
+        chosen=$(ll -m | sort | $_fzf )
+    fi    
+
     if [[ -n "$chosen" ]]; then
 
       echo " * Setting model to \`$chosen\`." | $MDREAD
