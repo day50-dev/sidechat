@@ -14,6 +14,8 @@ LAUNCH="$0"
 RETRY=
 NEWCONVO=
 CANTOOLS=0
+DRY=
+UNIQ=cat
 
 tty=$(tty)
 tmux list-panes -a -F '#{pane_tty}' 2>/dev/null | grep -qx "$tty"
@@ -406,6 +408,7 @@ last() {
 ll() {
     local tool=()
     local system=()
+    local dry=
     [[ "$TOOLS" == "ON" && "$CANTOOLS" == "0" ]] && tool=( "-tf" "$DIR/sc-tf.json" "-tp" "$DIR/sc-tp.py" "-mf" "$CONFIG/mcp.json" )
 
     if [[ -n "$NEWCONVO" ]]; then
@@ -413,7 +416,9 @@ ll() {
         NEWCONVO=
     fi
 
-    llcat -c "$convo_id" "${tool[@]}" \
+    [[ -n "$DRY" ]] && dry="--curlify"
+
+    llcat $dry -c "$convo_id" "${tool[@]}" \
         -bq result -u "$SERVER_URL" "${system[@]}" \
         -sk "$SERVER_AUTH" "$@" 2> >(cat >&2) 
 }
@@ -436,6 +441,7 @@ amnesia() {
     echo "Injecting: $newconcepts" | $MDREAD
     llc "$newconcepts" | $MDREAD
 }
+
 mindwipe() {
     sys_prompt
     newconvo
@@ -678,7 +684,7 @@ while [ 0 ]; do
             echo "</pane>"
          done
       fi
-    } | llc $ata "${text}${INJECT}" | spinner process_out 
+    } | $UNIQ | llc $ata "${text}${INJECT}" | spinner process_out 
 
     # Needs to be run here and not in any subshell
     RETRY=
