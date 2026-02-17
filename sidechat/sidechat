@@ -199,19 +199,21 @@ key() {
 
 server() {
     local SERVER_URL_
-    local input
-    {
-        echo -e "The server URL:\n"
-        echo " * Should include the schema, such as \`http://\` or \`https://\`"
-        echo " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)"
-        echo " * Can be some special values: "
-        echo "   * \`[MAS format](https://day50.dev/mas.html)\` - http://(host)#m=(model)"
-        echo "   * \`prev\`   - choose from prior servers"
-        echo "   * \`or\`     - openrouter"
-        echo "   * \`ollama\`  - ollama    (local)"
-        echo -e "   * \`llama\`  - llama.cpp (local)\n"
-    } | $MDREAD
-    builtin read -p "  Enter URL: " input
+    local input="$1"
+    if [[ -z "$input" ]]; then
+        {
+            echo -e "The server URL:\n"
+            echo " * Should include the schema, such as \`http://\` or \`https://\`"
+            echo " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)"
+            echo " * Can be some special values: "
+            echo "   * \`[MAS format](https://day50.dev/mas.html)\` - http://(host)#m=(model)"
+            echo "   * \`prev\`   - choose from prior servers"
+            echo "   * \`or\`     - openrouter"
+            echo "   * \`ollama\`  - ollama    (local)"
+            echo -e "   * \`llama\`  - llama.cpp (local)\n"
+        } | $MDREAD
+        builtin read -p "  Enter URL: " input
+    fi
     if [[ -n "$input" ]]; then
         case $input in 
             prev) SERVER_URL_="$(cat "$CONFIG"/servers.txt | fzf | cut -d ' ' -f 1)" ;;
@@ -281,6 +283,10 @@ model() {
       echo " * Setting model to \`$chosen\`." | $MDREAD
       save_pref LLM_MODEL "$chosen"
 
+      if ! grep "$LLM_MODEL" "$CONFIG/servers.txt" | grep -c $SERVER_URL > /dev/null; then
+          perl -i -pe "s^($SERVER_URL.*)^\$1 $LLM_MODEL^g" "$CONFIG/servers.txt"
+      fi
+      
       echo " * Checking for tool support..." | $MDREAD
       llcat -u "$SERVER_URL" -m "$LLM_MODEL" --info | grep tool > /dev/null
       CANTOOLS=$?
