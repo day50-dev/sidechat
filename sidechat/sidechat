@@ -29,7 +29,7 @@ _warn() {
 }
 
 show_params() {
-    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" >& /dev/null | tr '%\n' '_;' )"
+    eval "$(tmux list-panes -a -F "#{pane_id}=#{pane_index}" 2> /dev/null | tr '%\n' '_;' )"
     {
         echo -n "  * **Shared:** [ "
         for _ix in "${pane_list[@]}"; do
@@ -283,6 +283,7 @@ model() {
       echo " * Setting model to \`$chosen\`." | $MDREAD
       save_pref LLM_MODEL "$chosen"
 
+      touch "$CONFIG/servers.txt"
       if ! grep "$LLM_MODEL" "$CONFIG/servers.txt" | grep -c $SERVER_URL > /dev/null; then
           perl -i -pe "s^($SERVER_URL.*)^\$1 $LLM_MODEL^g" "$CONFIG/servers.txt"
       fi
