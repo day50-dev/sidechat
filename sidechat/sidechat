@@ -686,12 +686,18 @@ while [ 0 ]; do
                 else
                     emit_capture "$ix_pane"
                 fi
-                cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
             fi
             echo "</pane>"
          done
       fi
-    } | $UNIQ | llc $ata "${text}${INJECT}" | spinner process_out 
+    } | $UNIQ | {
+        # only update the snapshot if the llc is successful
+        if llc $ata "${text}${INJECT}"; then 
+            for ix_pane in "${pane_list[@]}"; do
+                cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
+            done
+        fi
+    } | spinner process_out 
 
     # Needs to be run here and not in any subshell
     RETRY=
