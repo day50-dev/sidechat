@@ -16,9 +16,13 @@ if [[ $PIP =~ /pipx$ ]]; then
         pybin=$(pipx --help | grep apps | awk ' { print $NF } ' | grep \/ | sed 's/\.$//g;')
     fi
 elif [[ $PIP =~ /uv$ ]]; then 
-    PIP="$PIP tool install --force"
+    PIPINSTALL="$PIP tool install --force"
+    PIPLIST="uv tool list"
+    PIPUPGRADE="uv tool upgrade"
 else
-    PIP="$PIP install --user"
+    PIPINSTALL="$PIP install --user"
+    PIPLIST="$PIP list"
+    PIPUPGRADE="$PIP upgrade"
     if [[ $(uname) == "Linux" || "$(pip3 --version | grep homebrew | wc -l)" != 0 ]]; then
         PIP="$PIP --break-system-packages "
     fi
@@ -59,11 +63,9 @@ done
 
 for pkg in mansnip llcat streamdown; do
     echo "  ✅ $pkg"
-    if ! $PIP $pkg &> /dev/null; then
-        if pipx list |& grep $pkg >/dev/null; then
-            pipx upgrade $pkg
-        else
-            pipx install $pkg
+    if ! $PIPINSTALL $pkg &> /dev/null; then
+        if $PIPLIST |& grep $pkg >/dev/null; then
+            $PIPUPGRADE $pkg
         fi
     fi
 done
