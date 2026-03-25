@@ -694,7 +694,7 @@ while [ 0 ]; do
         # only update the snapshot if the llc is successful
         if llc $ata "${text}${INJECT}"; then 
             for ix_pane in "${pane_list[@]}"; do
-                cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
+                [[ -e "$MDIR/${ix_pane}.new" ]] && cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
             done
         fi
     } | spinner process_out 
