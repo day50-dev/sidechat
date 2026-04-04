@@ -3,6 +3,7 @@
   <br/>
   <strong>A tmux-based AI assistant</strong>
 </p>
+
 Sidechat, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, is an LLM intervention in your tmux session
 
 It suppports 
