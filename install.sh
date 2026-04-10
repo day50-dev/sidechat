@@ -1,6 +1,9 @@
 #!/bin/bash
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/sidechat
 PIP=$(command -v uv || command -v pipx || command -v pip || command -v pip3 )
+JQ="" #$(command -v jq > /dev/null)
+
 pybin=
 if [[ -z "$PIP" ]]; then 
     echo "Woops, we need python and either uv, pip or pipx."
@@ -81,7 +84,7 @@ if [[ ! -d ~/.fzf ]]; then
     echo "  ✅ fzf"
 fi
 
-msg="You're ready to go!"
+[[ -z "$JQ" ]] && msg="**Important**: Please install jq manually" || msg="You're ready to go!"
 
 if [[ "$insdir" != "$pybin" ]]; then
     binpath="$insdir:$pybin"
@@ -119,6 +122,8 @@ if ! echo $PATH | grep "$binpath" > /dev/null; then
     fi
     msg="$msg or restart your shell."
 fi
+
+
 {
 cat <<ENDL
 
