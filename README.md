@@ -4,11 +4,7 @@
   <strong>A tmux-based AI assistant</strong>
 </p>
 
-Simple installer:
-
-    curl day50.dev/sidechat | sh
-
-Sidechat is an LLM intervention in your little terminal. 
+Sidechat, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, is an LLM conversation panel that helps diagnose problems visible in terminal sessions.
 
 It suppports 
 
@@ -36,6 +32,14 @@ We also know that "local model" means "model I control the infra for" and not ne
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
+
+Very simple to install
+
+    curl day50.dev/sidechat | sh
+
+or, using [ursh](https://github.com/day50-dev/ursh) by DAY50, you can put it in guardrails and make sure it complies with policies:
+
+    ursh day50.dev/sidechat
 
 You should also use `sc-add` which can pipe anything into the context. Here's an example:
 ![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
