@@ -6,6 +6,8 @@
 
 Sidechat, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, is an LLM conversation panel that helps diagnose problems visible in terminal sessions.
 
+[demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
+
 It suppports 
 
  * adding the following:
@@ -30,19 +32,15 @@ Unlike opencode and friends you don't have to edit a json file to use a local mo
 
 We also know that "local model" means "model I control the infra for" and not necessarily something running on the same exact computer. So when you enter server addresses they get maintained in a list you can toggle through. You can even leave notes in them.
 
-[demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
+## Installation
 
-
-Very simple to install
+You can one-shot:
 
     curl day50.dev/sidechat | sh
 
-or, using [ursh](https://github.com/day50-dev/ursh) by DAY50, you can put it in guardrails and make sure it complies with policies:
+or, using [ursh](https://github.com/day50-dev/ursh) by DAY50:
 
     ursh day50.dev/sidechat
-
-You should also use `sc-add` which can pipe anything into the context. Here's an example:
-![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
 
 Once you're in there's a few slash commands. Use `/help` to get the current list.
@@ -56,6 +54,9 @@ There's lots of nice features. Here's the self-update. As you can see it will
  * install the update
  * replace itself
  * pick up where you left off
+   
+You should also use `sc-add` which can pipe anything into the context. Here's an example:
+![out](https://github.com/user-attachments/assets/62318080-9d67-41de-921b-976ad61e1122)
 
 
 Here's some screenshots of how it seamlessly works with [Streamdown's](https://github.com/day50-dev/Streamdown) built in `Savebrace` feature and how it helps workflow.
