@@ -4,7 +4,11 @@
   <strong>A tmux-based AI assistant</strong>
 </p>
 
-**Sidechat**, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, is an LLM conversation panel that helps diagnose problems visible in terminal sessions.
+You constantly run into problems that you copy and paste to an LLM conversation window. 
+
+You want one that can help you right now, exactly where you're at without having to feed in a complex history. 
+
+**Sidechat**, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, is an LLM conversation panel that helps diagnose problems at the pain point: exactly when they occur.
 
 [demo.webm](https://github.com/user-attachments/assets/9e8dd99a-510b-4708-9ab5-58b75edf5945)
 
