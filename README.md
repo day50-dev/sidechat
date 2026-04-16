@@ -6,7 +6,7 @@
 
 You constantly run into problems that you copy and paste to an LLM conversation window. 
 
-You want one that can help you right now, exactly where you're at without having to feed in a complex history. 
+You want an AI tool that can help you exactly when something happens, exactly where you're at and not have to feed in a complex history or have an agent get confused and go off solving non-issues. 
 
 **Sidechat**, part of the [DAY50](https://day50.dev) suite of open-source tools for AI workflows, is an LLM conversation panel that helps diagnose problems at the pain point: exactly when they occur.
 
