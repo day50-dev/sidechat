@@ -14,6 +14,7 @@ LAUNCH="$0"
 RETRY=
 NEWCONVO=
 CANTOOLS=0
+TIMEOUT=20
 DRY=
 UNIQ=cat
 
@@ -44,7 +45,7 @@ show_params() {
     echo -n "  * **Model**:  ${LLM_MODEL:-*(None Set)*}"
     [[ "$TOOLS" == "ON" ]] && echo " 🛠" || echo ""
 
-    echo "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*}"
+    echo "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*} (${TIMEOUT}s)"
     echo "  * **Keyfile**: ${SERVER_AUTH:-*(None)*}"
 
     local size="$(stat $msize "$convo_id")"
@@ -81,6 +82,7 @@ cat <<END
   /retry    - Try the last request again
   /tools    - Toggle Tools (now: $TOOLS)
   /edit     - Edit the internal state
+  /timeout  - Set the timeout
 END
   fi
 }
@@ -424,9 +426,9 @@ ll() {
 
     [[ -n "$DRY" ]] && dry="--curlify"
 
-    llcat $dry -c "$convo_id" "${tool[@]}" --timeout 2 \
+    llcat $dry -c "$convo_id" "${tool[@]}" --timeout $TIMEOUT \
         -bq result -u "$SERVER_URL" "${system[@]}" \
-	      -sk "$(head -1 $SERVER_AUTH)" "$@" 2> >(cat >&2) 
+	    -sk "$(head -1 $SERVER_AUTH)" "$@" 2> >(cat >&2) 
 }
 
 llc() {
@@ -565,6 +567,11 @@ clip() {
     fi
 }
 
+timeout() {
+    TIMEOUT="$1"
+    save_pref TIMEOUT $TIMEOUT
+    echo "Timeout set to $TIMEOUT"
+}
 
 emit_capture() {
     local ix=$1
@@ -578,6 +585,7 @@ emit_capture() {
     cat "$MDIR/${ix}.new"
     echo "</capture>"
 }
+
 process_out() {
     read -r -N 1 firstc
     if [[ "$firstc" == "{" ]]; then
@@ -643,7 +651,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
+        elif [[ $input =~ (timeout|choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|tools|upgrade|update) ]]; then
             if [[ "$intput" == *" "* ]]; then
                 ${input:1} "${input#* }"
             else
