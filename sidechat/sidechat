@@ -188,12 +188,8 @@ key() {
     echo "The auth token should point to a file where it's the first line"
     read -p "  Enter path: " input
     input=${input/#\~/$HOME}
-    if [[ -r "$input" ]]; then
-        SERVER_AUTH=$input
-        save_pref SERVER_AUTH "$SERVER_AUTH"
-    else
-        _warn "Cancelled. (To clear a key, replace it with something bogus, like a space)"
-    fi
+    SERVER_AUTH=$input
+    save_pref SERVER_AUTH "$SERVER_AUTH"
 }
 
 server() {
