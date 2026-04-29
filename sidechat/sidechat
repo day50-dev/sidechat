@@ -564,9 +564,13 @@ clip() {
 }
 
 timeout() {
-    TIMEOUT="$1"
-    save_pref TIMEOUT $TIMEOUT
-    echo "Timeout set to $TIMEOUT"
+    if [[ -n "$1" ]]; then
+        TIMEOUT="$1"
+        save_pref TIMEOUT $TIMEOUT
+        echo "Timeout set to $TIMEOUT"
+    else
+        echo "Cancelled"
+    fi
 }
 
 emit_capture() {
