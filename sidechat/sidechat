@@ -7,7 +7,7 @@ CAPTURE="ON"
 HISTFILE="$MDIR/history"
 HISTSIZE=1000
 INJECT=
-MDREAD='sd -c <(echo -e "[style]\nMargin = 4")'
+MDREAD='sd -cs "style.Margin=4"'
 LLM_MODEL=
 USECLIP=
 LAUNCH="$0"
@@ -41,10 +41,10 @@ show_params() {
     if [[ "$#" -gt 0 && "$1" == "panes" ]]; then
         return
     fi
-    echo -n "  * **Model**:  ${LLM_MODEL:-*(None Set)*}"
+    echo -n "  * **Model**:  ${LLM_MODEL:-*(None)*}"
     [[ "$TOOLS" == "ON" ]] && echo " 🛠" || echo ""
 
-    echo "  * **Server**: ${SERVER_URL:-*(Needs to be configured)*} (${TIMEOUT}s)"
+    echo "  * **Server**: ${SERVER_URL:-*(None)*} (${TIMEOUT}s)"
     echo "  * **Keyfile**: ${SERVER_AUTH:-*(None)*}"
 
     local size="$(stat $msize "$convo_id")"
@@ -199,7 +199,7 @@ server() {
         {
             echo -e "The server URL:\n"
             echo " * Should include the schema, such as \`http://\` or \`https://\`"
-            echo " * Be OpenAI compatible (e.g., litellm/llama.cpp/ollama/openrouter/etc)"
+            echo " * Be OpenAI compatible (e.g., LiteLLM/llama.cpp/Ollama/OpenRouter/etc)"
             echo " * Can be some special values: "
             echo "   * \`[MAS format](https://day50.dev/mas.html)\` - http://(host)#m=(model)"
             echo "   * \`prev\`   - choose from prior servers"
@@ -607,6 +607,7 @@ process_out() {
             echo -n "{";
             cat
         } > $MDIR/tc-input 
+
         cat $MDIR/tc-input | tr "'" '"' | "$DIR/sc-tp.py" > $MDIR/tc-output
         echo "Feeding it back..."
         {
@@ -724,6 +725,7 @@ while [ 0 ]; do
     RETRY=
     INJECT=
     ata=""
+
     [[ -n "$USECLIP" ]]      && USECLIP=
     [[ -n "$forcecapture" ]] && forcecapture=
     set_prompt

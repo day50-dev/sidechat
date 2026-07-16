@@ -1,8 +1,7 @@
 #!/bin/bash
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/sidechat
 PIP=$(command -v uv || command -v pipx || command -v pip || command -v pip3 )
-JQ="" #$(command -v jq > /dev/null)
+JQ=$(command -v jq)
 
 pybin=
 if [[ -z "$PIP" ]]; then 
@@ -74,14 +73,18 @@ for pkg in mansnip llcat streamdown; do
 done
 
 if [[ ! -d ~/.fzf ]]; then
-    git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install --no-update-rc --no-completion --no-key-bindings >& /dev/null
-    for i in ~/.fzf/bin/*; do
-        cmd=$(basename $i)
-        rm -f "$insdir"/$cmd
-        ln -s "$i" "$insdir"/$cmd 
-    done
-    echo "  ✅ fzf"
+    if ! command -v git > /dev/null; then
+        echo "**Important**: git is not installed, install fzf manually"
+    else
+        git clone --quiet --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+        ~/.fzf/install --no-update-rc --no-completion --no-key-bindings >& /dev/null
+        for i in ~/.fzf/bin/*; do
+            cmd=$(basename $i)
+            rm -f "$insdir"/$cmd
+            ln -s "$i" "$insdir"/$cmd 
+        done
+        echo "  ✅ fzf"
+    fi
 fi
 
 [[ -z "$JQ" ]] && msg="**Important**: Please install jq manually" || msg="You're ready to go!"
@@ -92,11 +95,13 @@ else
     binpath="$insdir"
 fi
 
-if [[ $(uname) == "Darwin" ]]; then
-    sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$binpath^g" "$insdir/sc-_common"
-    sed -i "" "s^@@VERSION^$(cd $DIR;git describe)^g" "$insdir/sc-_common"
-else
-    sed -i "s/@@VERSION/$(cd $DIR;git describe)/g" "$insdir/sc-_common"
+if command -v git > /dev/null; then
+    if [[ $(uname) == "Darwin" ]]; then
+        sed -i "" "s^#@@INJECTPATH^PATH=\$PATH:$binpath^g" "$insdir/sc-_common"
+        sed -i "" "s^@@VERSION^$(cd $DIR;git describe)^g" "$insdir/sc-_common"
+    else
+        sed -i "s/@@VERSION/$(cd $DIR;git describe)/g" "$insdir/sc-_common"
+    fi
 fi
 
 if ! echo $PATH | grep "$binpath" > /dev/null; then
