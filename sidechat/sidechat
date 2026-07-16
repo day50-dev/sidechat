@@ -308,9 +308,36 @@ set_prompt() {
     prompt="${camera}${tools}${clipboard} > "
 }
 
+showlocal() {
+  {
+    echo "\`\`\`bash"
+    {
+      for i in DRY TOOLS HISTFILE CAPTURE DIR UNIQ NEWCONVO LLM_MODEL MDREAD INJECT HISTSIZE INTMUX CANTOOLS RETRY LAUNCH USECLIP; do
+        eval echo "${i}=\${$i}"
+      done
+    } | sort
+    echo "\`\`\`"
+  } | $MDREAD
+}
+
 edit() {
     local _cat=$(command -v batcat || command -v cat)
     local _edit=${EDITOR:-vi}
+
+    while [[ 0 ]]; do
+      showlocal
+      echo -e "  Enter either var=value or 'edit' to edit a file.\n" 
+      read -p "  ▶ " input
+
+      if [[ "$input" =~ = ]]; then
+        eval "$input"
+        continue
+      elif [[ "$input" == "edit" ]]; then
+        break
+      fi
+
+      return
+    done
 
     local fname=$(
         {
