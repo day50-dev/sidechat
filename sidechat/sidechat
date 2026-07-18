@@ -82,6 +82,7 @@ cat <<END
   /tools    - Toggle Tools (now: $TOOLS)
   /edit     - Edit the internal state
   /timeout  - Set the timeout
+  /mcp      - Edit mcp.json
 END
   fi
 }
@@ -192,6 +193,10 @@ key() {
     save_pref SERVER_AUTH "$SERVER_AUTH"
 }
 
+mcp() {
+  $EDITOR "$CONFIG"/mcp.json
+}
+
 server() {
     local SERVER_URL_
     local input="$1"
@@ -211,11 +216,12 @@ server() {
     fi
     if [[ -n "$input" ]]; then
         case $input in 
-            prev) SERVER_URL_="$(cat "$CONFIG"/servers.txt | fzf | cut -d ' ' -f 1)" ;;
-            or) getkey=1; SERVER_URL_=https://openrouter.ai/api ;;
+            prev)   SERVER_URL_="$(cat "$CONFIG"/servers.txt | fzf | cut -d ' ' -f 1)" ;;
+            or)     SERVER_URL_=https://openrouter.ai/api; getkey=1 ;;
             ollama) SERVER_URL_=http://localhost:11434 ;;
-            llama) SERVER_URL_=http://localhost:8080 ;;
+            llama)  SERVER_URL_=http://localhost:8080 ;;
         esac
+         
         SERVER_URL="$input"
         if [[ -n "$SERVER_URL_" ]]; then
             echo -e " Using \`$SERVER_URL_\`" |$MDREAD
@@ -664,7 +670,7 @@ while [ 0 ]; do
             import $sshot
             ata="-a $sshot"
             echo "Next prompt will use your screenshot"
-        elif [[ $input =~ (timeout|choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|toolhack|tools|upgrade|update) ]]; then
+        elif [[ $input =~ (mcp|timeout|choose|clip|capture|edit|flash|key|amnesia|mindwipe|model|prev|retry|server|toolhack|tools|upgrade|update) ]]; then
             if [[ "$intput" == *" "* ]]; then
                 ${input:1} "${input#* }"
             else
