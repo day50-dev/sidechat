@@ -37,8 +37,10 @@ ll() {
     local tool=()
     local system=()
     local dry=
+    local key=
 
     [[ "$TOOLS" == "ON" ]] && tool=( "-tf" "$DIR/sc-tf.json" "-tp" "$DIR/sc-tp.py" "-mf" "$CONFIG/mcp.json" )
+    [[ -n "$SERVER_AUTH" ]] && key=( "-sk" @"$SERVER_AUTH" )
 
     if [[ -n "$NEWCONVO" ]]; then
         system=("-s" "$SYSTEM")
@@ -49,7 +51,7 @@ ll() {
 
     sc_pane="${pane_list[0]}" llcat $dry -c "$convo_id" "${tool[@]}" --timeout $TIMEOUT \
         -m "$LLM_MODEL" -bq result -u "$SERVER_URL" "${system[@]}" \
-	      -sk @"$SERVER_AUTH" "$@"  2> >(cat >&2) 
+	      ${key[@]} "$@"  2> >(cat >&2) 
 }
 
 spinner() {

@@ -79,6 +79,7 @@ cat <<END
   /flash    - Flash the shared panes
   /upgrade  - Self-upgrade
   /retry    - Try the last request again
+  /replay   - Show all the assistant responses again
   /tools    - Toggle Tools (now: $TOOLS)
   /edit     - Edit the internal state
   /timeout  - Set the timeout
@@ -171,6 +172,10 @@ flash() {
 
 retry() {
     RETRY=1
+}
+
+replay() {
+  jq -r '.[] | select(.role == "assistant") | .content' "${convo_id}" | $MDREAD
 }
 
 save_pref() {
