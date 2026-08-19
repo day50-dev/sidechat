@@ -233,14 +233,6 @@ server() {
             SERVER_URL="$SERVER_URL_"
         fi
 
-        if [[ ! "${SERVER_URL@L}" =~ "http" ]]; then
-            _warn "This is a very unusual url, testing...\n"
-            if ! llcat -u $SERVER_URL -m > /dev/null; then
-                echo -e "\n  Yep! Thought so, let's try this again!\n"
-                server
-            fi
-        fi
-            
         if [[ "${SERVER_URL}" =~ "#m=" ]]; then
             LLM_MODEL="${SERVER_URL#*#m=}"
             SERVER_URL="${SERVER_URL%%#m=*}"
