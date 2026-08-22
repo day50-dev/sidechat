@@ -32,6 +32,7 @@ def run(what):
 def rpc(data):
     print(json.dumps({"jsonrpc": "2.0", "result": data}), flush=True)
 
+tool_name = None
 for res in sys.stdin: 
     input_data = json.loads(res)
     if input_data.get('method') == 'initialize':
