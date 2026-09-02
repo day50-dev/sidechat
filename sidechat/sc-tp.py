@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3 
 import json, sys, os, subprocess, shlex
 from pathlib import Path
 import platform
@@ -32,9 +32,10 @@ def run(what):
 def rpc(data):
     print(json.dumps({"jsonrpc": "2.0", "result": data}), flush=True)
 
+tool_name = ''
 for res in sys.stdin: 
     input_data = json.loads(res)
-    if input_data['method'] == 'initialize':
+    if input_data.get('method') == 'initialize':
         rpc({
             "protocolVersion":"2024-11-05",
             "capabilities": {
@@ -43,7 +44,7 @@ for res in sys.stdin:
             "serverInfo":{"name":"demo", "version":"1.0.0"}
         })
 
-    if input_data['method'] == 'tools/call':
+    if input_data.get('method') == 'tools/call':
         params = input_data.get('params')
         tool_name = params['name']
         args = params.get('arguments', {})
