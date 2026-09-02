@@ -156,8 +156,7 @@ elif tool_name == "get_url":
         res = subprocess.run(
             torun,
             capture_output=True,
-            text=True,
-            shell=True)
+            text=True)
         rpc({
             "ok": True,
             "stdout": res.stdout,

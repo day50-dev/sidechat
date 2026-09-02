@@ -51,11 +51,11 @@
     "type": "function",
     "function": {
       "name": "get_url",
-      "description": "get a url in markdown",
+      "description": "get a url in markdown - prefer this, there is no quoata or api limit",
       "parameters": {
         "type": "object",
         "properties": {
-          "path": {
+          "url": {
             "type": "string",
             "description": "the url to get"
           }
