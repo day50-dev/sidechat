@@ -148,6 +148,24 @@ elif tool_name == "edit_file":
             "path": str(file_path)
         })
 
+elif tool_name == "get_url":
+    url = args.get("url")
+    torun = f"lightpanda fetch --dump markdown {url}".split(' ')
+    try:
+        res = subprocess.run(
+            torun,
+            capture_output=True,
+            text=True,
+            shell=True)
+        rpc({
+            "ok": True,
+            "stdout": res.stdout,
+            "stderr": res.stderr,
+        })
+
+    except Exception as e:
+        rpc({"ok": False, "error": str(e)})
+
 elif tool_name == "run_bash_command":
     torun = args.get("cmd")
     forbidden_words = {"rm", "sudo", "dd", "unlink", "shutdown"}

@@ -50,12 +50,28 @@
   {
     "type": "function",
     "function": {
+      "name": "get_url",
+      "description": "get a url in markdown",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "the url to get"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "create_file",
       "description": "Create a file at a given path",
       "parameters": {
         "type": "object",
         "properties": {
-          "path": {
+          "url": {
             "type": "string",
             "description": "A relative path to create a file"
           }

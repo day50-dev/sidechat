@@ -430,7 +430,7 @@ tools() {
     [[ "$TOOLS" == "ON" ]] && TOOLS="OFF" || TOOLS="ON"
     _warn "Tools are ${TOOLS@L}" 
     save_pref TOOLS "$TOOLS"
-    toolhack
+    # toolhack
 }
 
 last() {
