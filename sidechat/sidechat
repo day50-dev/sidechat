@@ -680,6 +680,9 @@ while [ 0 ]; do
         # if we are retrying the last we want the same everything
         [[ -z "$RETRY" ]] && continue
     else
+        if [[ $input =~ ^__ ]]; then
+            israw=0
+        fi
         text="$input"
     fi
 
@@ -695,26 +698,28 @@ while [ 0 ]; do
     n=0
     in="$MDIR/${convo_id}_${_uuid}"
     {
-       if [[ -n "$USECLIP" ]]; then
-           echo "<clipboard>"
-           $USECLIP
-           echo "</clipboard>"
-       elif [[ "$CAPTURE" == "ON" ]]; then
-         for ix_pane in "${pane_list[@]}"; do
-            echo -n "<pane id=$ix_pane"
-            if [[ -n "$RETRY" ]]; then
-                cp "$MDIR/${ix_pane}.old" "$MDIR/${ix_pane}.new"
-                emit_capture "$ix_pane"
-            else
-                if [[ -e "$MDIR/${ix_pane}.old" && -z "$forcecapture" ]]; then
-                    /usr/bin/diff "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old" > /dev/null && echo -n " has_changed=False>" || emit_capture "$ix_pane"
-                else
+       if [[ -z "$israw" ]]; then
+           if [[ -n "$USECLIP" ]]; then
+               echo "<clipboard>"
+               $USECLIP
+               echo "</clipboard>"
+           elif [[ "$CAPTURE" == "ON" ]]; then
+             for ix_pane in "${pane_list[@]}"; do
+                echo -n "<pane id=$ix_pane"
+                if [[ -n "$RETRY" ]]; then
+                    cp "$MDIR/${ix_pane}.old" "$MDIR/${ix_pane}.new"
                     emit_capture "$ix_pane"
+                else
+                    if [[ -e "$MDIR/${ix_pane}.old" && -z "$forcecapture" ]]; then
+                        /usr/bin/diff "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old" > /dev/null && echo -n " has_changed=False>" || emit_capture "$ix_pane"
+                    else
+                        emit_capture "$ix_pane"
+                    fi
                 fi
-            fi
-            echo "</pane>"
-         done
-      fi
+                echo "</pane>"
+             done
+          fi
+       fi
     } | $UNIQ | {
         # only update the snapshot if the llc is successful
         if llc $ata "${text}${INJECT}"; then 
@@ -728,6 +733,7 @@ while [ 0 ]; do
     RETRY=
     INJECT=
     ata=""
+    israw=
 
     [[ -n "$USECLIP" ]]      && USECLIP=
     [[ -n "$forcecapture" ]] && forcecapture=
