@@ -619,7 +619,7 @@ process_out() {
             cat "$MDIR/tc-output"
             echo "\`\`\`"
             echo "You can call an additional tool. If you are done calling tools, respond in normal written english."
-        } | llc | spinner process_out
+        } | llc | spinner $MDREAD
     else
         {
             echo -n "$firstc"
@@ -682,6 +682,7 @@ while [ 0 ]; do
     else
         if [[ $input =~ ^__ ]]; then
             israw=0
+            ata="-nw"
         fi
         text="$input"
     fi
@@ -698,36 +699,39 @@ while [ 0 ]; do
     n=0
     in="$MDIR/${convo_id}_${_uuid}"
     {
-       if [[ -z "$israw" ]]; then
-           if [[ -n "$USECLIP" ]]; then
-               echo "<clipboard>"
-               $USECLIP
-               echo "</clipboard>"
-           elif [[ "$CAPTURE" == "ON" ]]; then
-             for ix_pane in "${pane_list[@]}"; do
-                echo -n "<pane id=$ix_pane"
-                if [[ -n "$RETRY" ]]; then
-                    cp "$MDIR/${ix_pane}.old" "$MDIR/${ix_pane}.new"
-                    emit_capture "$ix_pane"
+       if [[ -n "$USECLIP" ]]; then
+           echo "<clipboard>"
+           $USECLIP
+           echo "</clipboard>"
+       elif [[ "$CAPTURE" == "ON" ]]; then
+         for ix_pane in "${pane_list[@]}"; do
+            echo -n "<pane id=$ix_pane"
+            if [[ -n "$RETRY" ]]; then
+                cp "$MDIR/${ix_pane}.old" "$MDIR/${ix_pane}.new"
+                emit_capture "$ix_pane"
+            else
+                if [[ -e "$MDIR/${ix_pane}.old" && -z "$forcecapture" ]]; then
+                    /usr/bin/diff "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old" > /dev/null && echo -n " has_changed=False>" || emit_capture "$ix_pane"
                 else
-                    if [[ -e "$MDIR/${ix_pane}.old" && -z "$forcecapture" ]]; then
-                        /usr/bin/diff "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old" > /dev/null && echo -n " has_changed=False>" || emit_capture "$ix_pane"
-                    else
-                        emit_capture "$ix_pane"
-                    fi
+                    emit_capture "$ix_pane"
                 fi
-                echo "</pane>"
-             done
-          fi
-       fi
+            fi
+            echo "</pane>"
+         done
+      fi
     } | $UNIQ | {
+        if [[ -n "$israw" ]]; then
+            cat > /dev/null
+        fi
+        
         # only update the snapshot if the llc is successful
         if llc $ata "${text}${INJECT}"; then 
             for ix_pane in "${pane_list[@]}"; do
                 [[ -e "$MDIR/${ix_pane}.new" ]] && cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
             done
         fi
-    } | spinner process_out 
+        exit
+    } | spinner $MDREAD
 
     # Needs to be run here and not in any subshell
     RETRY=
