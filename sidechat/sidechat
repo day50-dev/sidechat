@@ -619,7 +619,7 @@ process_out() {
             cat "$MDIR/tc-output"
             echo "\`\`\`"
             echo "You can call an additional tool. If you are done calling tools, respond in normal written english."
-        } | llc | spinner process_out
+        } | llc | spinner $MDREAD
     else
         {
             echo -n "$firstc"
@@ -680,6 +680,10 @@ while [ 0 ]; do
         # if we are retrying the last we want the same everything
         [[ -z "$RETRY" ]] && continue
     else
+        if [[ $input =~ ^__ ]]; then
+            israw=0
+            ata="-nw"
+        fi
         text="$input"
     fi
 
@@ -716,18 +720,24 @@ while [ 0 ]; do
          done
       fi
     } | $UNIQ | {
+        if [[ -n "$israw" ]]; then
+            cat > /dev/null
+        fi
+        
         # only update the snapshot if the llc is successful
         if llc $ata "${text}${INJECT}"; then 
             for ix_pane in "${pane_list[@]}"; do
                 [[ -e "$MDIR/${ix_pane}.new" ]] && cp "$MDIR/${ix_pane}.new" "$MDIR/${ix_pane}.old"
             done
         fi
-    } | spinner process_out 
+        exit
+    } | spinner $MDREAD
 
     # Needs to be run here and not in any subshell
     RETRY=
     INJECT=
     ata=""
+    israw=
 
     [[ -n "$USECLIP" ]]      && USECLIP=
     [[ -n "$forcecapture" ]] && forcecapture=
