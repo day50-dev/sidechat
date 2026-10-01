@@ -7,6 +7,10 @@
       "parameters": {
         "type": "object",
         "properties": {
+          "clear_screen": {
+            "type": "boolean",
+            "description": "Set this optional parameter to clear the screen prior to the command being run, (^L)"
+          },
           "cmd": {
             "type": "string",
             "description": "Just the command you wish to run, tmux routing is already handled!"
@@ -26,6 +30,26 @@
           "path": {
             "type": "string",
             "description": "An optional path to search for files, otherwise cwd"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ask_question",
+      "description": "ask a user a question, returns a string with the option chosen",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "The question to ask"
+          },
+          "options": {
+            "type": "array",
+            "description": "list of options to ask"
           }
         }
       }

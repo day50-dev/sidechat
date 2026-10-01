@@ -71,6 +71,9 @@ elif tool_name == "run_command":
     # this is a magical thing that is passed in from bash
     pane = os.environ.get('sc_pane')
     tosend = []
+    if args.get('clear_screen'):
+        run(["tmux", "send-keys", "-t", pane] + 'C-l')
+
     if 'capture-pane' in args.get('cmd'):
         rpc(run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout)
 
@@ -87,6 +90,7 @@ elif tool_name == "run_command":
             tosend += [p, "Enter"]
 
         run(["tmux", "send-keys", "-t", pane] + tosend)
+        time.sleep(0.1)
         rpc(run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout)
 
 elif tool_name == "edit_file":
@@ -149,6 +153,26 @@ elif tool_name == "edit_file":
             "path": str(file_path)
         })
 
+elif tool_name == "ask_question":
+    optionList = args.get('options')
+    for i in range(len(optionList)):
+        print(f"{i+1}.) {optionList[i]}")
+    print("Or type your own answer")
+    res = input("> ").strip()
+
+    try:
+        option = int(res)
+        options = optionList[res-1]
+    except:
+        option = res
+
+    rpc({
+        "ok": True,
+        "stdout": option,
+        "stderr": ''
+    })
+
+    
 elif tool_name == "get_url":
     url = args.get("url")
     torun = f"lightpanda fetch --dump markdown {url}".split(' ')
