@@ -1,5 +1,5 @@
 #!/usr/bin/env python3 
-import json, sys, os, subprocess, shlex
+import json, sys, os, subprocess, shlex, time
 from pathlib import Path
 import platform
 def _levenshtein_ratio(s1, s2):
@@ -70,12 +70,22 @@ elif tool_name == "create_file":
 elif tool_name == "run_command":
     # this is a magical thing that is passed in from bash
     pane = os.environ.get('sc_pane')
+    if not pane:
+        rpc({
+            "ok": False,
+            "reason": "we had no pane to capture, the tool was invoked incorrectly."
+            })
+        sys.exit(1)
+
     tosend = []
     if args.get('clear_screen'):
         run(["tmux", "send-keys", "-t", pane] + 'C-l')
 
     if 'capture-pane' in args.get('cmd'):
-        rpc(run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout)
+        rpc({
+            "ok": True,
+            "stdout": run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout
+        })
 
     elif 'tmux send' in args.get('cmd'):
         rpc({
@@ -91,7 +101,11 @@ elif tool_name == "run_command":
 
         run(["tmux", "send-keys", "-t", pane] + tosend)
         time.sleep(0.1)
-        rpc(run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout)
+
+        rpc({
+            "ok": True, 
+            "stdout": run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout
+        })
 
 elif tool_name == "edit_file":
     file_path = Path(args.get('path') or '.').expanduser() 
