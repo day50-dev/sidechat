@@ -3,7 +3,7 @@
     "type": "function",
     "function": {
       "name": "run_command",
-      "description": "Run command, this is what you should try first. IMPORTANT: Specify just the command, tmux routing is handled automatically! ONLY the command at the bash prompt. If you are logged in, no ssh is needed. NOTHING extra.",
+      "description": "Run command by sending keystrokes to the tmux pane, this is what you should try first. IMPORTANT: Specify just the command, tmux routing is handled automatically! ONLY the command at the bash prompt. If you are logged in, no ssh is needed. NOTHING extra.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -63,7 +63,7 @@
     "type": "function",
     "function": {
       "name": "run_bash_command",
-      "description": "run a command in bash - only do this if run_cmd fails",
+      "description": "run a command ON THE LOCAL SYSTEM in bash. If the session is in SSH, doing this will not run it on the remote system. Only do this if run_cmd fails",
       "parameters": {
         "type": "object",
         "properties": {

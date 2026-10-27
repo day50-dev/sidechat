@@ -110,14 +110,14 @@ elif tool_name == "run_command":
         after = run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout
         after_rows = after.ssplit('\n')
         ix = 0
-        flag = False
+
         for row in before_rows:
             if row == after_rows[ix]:
                 ix += 1
             elif ix > 0:
                 break
 
-        after_rows = after_rows[:ix]
+        after_rows = after_rows[ix:]
 
         rpc({
             "ok": True, 
