@@ -5,6 +5,7 @@
 TIMEOUT=20
 VERSION="@@VERSION"
 _uname="$(uname)"
+LLCAT=$HOME/.local/bin/llcat
 
 tmp="$(python3 -c "import tempfile;print(tempfile.gettempdir())")"
 
@@ -30,7 +31,7 @@ clean() {
 }
 
 llarg() {
-    llcat --timeout $TIMEOUT -bq result -u "$SERVER_URL" -sk @$SERVER_AUTH "$@"
+    $LLCAT --timeout $TIMEOUT -bq result -u "$SERVER_URL" -sk @$SERVER_AUTH "$@"
 }
 
 ll() {
@@ -49,7 +50,7 @@ ll() {
 
     [[ -n "$DRY" ]] && dry="--curlify"
 
-    sc_pane="${pane_list[0]}" llcat $dry -c "$convo_id" "${tool[@]}" --timeout $TIMEOUT \
+    sc_pane="${pane_list[0]}" $LLCAT $dry -c "$convo_id" "${tool[@]}" --timeout $TIMEOUT \
         -m "$LLM_MODEL" -bq result -u "$SERVER_URL" "${system[@]}" \
 	      ${key[@]} "$@"  2> >(cat >&2) 
 }

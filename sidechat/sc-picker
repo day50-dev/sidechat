@@ -1,4 +1,5 @@
 #!/bin/bash
+FZF=$HOME/.local/bin/fzf
 tmp=$(python3 -c "import tempfile;print(tempfile.gettempdir())")
 if [[ -n "$1" ]] ; then 
     perl -0777 -ne 'print join("\0", (split(/\0/, $_))[-'$1'])' /$tmp/sd/$UID/savebrace
