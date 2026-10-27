@@ -78,6 +78,7 @@ elif tool_name == "run_command":
         sys.exit(1)
 
     tosend = []
+    sleeptime = args.get('wait', 0.4)
     if args.get('clear_screen'):
         run(["tmux", "send-keys", "-t", pane] + 'C-l')
 
@@ -99,12 +100,28 @@ elif tool_name == "run_command":
         for p in args.get('cmd').split('\n'):
             tosend += [p, "Enter"]
 
+        before = run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout
         run(["tmux", "send-keys", "-t", pane] + tosend)
-        time.sleep(0.1)
+        # The model claims the output is laggy so let's give it a bit of time
+        time.sleep(sleeptime)
+
+        # The model also claims there's clutter so let's clean things up
+        before_rows = before.split('\n')
+        after = run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout
+        after_rows = after.ssplit('\n')
+        ix = 0
+        flag = False
+        for row in before_rows:
+            if row == after_rows[ix]:
+                ix += 1
+            elif ix > 0:
+                break
+
+        after_rows = after_rows[:ix]
 
         rpc({
             "ok": True, 
-            "stdout": run(["tmux", "capture-pane", "-t", pane, "-p"]).stdout
+            "stdout": after_rows.join('\n')
         })
 
 elif tool_name == "edit_file":

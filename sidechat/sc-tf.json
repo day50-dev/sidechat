@@ -14,6 +14,10 @@
           "cmd": {
             "type": "string",
             "description": "Just the command you wish to run, tmux routing is already handled!"
+          },
+          "wait": {
+            "type": "float",
+            "description": "How long to wait for a response, as a float, in seconds"
           }
         }
       }
